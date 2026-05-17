@@ -1,0 +1,426 @@
+@extends('layouts.dashboard', [
+    'title' => 'Penjualan - DagangFlow',
+    'pageTitle' => 'Penjualan',
+    'subtitle' => 'Catat transaksi dari offline, WhatsApp, marketplace, dan food delivery'
+])
+
+@section('actions')
+    <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+        Export Transaksi
+    </button>
+    <button onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
+        class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+        + Tambah Penjualan
+    </button>
+@endsection
+
+@section('content')
+    <div class="space-y-8">
+
+        @if (session('success'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-2xl text-sm font-semibold">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl text-sm font-semibold">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <p class="text-sm text-slate-500">Omzet Hari Ini</p>
+                <h3 class="text-3xl font-bold mt-3">
+                    Rp{{ number_format($todayRevenue, 0, ',', '.') }}
+                </h3>
+                <p class="text-sm text-emerald-600 font-medium mt-2">Penjualan hari ini</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <p class="text-sm text-slate-500">Omzet Bulan Ini</p>
+                <h3 class="text-3xl font-bold mt-3">
+                    Rp{{ number_format($monthRevenue, 0, ',', '.') }}
+                </h3>
+                <p class="text-sm text-slate-500 mt-2">Total omzet kotor</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <p class="text-sm text-slate-500">Biaya Platform</p>
+                <h3 class="text-3xl font-bold mt-3 text-amber-600">
+                    Rp{{ number_format($platformFees, 0, ',', '.') }}
+                </h3>
+                <p class="text-sm text-slate-500 mt-2">Marketplace & delivery</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <p class="text-sm text-slate-500">Uang Bersih</p>
+                <h3 class="text-3xl font-bold mt-3 text-emerald-600">
+                    Rp{{ number_format($netRevenue, 0, ',', '.') }}
+                </h3>
+                <p class="text-sm text-slate-500 mt-2">Setelah potongan platform</p>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+            <!-- Sales Table -->
+            <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold">Daftar Penjualan</h3>
+                        <p class="text-sm text-slate-500">Data transaksi tersimpan di database</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-slate-500">
+                            <tr>
+                                <th class="text-left px-6 py-4 font-medium">Transaksi</th>
+                                <th class="text-left px-6 py-4 font-medium">Channel</th>
+                                <th class="text-left px-6 py-4 font-medium">Produk</th>
+                                <th class="text-left px-6 py-4 font-medium">Jumlah Terjual</th>
+                                <th class="text-left px-6 py-4 font-medium">Total</th>
+                                <th class="text-left px-6 py-4 font-medium">Potongan</th>
+                                <th class="text-left px-6 py-4 font-medium">Bersih</th>
+                                <th class="text-left px-6 py-4 font-medium">Status</th>
+                                <th class="text-right px-6 py-4 font-medium">Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($sales as $sale)
+                                <tr class="hover:bg-slate-50/70">
+                                    <td class="px-6 py-4">
+                                        <p class="font-semibold text-slate-900">
+                                            #TRX-{{ str_pad($sale->id, 4, '0', STR_PAD_LEFT) }}
+                                        </p>
+                                        <p class="text-xs text-slate-500">
+                                            {{ $sale->sale_date ? \Carbon\Carbon::parse($sale->sale_date)->format('d M Y') : $sale->created_at->format('d M Y') }}
+                                        </p>
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        @if($sale->channel === 'Offline')
+                                            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">Offline</span>
+                                        @elseif($sale->channel === 'Shopee')
+                                            <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold">Shopee</span>
+                                        @elseif($sale->channel === 'GoFood')
+                                            <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">GoFood</span>
+                                        @elseif($sale->channel === 'WhatsApp')
+                                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">WhatsApp</span>
+                                        @elseif($sale->channel === 'Tokopedia')
+                                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Tokopedia</span>
+                                        @else
+                                            <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-semibold">{{ $sale->channel }}</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium text-slate-900">
+                                            {{ $sale->product->name ?? 'Produk terhapus' }}
+                                        </p>
+                                        <p class="text-xs text-slate-500">
+                                            Harga: Rp{{ number_format($sale->selling_price, 0, ',', '.') }}
+                                        </p>
+                                    </td>
+
+                                    <td class="px-6 py-4 font-semibold">
+                                        {{ $sale->quantity }}x
+                                    </td>
+
+                                    <td class="px-6 py-4 font-semibold">
+                                        Rp{{ number_format($sale->gross_total, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="px-6 py-4 text-amber-600">
+                                        Rp{{ number_format($sale->platform_fee, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="px-6 py-4 font-semibold text-emerald-600">
+                                        Rp{{ number_format($sale->net_total, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        @if($sale->status === 'Selesai')
+                                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Selesai</span>
+                                        @elseif($sale->status === 'Diproses')
+                                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Diproses</span>
+                                        @else
+                                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">{{ $sale->status }}</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-6 py-4 text-right">
+                                        <form action="/sales/{{ $sale->id }}" method="POST"
+                                            onsubmit="return confirm('Yakin ingin menghapus transaksi ini? Stok produk akan dikembalikan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="px-6 py-14 text-center">
+                                        <div class="max-w-sm mx-auto">
+                                            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
+                                                🧾
+                                            </div>
+                                            <h3 class="font-bold text-slate-900 mt-4">Belum ada penjualan</h3>
+                                            <p class="text-sm text-slate-500 mt-2">
+                                                Tambahkan transaksi pertama melalui form di sebelah kanan.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="space-y-6">
+
+                <!-- Quick Add Sales -->
+                <div id="quick-add-sale" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold">Tambah Penjualan</h3>
+                    <p class="text-sm text-slate-500 mt-1">Stok produk akan otomatis berkurang</p>
+
+                    @if($products->count() > 0)
+                        <form action="/sales" method="POST" class="mt-6 space-y-4">
+                            @csrf
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Produk</label>
+                                <select
+                                    name="product_id"
+                                    id="product_id"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    required
+                                >
+                                    <option value="">Pilih produk</option>
+                                    @foreach($products as $product)
+                                        <option
+                                            value="{{ $product->id }}"
+                                            data-price="{{ $product->selling_price }}"
+                                            data-stock="{{ $product->stock }}"
+                                        >
+                                            {{ $product->name }} - Rp{{ number_format($product->selling_price, 0, ',', '.') }} | Stok {{ $product->stock }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Channel</label>
+                                <select
+                                    name="channel"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    required
+                                >
+                                    <option value="Offline">Offline</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="Shopee">Shopee</option>
+                                    <option value="Tokopedia">Tokopedia</option>
+                                    <option value="GoFood">GoFood</option>
+                                    <option value="GrabFood">GrabFood</option>
+                                    <option value="TikTok Shop">TikTok Shop</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-sm font-medium text-slate-700">Jumlah Terjual</label>
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        id="quantity"
+                                        value="1"
+                                        min="1"
+                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                        required
+                                    >
+                                    <p id="stock_info" class="text-xs text-slate-500 mt-1"></p>
+                                </div>
+
+                                <div>
+                                    <label class="text-sm font-medium text-slate-700">Biaya platform</label>
+                                    <input
+                                        type="number"
+                                        name="platform_fee"
+                                        id="platform_fee"
+                                        value="0"
+                                        min="0"
+                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    >
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Status</label>
+                                <select
+                                    name="status"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    required
+                                >
+                                    <option value="Selesai">Selesai</option>
+                                    <option value="Diproses">Diproses</option>
+                                    <option value="Belum Bayar">Belum Bayar</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Tanggal penjualan</label>
+                                <input
+                                    type="date"
+                                    name="sale_date"
+                                    value="{{ now()->toDateString() }}"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                >
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Catatan</label>
+                                <textarea
+                                    name="note"
+                                    rows="3"
+                                    placeholder="Catatan tambahan"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                                ></textarea>
+                            </div>
+
+                            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-500">Estimasi total</span>
+                                    <span id="gross_preview" class="font-bold text-slate-900">Rp0</span>
+                                </div>
+
+                                <div class="flex items-center justify-between text-sm mt-2">
+                                    <span class="text-slate-500">Estimasi bersih</span>
+                                    <span id="net_preview" class="font-bold text-emerald-600">Rp0</span>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                Simpan Penjualan
+                            </button>
+                        </form>
+                    @else
+                        <div class="mt-6 p-5 rounded-2xl bg-amber-50 border border-amber-100">
+                            <p class="font-semibold text-amber-700">Belum ada produk tersedia</p>
+                            <p class="text-sm text-slate-600 mt-2">
+                                Tambahkan produk dulu sebelum mencatat penjualan.
+                            </p>
+                            <a href="/products" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                Tambah Produk
+                            </a>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Channel Summary -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold">Ringkasan Channel</h3>
+                    <p class="text-sm text-slate-500 mb-5">Omzet berdasarkan sumber penjualan</p>
+
+                    @php
+                        $channelSummary = $sales->groupBy('channel')->map(function ($items) {
+                            return [
+                                'total' => $items->sum('gross_total'),
+                                'count' => $items->count(),
+                            ];
+                        })->sortByDesc('total');
+                    @endphp
+
+                    <div class="space-y-4">
+                        @forelse($channelSummary as $channel => $summary)
+                            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <div>
+                                    <p class="font-semibold">{{ $channel }}</p>
+                                    <p class="text-sm text-slate-500">{{ $summary['count'] }} transaksi</p>
+                                </div>
+                                <p class="font-bold text-slate-900">
+                                    Rp{{ number_format($summary['total'], 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @empty
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <p class="font-semibold text-slate-700">Belum ada data channel</p>
+                                <p class="text-sm text-slate-500 mt-1">Data akan muncul setelah ada transaksi.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <script>
+            function formatRupiah(number) {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(number);
+            }
+
+            function updateSalePreview() {
+                const productSelect = document.getElementById('product_id');
+                const quantityInput = document.getElementById('quantity');
+                const platformFeeInput = document.getElementById('platform_fee');
+
+                if (!productSelect || !quantityInput || !platformFeeInput) return;
+
+                const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+                if (!selectedOption || !selectedOption.dataset.price) {
+                    document.getElementById('gross_preview').innerText = 'Rp0';
+                    document.getElementById('net_preview').innerText = 'Rp0';
+                    document.getElementById('stock_info').innerText = '';
+                    return;
+                }
+
+                const price = parseInt(selectedOption.dataset.price || 0);
+                const stock = parseInt(selectedOption.dataset.stock || 0);
+                const quantity = parseInt(quantityInput.value || 0);
+                const platformFee = parseInt(platformFeeInput.value || 0);
+
+                const grossTotal = price * quantity;
+                const netTotal = grossTotal - platformFee;
+
+                document.getElementById('gross_preview').innerText = formatRupiah(grossTotal);
+                document.getElementById('net_preview').innerText = formatRupiah(netTotal);
+                document.getElementById('stock_info').innerText = `Stok tersedia: ${stock} pcs`;
+
+                if (quantity > stock) {document.getElementById('stock_info').innerText = `Jumlah terjual melebihi stok. Tersedia: ${stock} pcs`;
+                    
+                    document.getElementById('stock_info').className = 'text-xs text-red-500 mt-1 font-semibold';
+                } else {
+                    document.getElementById('stock_info').className = 'text-xs text-slate-500 mt-1';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const productSelect = document.getElementById('product_id');
+                const quantityInput = document.getElementById('quantity');
+                const platformFeeInput = document.getElementById('platform_fee');
+
+                if (productSelect) productSelect.addEventListener('change', updateSalePreview);
+                if (quantityInput) quantityInput.addEventListener('input', updateSalePreview);
+                if (platformFeeInput) platformFeeInput.addEventListener('input', updateSalePreview);
+
+                updateSalePreview();
+            });
+        </script>
+
+    </div>
+@endsection
