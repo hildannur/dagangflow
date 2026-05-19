@@ -64,11 +64,86 @@
 
             <!-- Customer Table -->
             <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div>
-                        <h3 class="text-lg font-bold">Daftar Customer</h3>
-                        <p class="text-sm text-slate-500">Data customer tersimpan di database</p>
+                <div class="p-6 border-b border-slate-200 space-y-5">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold">Daftar Customer</h3>
+                            <p class="text-sm text-slate-500">
+                                Menampilkan {{ $customers->count() }} dari {{ $totalCustomers }} customer tercatat
+                            </p>
+                        </div>
+                
+                        @if($activeFilters['search'] || $activeFilters['channel'] || $activeFilters['type'] || $activeFilters['sort'] !== 'latest')
+                            <a href="/customers" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+                                Reset filter
+                            </a>
+                        @endif
                     </div>
+                
+                    <form action="/customers" method="GET" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <div class="xl:col-span-2">
+                            <label class="text-xs font-semibold text-slate-500">Cari customer</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value="{{ $activeFilters['search'] }}"
+                                placeholder="Nama, nomor HP, atau catatan"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Channel</label>
+                            <select
+                                name="channel"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Semua channel</option>
+                
+                                @foreach($availableChannels as $channel)
+                                    <option value="{{ $channel }}" @selected($activeFilters['channel'] === $channel)>
+                                        {{ $channel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Tipe</label>
+                            <select
+                                name="type"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Semua tipe</option>
+                                <option value="repeat" @selected($activeFilters['type'] === 'repeat')>Repeat customer</option>
+                                <option value="new" @selected($activeFilters['type'] === 'new')>Customer baru</option>
+                                <option value="has_note" @selected($activeFilters['type'] === 'has_note')>Ada catatan</option>
+                            </select>
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Urutkan</label>
+                            <select
+                                name="sort"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="latest" @selected($activeFilters['sort'] === 'latest')>Terbaru</option>
+                                <option value="orders_desc" @selected($activeFilters['sort'] === 'orders_desc')>Order terbanyak</option>
+                                <option value="spent_desc" @selected($activeFilters['sort'] === 'spent_desc')>Belanja terbesar</option>
+                                <option value="name_asc" @selected($activeFilters['sort'] === 'name_asc')>Nama A-Z</option>
+                            </select>
+                        </div>
+                
+                        <div class="md:col-span-2 xl:col-span-5 flex flex-col sm:flex-row gap-3">
+                            <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                Terapkan Filter
+                            </button>
+                
+                            <a href="/customers" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -237,10 +312,27 @@
                                             <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
                                                 👥
                                             </div>
-                                            <h3 class="font-bold text-slate-900 mt-4">Belum ada customer</h3>
+                                            <h3 class="font-bold text-slate-900 mt-4">
+                                                @if($totalCustomers > 0)
+                                                    Customer tidak ditemukan
+                                                @else
+                                                    Belum ada customer
+                                                @endif
+                                            </h3>
+                                            
                                             <p class="text-sm text-slate-500 mt-2">
-                                                Tambahkan data customer pertama melalui form di sebelah kanan.
+                                                @if($totalCustomers > 0)
+                                                    Coba ubah keyword pencarian atau reset filter customer.
+                                                @else
+                                                    Tambahkan data customer pertama melalui form di sebelah kanan.
+                                                @endif
                                             </p>
+                                            
+                                            @if($totalCustomers > 0)
+                                                <a href="/customers" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                                    Reset Filter
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
