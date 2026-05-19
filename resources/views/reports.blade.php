@@ -129,7 +129,7 @@
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Omzet Kotor</p>
                 <h3 class="text-3xl font-bold mt-3">
@@ -139,19 +139,27 @@
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <p class="text-sm text-slate-500">HPP Produk</p>
+                <h3 class="text-3xl font-bold mt-3 text-blue-600">
+                    Rp{{ number_format($totalCOGS, 0, ',', '.') }}
+                </h3>
+                <p class="text-sm text-slate-500 mt-2">Modal produk terjual</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Total Pengeluaran</p>
                 <h3 class="text-3xl font-bold mt-3 text-red-600">
                     Rp{{ number_format($totalExpenses, 0, ',', '.') }}
                 </h3>
-                <p class="text-sm text-slate-500 mt-2">Periode aktif</p>
+                <p class="text-sm text-slate-500 mt-2">Operasional bisnis</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <p class="text-sm text-slate-500">Estimasi Laba</p>
+                <p class="text-sm text-slate-500">Estimasi Laba Bersih</p>
                 <h3 class="text-3xl font-bold mt-3 {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
                     Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
                 </h3>
-                <p class="text-sm text-slate-500 mt-2">Omzet - pengeluaran</p>
+                <p class="text-sm text-slate-500 mt-2">Omzet - HPP - fee - pengeluaran</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
@@ -210,10 +218,11 @@
                     Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
                 </h3>
 
-                <p class="text-sm text-slate-300 mt-2">Estimasi laba periode ini</p>
+                <p class="text-sm text-slate-300 mt-2">Estimasi laba bersih periode ini</p>
 
                 @php
                     $safeRevenue = max($grossRevenue, 1);
+                    $cogsPercent = round(($totalCOGS / $safeRevenue) * 100);
                     $expensePercent = round(($totalExpenses / $safeRevenue) * 100);
                     $platformPercent = round(($platformFees / $safeRevenue) * 100);
                 @endphp
@@ -226,6 +235,16 @@
                         </div>
                         <div class="h-3 bg-white/10 rounded-full overflow-hidden">
                             <div class="h-full bg-emerald-400 rounded-full w-full"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-slate-300">HPP Produk</span>
+                            <span class="font-semibold">Rp{{ number_format($totalCOGS, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-400 rounded-full" style="width: {{ min($cogsPercent, 100) }}%"></div>
                         </div>
                     </div>
 
@@ -257,9 +276,9 @@
                         @elseif($grossRevenue <= 0)
                             Belum ada penjualan, tetapi sudah ada pengeluaran. Perlu mulai dorong transaksi masuk.
                         @elseif($estimatedProfit >= 0)
-                            Laba masih positif. Pantau pengeluaran agar margin tetap sehat.
+                            Laba bersih masih positif. Tetap pantau HPP, biaya platform, dan pengeluaran agar margin sehat.
                         @else
-                            Pengeluaran lebih besar dari omzet. Cek kategori biaya terbesar periode ini.
+                            Laba bersih masih negatif. Cek HPP, biaya platform, dan kategori pengeluaran terbesar periode ini.
                         @endif
                     </p>
                 </div>
@@ -401,14 +420,10 @@
             <div class="rounded-2xl p-6 bg-blue-50 border border-blue-100">
                 <p class="text-sm text-blue-700 font-semibold">Insight 03</p>
                 <h3 class="text-xl font-bold mt-2">
-                    {{ $topProducts->first()['name'] ?? 'Belum ada produk terlaris' }}
+                    HPP: Rp{{ number_format($totalCOGS, 0, ',', '.') }}
                 </h3>
                 <p class="text-sm text-slate-600 mt-3 leading-relaxed">
-                    @if($topProducts->count() > 0)
-                        Produk ini paling sering dibeli pada periode ini. Cocok dijadikan fokus stok, promo, atau bundling.
-                    @else
-                        Produk terlaris akan muncul setelah kamu mencatat penjualan.
-                    @endif
+                    HPP adalah modal dari produk yang sudah terjual. Angka ini penting agar laba bersih tidak terlihat terlalu besar.
                 </p>
             </div>
         </div>
