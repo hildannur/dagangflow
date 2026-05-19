@@ -4,39 +4,60 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class ExpenseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $expenses = Expense::where('user_id', auth()->id())
+        $userId = auth()->id();
+    
+        $startDate = $request->query('start_date')
+            ? Carbon::parse($request->query('start_date'))->startOfDay()
+            : now()->startOfMonth();
+    
+        $endDate = $request->query('end_date')
+            ? Carbon::parse($request->query('end_date'))->endOfDay()
+            : now()->endOfMonth();
+    
+        $selectedPeriod = [
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+        ];
+    
+        $allExpenses = Expense::where('user_id', $userId)
             ->latest()
             ->get();
-
-        $monthExpenses = $expenses
-            ->filter(fn ($expense) => $expense->created_at->isSameMonth(now()))
-            ->sum('amount');
-
+    
+        $expenses = $allExpenses->filter(function ($expense) use ($startDate, $endDate) {
+            $expenseDate = $expense->expense_date
+                ? Carbon::parse($expense->expense_date)
+                : $expense->created_at;
+    
+            return $expenseDate->between($startDate, $endDate);
+        });
+    
+        $monthExpenses = $expenses->sum('amount');
+    
         $rawMaterialExpenses = $expenses
-            ->filter(fn ($expense) => $expense->created_at->isSameMonth(now()))
             ->where('category', 'Bahan Baku')
             ->sum('amount');
-
+    
         $platformExpenses = $expenses
-            ->filter(fn ($expense) => $expense->created_at->isSameMonth(now()))
             ->where('category', 'Platform')
             ->sum('amount');
-
-        $dailyAverage = now()->day > 0
-            ? round($monthExpenses / now()->day)
-            : 0;
-
+    
+        $daysCount = max($startDate->diffInDays($endDate) + 1, 1);
+    
+        $dailyAverage = round($monthExpenses / $daysCount);
+    
         return view('expenses', compact(
             'expenses',
             'monthExpenses',
             'rawMaterialExpenses',
             'platformExpenses',
-            'dailyAverage'
+            'dailyAverage',
+            'selectedPeriod'
         ));
     }
 
