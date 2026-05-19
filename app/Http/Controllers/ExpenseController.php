@@ -67,6 +67,33 @@ class ExpenseController extends Controller
 
         return redirect('/expenses')->with('success', 'Pengeluaran berhasil dicatat.');
     }
+    
+    public function update(Request $request, Expense $expense)
+    {
+        abort_if($expense->user_id !== auth()->id(), 403);
+    
+        $request->merge([
+            'amount' => preg_replace('/\D/', '', $request->amount),
+        ]);
+    
+        $data = $request->validate([
+            'category' => ['required', 'string', 'max:255'],
+            'amount' => ['required', 'integer', 'min:0'],
+            'payment_method' => ['nullable', 'string', 'max:255'],
+            'note' => ['nullable', 'string'],
+            'expense_date' => ['nullable', 'date'],
+        ]);
+    
+        $expense->update([
+            'category' => $data['category'],
+            'amount' => $data['amount'],
+            'payment_method' => $data['payment_method'] ?? null,
+            'note' => $data['note'] ?? null,
+            'expense_date' => $data['expense_date'] ?? now()->toDateString(),
+        ]);
+    
+        return redirect('/expenses')->with('success', 'Pengeluaran berhasil diperbarui.');
+    }
 
     public function destroy(Expense $expense)
     {
