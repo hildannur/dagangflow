@@ -70,6 +70,38 @@ class CustomerController extends Controller
 
         return redirect('/customers')->with('success', 'Customer berhasil ditambahkan.');
     }
+    
+    public function update(Request $request, Customer $customer)
+    {
+        abort_if($customer->user_id !== auth()->id(), 403);
+    
+        $request->merge([
+            'total_orders' => preg_replace('/\D/', '', $request->total_orders),
+            'total_spent' => preg_replace('/\D/', '', $request->total_spent),
+        ]);
+    
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'channel' => ['nullable', 'string', 'max:255'],
+            'total_orders' => ['nullable', 'integer', 'min:0'],
+            'total_spent' => ['nullable', 'integer', 'min:0'],
+            'last_order_date' => ['nullable', 'date'],
+            'note' => ['nullable', 'string'],
+        ]);
+    
+        $customer->update([
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?? null,
+            'channel' => $data['channel'] ?? null,
+            'total_orders' => $data['total_orders'] ?? 0,
+            'total_spent' => $data['total_spent'] ?? 0,
+            'last_order_date' => $data['last_order_date'] ?? null,
+            'note' => $data['note'] ?? null,
+        ]);
+    
+        return redirect('/customers')->with('success', 'Customer berhasil diperbarui.');
+    }
 
     public function destroy(Customer $customer)
     {
