@@ -29,11 +29,78 @@
                 {{ $errors->first() }}
             </div>
         @endif
+        
+        <!-- Period Filter -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
+                <div>
+                    <h3 class="text-lg font-bold">Filter Pengeluaran</h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Data ditampilkan dari
+                        {{ \Carbon\Carbon::parse($selectedPeriod['start_date'])->format('d M Y') }}
+                        sampai
+                        {{ \Carbon\Carbon::parse($selectedPeriod['end_date'])->format('d M Y') }}
+                    </p>
+                </div>
+        
+                <form action="/expenses" method="GET" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500">Tanggal mulai</label>
+                        <input
+                            type="date"
+                            name="start_date"
+                            value="{{ $selectedPeriod['start_date'] }}"
+                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        >
+                    </div>
+        
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500">Tanggal akhir</label>
+                        <input
+                            type="date"
+                            name="end_date"
+                            value="{{ $selectedPeriod['end_date'] }}"
+                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        >
+                    </div>
+        
+                    <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                        Terapkan Filter
+                    </button>
+        
+                    <a href="/expenses" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
+                        Reset
+                    </a>
+                </form>
+            </div>
+        
+            <div class="flex flex-wrap items-center gap-3 mt-5">
+                <a href="/expenses?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    Hari Ini
+                </a>
+        
+                <a href="/expenses?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    7 Hari
+                </a>
+        
+                <a href="/expenses?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold hover:bg-emerald-100">
+                    Bulan Ini
+                </a>
+        
+                <a href="/expenses?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    Bulan Lalu
+                </a>
+            </div>
+        </div>
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <p class="text-sm text-slate-500">Pengeluaran Bulan Ini</p>
+                <p class="text-sm text-slate-500">Pengeluaran Periode Ini</p>
                 <h3 class="text-3xl font-bold mt-3 text-red-600">
                     Rp{{ number_format($monthExpenses, 0, ',', '.') }}
                 </h3>
@@ -63,7 +130,7 @@
                 <h3 class="text-3xl font-bold mt-3">
                     Rp{{ number_format($dailyAverage, 0, ',', '.') }}
                 </h3>
-                <p class="text-sm text-slate-500 mt-2">Estimasi bulan ini</p>
+                <p class="text-sm text-slate-500 mt-2">Rata-rata periode ini</p>
             </div>
         </div>
 
