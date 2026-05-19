@@ -7,31 +7,104 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        $allProducts = Product::where('user_id', $userId)
             ->latest()
             ->get();
 
-        $totalProducts = $products->count();
-        $activeProducts = $products->where('stock', '>', 0)->count();
-        $lowStockProducts = $products->filter(function ($product) {
-            return $product->stock > 0 && $product->stock <= $product->low_stock_limit;
-        })->count();
-        $outOfStockProducts = $products->where('stock', '<=', 0)->count();
+        $productQuery = Product::where('user_id', $userId);
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+
+            $productQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $productQuery->where('category', $request->query('category'));
+        }
+
+        if ($request->filled('stock_status')) {
+            if ($request->query('stock_status') === 'safe') {
+                $productQuery->whereColumn('stock', '>', 'low_stock_limit');
+            }
+
+            if ($request->query('stock_status') === 'low') {
+                $productQuery->where('stock', '>', 0)
+                    ->whereColumn('stock', '<=', 'low_stock_limit');
+            }
+
+            if ($request->query('stock_status') === 'empty') {
+                $productQuery->where('stock', '<=', 0);
+            }
+        }
+
+        if ($request->query('sort') === 'stock_asc') {
+            $productQuery->orderBy('stock');
+        } elseif ($request->query('sort') === 'price_desc') {
+            $productQuery->orderByDesc('selling_price');
+        } elseif ($request->query('sort') === 'name_asc') {
+            $productQuery->orderBy('name');
+        } else {
+            $productQuery->latest();
+        }
+
+        $products = $productQuery->get();
+
+        $totalProducts = $allProducts->count();
+
+        $activeProducts = $allProducts
+            ->where('stock', '>', 0)
+            ->count();
+
+        $lowStockProducts = $allProducts
+            ->filter(function ($product) {
+                return $product->stock > 0 && $product->stock <= $product->low_stock_limit;
+            })
+            ->count();
+
+        $outOfStockProducts = $allProducts
+            ->where('stock', '<=', 0)
+            ->count();
+
+        $availableCategories = $allProducts
+            ->pluck('category')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $restockProducts = $allProducts
+            ->filter(fn ($product) => $product->stock <= $product->low_stock_limit)
+            ->sortBy('stock');
+
+        $activeFilters = [
+            'search' => $request->query('search'),
+            'category' => $request->query('category'),
+            'stock_status' => $request->query('stock_status'),
+            'sort' => $request->query('sort', 'latest'),
+        ];
 
         return view('products', compact(
             'products',
             'totalProducts',
             'activeProducts',
             'lowStockProducts',
-            'outOfStockProducts'
+            'outOfStockProducts',
+            'availableCategories',
+            'restockProducts',
+            'activeFilters'
         ));
     }
 
     public function store(Request $request)
     {
-
         $request->merge([
             'selling_price' => preg_replace('/\D/', '', $request->selling_price),
             'cost_price' => preg_replace('/\D/', '', $request->cost_price),
