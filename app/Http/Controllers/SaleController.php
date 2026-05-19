@@ -5,44 +5,58 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with('product')
-            ->where('user_id', auth()->id())
+        $userId = auth()->id();
+    
+        $startDate = $request->query('start_date')
+            ? Carbon::parse($request->query('start_date'))->startOfDay()
+            : now()->startOfMonth();
+    
+        $endDate = $request->query('end_date')
+            ? Carbon::parse($request->query('end_date'))->endOfDay()
+            : now()->endOfMonth();
+    
+        $selectedPeriod = [
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+        ];
+    
+        $allSales = Sale::with('product')
+            ->where('user_id', $userId)
             ->latest()
             ->get();
-
-        $products = Product::where('user_id', auth()->id())
+    
+        $sales = $allSales->filter(function ($sale) use ($startDate, $endDate) {
+            $saleDate = $sale->sale_date
+                ? Carbon::parse($sale->sale_date)
+                : $sale->created_at;
+    
+            return $saleDate->between($startDate, $endDate);
+        });
+    
+        $products = Product::where('user_id', $userId)
             ->where('stock', '>', 0)
-            ->orderBy('name')
+            ->latest()
             ->get();
-
-        $todayRevenue = $sales
-            ->where('sale_date', now()->toDateString())
-            ->sum('gross_total');
-
-        $monthRevenue = $sales
-            ->filter(fn ($sale) => $sale->created_at->isSameMonth(now()))
-            ->sum('gross_total');
-
-        $platformFees = $sales
-            ->filter(fn ($sale) => $sale->created_at->isSameMonth(now()))
-            ->sum('platform_fee');
-
-        $netRevenue = $sales
-            ->filter(fn ($sale) => $sale->created_at->isSameMonth(now()))
-            ->sum('net_total');
-
+    
+        $todayRevenue = $sales->sum('gross_total');
+        $monthRevenue = $sales->sum('gross_total');
+        $platformFees = $sales->sum('platform_fee');
+        $netRevenue = $sales->sum('net_total');
+    
         return view('sales', compact(
             'sales',
             'products',
             'todayRevenue',
             'monthRevenue',
             'platformFees',
-            'netRevenue'
+            'netRevenue',
+            'selectedPeriod'
         ));
     }
 
