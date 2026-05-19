@@ -154,6 +154,22 @@
 
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onclick="openEditCustomerModal(
+                                                    '{{ $customer->id }}',
+                                                    `{{ addslashes($customer->name) }}`,
+                                                    '{{ $customer->phone ?? '' }}',
+                                                    '{{ $customer->channel ?? '' }}',
+                                                    '{{ $customer->total_orders }}',
+                                                    '{{ $customer->total_spent }}',
+                                                    '{{ $customer->last_order_date }}',
+                                                    `{{ addslashes($customer->note ?? '') }}`
+                                                )"
+                                                class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+                                            >
+                                                Edit
+                                            </button>
                                             @if($customer->phone)
                                                 @php
                                                     $cleanPhone = preg_replace('/\D/', '', $customer->phone);
@@ -404,6 +420,159 @@
 
             </div>
         </div>
+        <!-- Edit Customer Modal -->
+        <div id="editCustomerModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 px-4 py-6 overflow-y-auto">
+            <div class="min-h-full flex items-start justify-center">
+                <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold">Edit Customer</h3>
+                            <p class="text-sm text-slate-500">Perbarui data customer</p>
+                        </div>
+        
+                        <button type="button" onclick="closeEditCustomerModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200">
+                            ✕
+                        </button>
+                    </div>
+        
+                    <form id="editCustomerForm" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Nama customer</label>
+                            <input
+                                type="text"
+                                name="name"
+                                id="edit_customer_name"
+                                placeholder="Contoh: Bu Sari"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Nomor WhatsApp</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                id="edit_customer_phone"
+                                placeholder="0812xxxx"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Asal channel</label>
+                            <select
+                                name="channel"
+                                id="edit_customer_channel"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Pilih channel</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Offline">Offline</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Shopee">Shopee</option>
+                                <option value="Tokopedia">Tokopedia</option>
+                                <option value="GoFood">GoFood</option>
+                                <option value="GrabFood">GrabFood</option>
+                            </select>
+                        </div>
+        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Total order</label>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    name="total_orders"
+                                    id="edit_customer_total_orders"
+                                    placeholder="0"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 number-input"
+                                >
+                            </div>
+        
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Total belanja</label>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    name="total_spent"
+                                    id="edit_customer_total_spent"
+                                    placeholder="0"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
+                                >
+                            </div>
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Terakhir beli</label>
+                            <input
+                                type="date"
+                                name="last_order_date"
+                                id="edit_customer_last_order_date"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Catatan</label>
+                            <textarea
+                                name="note"
+                                id="edit_customer_note"
+                                rows="3"
+                                placeholder="Contoh: Sering beli hampers pagi hari"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                            ></textarea>
+                        </div>
+        
+                        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
     </div>
+    
+    <script>
+    function formatRibuanCustomer(value) {
+        const number = String(value || '').replace(/\D/g, '');
+
+        if (!number) {
+            return '';
+        }
+
+        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function openEditCustomerModal(id, name, phone, channel, totalOrders, totalSpent, lastOrderDate, note) {
+        const modal = document.getElementById('editCustomerModal');
+        const form = document.getElementById('editCustomerForm');
+
+        form.action = `/customers/${id}`;
+
+        document.getElementById('edit_customer_name').value = name || '';
+        document.getElementById('edit_customer_phone').value = phone || '';
+        document.getElementById('edit_customer_channel').value = channel || '';
+        document.getElementById('edit_customer_total_orders').value = formatRibuanCustomer(totalOrders);
+        document.getElementById('edit_customer_total_spent').value = formatRibuanCustomer(totalSpent);
+        document.getElementById('edit_customer_last_order_date').value = lastOrderDate || '';
+        document.getElementById('edit_customer_note').value = note || '';
+
+        modal.classList.remove('hidden');
+        modal.classList.add('block');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeEditCustomerModal() {
+        const modal = document.getElementById('editCustomerModal');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('block');
+        document.body.classList.remove('overflow-hidden');
+    }
+    </script>
 @endsection
