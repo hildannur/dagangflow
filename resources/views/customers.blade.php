@@ -147,16 +147,44 @@
                                                         $cleanPhone = '62' . substr($cleanPhone, 1);
                                                     }
                                     
-                                                    $waMessage = "Halo {$customer->name}, terima kasih sudah pernah belanja. Kami mau info ada promo terbaru hari ini. Kalau tertarik, boleh langsung balas chat ini ya 🙏";
+                                                    $followUpMessage = "Halo {$customer->name}, apa kabar? Kami mau follow-up, kalau ada kebutuhan order lagi boleh langsung balas chat ini ya 🙏";
+                                    
+                                                    $promoMessage = "Halo {$customer->name}, kami sedang ada promo terbaru hari ini. Kalau tertarik, boleh langsung balas chat ini ya 🙌";
+                                    
+                                                    $thankYouMessage = "Halo {$customer->name}, terima kasih sudah pernah belanja. Semoga produknya cocok ya. Kalau butuh order lagi, kami siap bantu 🙏";
                                                 @endphp
                                     
-                                                <a
-                                                    href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waMessage) }}"
-                                                    target="_blank"
-                                                    class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
-                                                >
-                                                    WhatsApp
-                                                </a>
+                                                <div class="relative group">
+                                                    <button type="button" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+                                                        WhatsApp
+                                                    </button>
+                                    
+                                                    <div class="hidden group-hover:block absolute right-0 top-6 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden text-left">
+                                                        <a
+                                                            href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($followUpMessage) }}"
+                                                            target="_blank"
+                                                            class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+                                                        >
+                                                            Follow-up
+                                                        </a>
+                                    
+                                                        <a
+                                                            href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($promoMessage) }}"
+                                                            target="_blank"
+                                                            class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+                                                        >
+                                                            Promo
+                                                        </a>
+                                    
+                                                        <a
+                                                            href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($thankYouMessage) }}"
+                                                            target="_blank"
+                                                            class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+                                                        >
+                                                            Terima Kasih
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             @endif
                                     
                                             <form action="/customers/{{ $customer->id }}" method="POST"
