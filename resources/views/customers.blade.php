@@ -95,8 +95,23 @@
                                             </div>
 
                                             <div>
-                                                <p class="font-semibold text-slate-900">{{ $customer->name }}</p>
-                                                <p class="text-xs text-slate-500">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="font-semibold text-slate-900">{{ $customer->name }}</p>
+                                            
+                                                    @if($customer->total_orders > 1)
+                                                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+                                                            Repeat
+                                                        </span>
+                                                    @endif
+                                            
+                                                    @if($customer->created_at->isSameMonth(now()))
+                                                        <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
+                                                            Baru
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            
+                                                <p class="text-xs text-slate-500 mt-1">
                                                     {{ $customer->note ?: 'Tidak ada catatan' }}
                                                 </p>
                                             </div>
