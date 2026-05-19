@@ -100,7 +100,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/products', ProductController::class)->except(['create', 'show', 'edit']);
 
-    Route::resource('/expenses', ExpenseController::class)->except(['create', 'show', 'edit', 'update']);
+    Route::resource('/expenses', ExpenseController::class)->except(['create', 'show', 'edit']);
 
     Route::resource('/customers', CustomerController::class)->except(['create', 'show', 'edit', 'update']);
 
