@@ -133,15 +133,32 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-right">
-                                        <form action="/expenses/{{ $expense->id }}" method="POST"
-                                            onsubmit="return confirm('Yakin ingin menghapus pengeluaran ini?')">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
-                                                Hapus
+                                        <div class="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onclick="openEditExpenseModal(
+                                                    '{{ $expense->id }}',
+                                                    '{{ $expense->category }}',
+                                                    '{{ $expense->amount }}',
+                                                    '{{ $expense->payment_method ?? '' }}',
+                                                    '{{ $expense->expense_date }}',
+                                                    `{{ addslashes($expense->note ?? '') }}`
+                                                )"
+                                                class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+                                            >
+                                                Edit
                                             </button>
-                                        </form>
+                                    
+                                            <form action="/expenses/{{ $expense->id }}" method="POST"
+                                                onsubmit="return confirm('Yakin ingin menghapus pengeluaran ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                    
+                                                <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -317,6 +334,101 @@
                     @endif
                 </div>
 
+            </div>
+        </div>
+        
+        <!-- Edit Expense Modal -->
+        <div id="editExpenseModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 px-4 py-6 overflow-y-auto">
+            <div class="min-h-full flex items-start justify-center">
+                <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold">Edit Pengeluaran</h3>
+                            <p class="text-sm text-slate-500">Perbarui data pengeluaran</p>
+                        </div>
+        
+                        <button type="button" onclick="closeEditExpenseModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200">
+                            ✕
+                        </button>
+                    </div>
+        
+                    <form id="editExpenseForm" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Kategori</label>
+                            <select
+                                name="category"
+                                id="edit_category"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                                <option value="Bahan Baku">Bahan Baku</option>
+                                <option value="Packaging">Packaging</option>
+                                <option value="Iklan">Iklan</option>
+                                <option value="Platform">Platform</option>
+                                <option value="Operasional">Operasional</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Nominal</label>
+                            <input
+                                type="text"
+                                inputmode="numeric"
+                                name="amount"
+                                id="edit_amount"
+                                placeholder="Contoh: 150.000"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
+                                required
+                            >
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Metode pembayaran</label>
+                            <select
+                                name="payment_method"
+                                id="edit_payment_method"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Pilih metode</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Transfer">Transfer</option>
+                                <option value="E-Wallet">E-Wallet</option>
+                                <option value="Auto">Auto</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Tanggal pengeluaran</label>
+                            <input
+                                type="date"
+                                name="expense_date"
+                                id="edit_expense_date"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Catatan</label>
+                            <textarea
+                                name="note"
+                                id="edit_note"
+                                rows="3"
+                                placeholder="Contoh: Beli bahan baku untuk stok minggu ini"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                            ></textarea>
+                        </div>
+        
+                        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
