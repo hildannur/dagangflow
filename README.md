@@ -1,59 +1,147 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DagangFlow
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**DagangFlow** adalah aplikasi web berbasis Laravel untuk membantu owner UMKM mencatat penjualan dari berbagai channel, mengelola stok produk, mencatat pengeluaran, memantau customer, dan membaca laporan bisnis dalam satu dashboard sederhana.
 
-## About Laravel
+Aplikasi ini dibuat untuk membantu bisnis kecil yang masih mencatat transaksi secara manual di WhatsApp, marketplace, catatan kertas, atau spreadsheet terpisah.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Masalah yang Diselesaikan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Banyak owner UMKM mengalami masalah seperti:
 
-## Learning Laravel
+- Penjualan dari WhatsApp, marketplace, offline, dan delivery tidak tercatat rapi.
+- Stok produk sering tidak sinkron dengan transaksi.
+- Pengeluaran bisnis tercampur dengan uang pribadi.
+- Sulit tahu produk mana yang paling laku.
+- Sulit menghitung omzet, biaya, dan estimasi laba.
+- Data customer tidak tersimpan dengan baik.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+DagangFlow membantu menyatukan semua data tersebut dalam satu sistem sederhana.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Fitur Utama
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Dashboard Bisnis
 
-### Premium Partners
+Menampilkan ringkasan kondisi bisnis seperti:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Omzet bulan ini
+- Total pengeluaran
+- Estimasi laba
+- Jumlah transaksi
+- Penjualan beberapa hari terakhir
+- Channel penjualan terbaik
+- Produk dengan stok rendah
 
-## Contributing
+### Manajemen Produk
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Owner dapat mencatat dan mengelola produk, termasuk:
 
-## Code of Conduct
+- Nama produk
+- Kategori produk
+- Harga jual
+- Modal produk
+- Stok tersedia
+- Batas stok rendah
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Stok akan otomatis berkurang ketika terjadi penjualan.
 
-## Security Vulnerabilities
+### Pencatatan Penjualan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Transaksi penjualan dapat dicatat berdasarkan channel seperti:
 
-## License
+- Offline
+- WhatsApp
+- Marketplace
+- Food delivery
+- Channel lainnya
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Setiap transaksi akan menghitung total penjualan, biaya platform, dan total bersih.
+
+### Pencatatan Pengeluaran
+
+Owner dapat mencatat pengeluaran bisnis berdasarkan kategori, seperti:
+
+- Bahan baku
+- Operasional
+- Platform fee
+- Marketing
+- Packing
+- Lainnya
+
+### Manajemen Customer
+
+DagangFlow menyediakan halaman untuk menyimpan data customer, termasuk:
+
+- Nama customer
+- Nomor HP
+- Asal channel
+- Total order
+- Total belanja
+- Tanggal order terakhir
+- Catatan customer
+
+### Laporan Bisnis
+
+Halaman laporan membantu owner melihat performa bisnis berdasarkan periode tertentu, seperti:
+
+- Hari ini
+- 7 hari terakhir
+- Bulan ini
+- Bulan lalu
+- Custom date range
+
+Data laporan meliputi omzet, pengeluaran, biaya platform, estimasi laba, performa channel, produk terlaris, dan kategori pengeluaran terbesar.
+
+### AI Insight
+
+DagangFlow memiliki fitur insight bisnis berbasis AI untuk membantu owner membaca kondisi bisnis dan mendapatkan rekomendasi aksi yang lebih mudah dipahami.
+
+---
+
+## Teknologi yang Digunakan
+
+- Laravel
+- PHP
+- Blade
+- Tailwind CSS
+- Vite
+- SQLite / MySQL
+- Gemini API untuk AI Insight
+
+---
+
+## Tujuan Project
+
+Project ini dibuat sebagai aplikasi dashboard bisnis sederhana untuk UMKM, dengan fokus pada pencatatan operasional harian dan analisis bisnis yang mudah dipahami oleh owner non-teknis.
+
+DagangFlow dirancang agar dapat dikembangkan menjadi produk SaaS untuk membantu UMKM mengelola bisnis digital mereka dengan lebih rapi.
+
+---
+
+## Status Pengembangan
+
+Project masih dalam tahap pengembangan aktif.
+
+Beberapa pengembangan berikutnya yang direncanakan:
+
+- Perhitungan laba bersih yang lebih akurat menggunakan HPP
+- Relasi customer dengan transaksi penjualan
+- Export laporan ke PDF atau Excel
+- Filter dan pencarian data
+- Dashboard analytics yang lebih visual
+- Onboarding user baru
+- Role admin dan user
+- Deployment guide
+
+---
+
+## Instalasi Lokal
+
+Clone repository:
+
+```bash
+git clone https://github.com/hildannur/dagangflow.git
+cd dagangflow
