@@ -433,4 +433,40 @@
         </div>
 
     </div>
+    <script>
+    function formatRibuanExpense(value) {
+        const number = String(value || '').replace(/\D/g, '');
+
+        if (!number) {
+            return '';
+        }
+
+        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function openEditExpenseModal(id, category, amount, paymentMethod, expenseDate, note) {
+        const modal = document.getElementById('editExpenseModal');
+        const form = document.getElementById('editExpenseForm');
+
+        form.action = `/expenses/${id}`;
+
+        document.getElementById('edit_category').value = category;
+        document.getElementById('edit_amount').value = formatRibuanExpense(amount);
+        document.getElementById('edit_payment_method').value = paymentMethod || '';
+        document.getElementById('edit_expense_date').value = expenseDate || '';
+        document.getElementById('edit_note').value = note || '';
+
+        modal.classList.remove('hidden');
+        modal.classList.add('block');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeEditExpenseModal() {
+        const modal = document.getElementById('editExpenseModal');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('block');
+        document.body.classList.remove('overflow-hidden');
+    }
+    </script>
 @endsection
