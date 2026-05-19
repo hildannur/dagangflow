@@ -138,15 +138,37 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-right">
-                                        <form action="/customers/{{ $customer->id }}" method="POST"
-                                            onsubmit="return confirm('Yakin ingin menghapus customer ini?')">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
-                                                Hapus
-                                            </button>
-                                        </form>
+                                        <div class="flex justify-end gap-3">
+                                            @if($customer->phone)
+                                                @php
+                                                    $cleanPhone = preg_replace('/\D/', '', $customer->phone);
+                                    
+                                                    if (str_starts_with($cleanPhone, '0')) {
+                                                        $cleanPhone = '62' . substr($cleanPhone, 1);
+                                                    }
+                                    
+                                                    $waMessage = "Halo {$customer->name}, terima kasih sudah pernah belanja. Kami mau info ada promo terbaru hari ini. Kalau tertarik, boleh langsung balas chat ini ya 🙏";
+                                                @endphp
+                                    
+                                                <a
+                                                    href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($waMessage) }}"
+                                                    target="_blank"
+                                                    class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+                                                >
+                                                    WhatsApp
+                                                </a>
+                                            @endif
+                                    
+                                            <form action="/customers/{{ $customer->id }}" method="POST"
+                                                onsubmit="return confirm('Yakin ingin menghapus customer ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                    
+                                                <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
