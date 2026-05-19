@@ -102,7 +102,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/expenses', ExpenseController::class)->except(['create', 'show', 'edit']);
 
-    Route::resource('/customers', CustomerController::class)->except(['create', 'show', 'edit', 'update']);
+    Route::resource('/customers', CustomerController::class)->except(['create', 'show', 'edit']);
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/reports/ai-insight', [ReportController::class, 'generateAiInsight'])->name('reports.ai-insight');
