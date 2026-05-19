@@ -42,6 +42,12 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
+        // Bersihkan format ribuan sebelum validasi.
+        // Contoh: 150.000 menjadi 150000
+        $request->merge([
+            'amount' => preg_replace('/\D/', '', $request->amount),
+        ]);
+
         $data = $request->validate([
             'category' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'integer', 'min:0'],

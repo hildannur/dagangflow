@@ -96,7 +96,7 @@ Route::post('/logout', function (Request $request) {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    Route::resource('/sales', SaleController::class)->except(['create', 'show', 'edit', 'update']);
+    Route::resource('/sales', SaleController::class)->except(['create', 'show', 'edit']);
 
     Route::resource('/products', ProductController::class)->except(['create', 'show', 'edit']);
 
@@ -104,5 +104,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/customers', CustomerController::class)->except(['create', 'show', 'edit', 'update']);
 
-    Route::get('/reports', [ReportController::class, 'index']);
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/ai-insight', [ReportController::class, 'generateAiInsight'])->name('reports.ai-insight');
 });

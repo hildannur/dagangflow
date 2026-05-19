@@ -195,11 +195,12 @@
                         <div>
                             <label class="text-sm font-medium text-slate-700">Nominal</label>
                             <input
-                                type="number"
+                                type="text"
+                                inputmode="numeric"
                                 name="amount"
                                 value="{{ old('amount') }}"
-                                placeholder="Contoh: 150000"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                placeholder="Contoh: 150.000"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
                                 required
                             >
                         </div>

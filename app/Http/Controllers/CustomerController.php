@@ -41,6 +41,12 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
+
+        $request->merge([
+            'total_orders' => preg_replace('/\D/', '', $request->total_orders),
+            'total_spent' => preg_replace('/\D/', '', $request->total_spent),
+        ]);
+        
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],

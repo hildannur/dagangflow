@@ -31,6 +31,12 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+
+        $request->merge([
+            'selling_price' => preg_replace('/\D/', '', $request->selling_price),
+            'cost_price' => preg_replace('/\D/', '', $request->cost_price),
+        ]);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:255'],
@@ -56,6 +62,11 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         abort_if($product->user_id !== auth()->id(), 403);
+
+        $request->merge([
+            'selling_price' => preg_replace('/\D/', '', $request->selling_price),
+            'cost_price' => preg_replace('/\D/', '', $request->cost_price),
+        ]);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],

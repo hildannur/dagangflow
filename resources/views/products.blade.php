@@ -8,6 +8,7 @@
     <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Export Produk
     </button>
+
     <button onclick="document.getElementById('quick-add-product').scrollIntoView({ behavior: 'smooth' })"
         class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
         + Tambah Produk
@@ -87,9 +88,10 @@
                                 <tr class="hover:bg-slate-50/70">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
-                                                {{ strtoupper(substr($product->name, 0, 1)) }}
+                                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-sm border border-slate-200">
+                                                {{ $loop->iteration }}
                                             </div>
+
                                             <div>
                                                 <p class="font-semibold text-slate-900">{{ $product->name }}</p>
                                                 <p class="text-xs text-slate-500">
@@ -118,11 +120,17 @@
 
                                     <td class="px-6 py-4">
                                         @if($product->stock_status === 'Aman')
-                                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">Aman</span>
+                                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                                Aman
+                                            </span>
                                         @elseif($product->stock_status === 'Rendah')
-                                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">Stok rendah</span>
+                                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                                                Stok rendah
+                                            </span>
                                         @else
-                                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Habis</span>
+                                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                                Habis
+                                            </span>
                                         @endif
                                     </td>
 
@@ -132,7 +140,7 @@
                                                 onclick="openEditProductModal(
                                                     '{{ $product->id }}',
                                                     '{{ addslashes($product->name) }}',
-                                                    '{{ addslashes($product->category) }}',
+                                                    '{{ addslashes($product->category ?? '') }}',
                                                     '{{ $product->selling_price }}',
                                                     '{{ $product->cost_price }}',
                                                     '{{ $product->stock }}',
@@ -147,6 +155,7 @@
                                                 onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
                                                 @csrf
                                                 @method('DELETE')
+
                                                 <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
                                                     Hapus
                                                 </button>
@@ -161,7 +170,9 @@
                                             <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
                                                 📦
                                             </div>
+
                                             <h3 class="font-bold text-slate-900 mt-4">Belum ada produk</h3>
+
                                             <p class="text-sm text-slate-500 mt-2">
                                                 Tambahkan produk pertama kamu melalui form di sebelah kanan.
                                             </p>
@@ -212,11 +223,12 @@
                             <div>
                                 <label class="text-sm font-medium text-slate-700">Harga jual</label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputmode="numeric"
                                     name="selling_price"
                                     value="{{ old('selling_price') }}"
-                                    placeholder="15000"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    placeholder="15.000"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
                                     required
                                 >
                             </div>
@@ -224,11 +236,12 @@
                             <div>
                                 <label class="text-sm font-medium text-slate-700">Modal</label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputmode="numeric"
                                     name="cost_price"
                                     value="{{ old('cost_price') }}"
-                                    placeholder="8000"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                    placeholder="8.000"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
                                 >
                             </div>
                         </div>
@@ -319,44 +332,70 @@
 
                     <div>
                         <label class="text-sm font-medium text-slate-700">Nama produk</label>
-                        <input id="edit_name" type="text" name="name"
+                        <input
+                            id="edit_name"
+                            type="text"
+                            name="name"
                             class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            required>
+                            required
+                        >
                     </div>
 
                     <div>
                         <label class="text-sm font-medium text-slate-700">Kategori</label>
-                        <input id="edit_category" type="text" name="category"
-                            class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                        <input
+                            id="edit_category"
+                            type="text"
+                            name="category"
+                            class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        >
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-sm font-medium text-slate-700">Harga jual</label>
-                            <input id="edit_selling_price" type="number" name="selling_price"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                required>
+                            <input
+                                id="edit_selling_price"
+                                type="text"
+                                inputmode="numeric"
+                                name="selling_price"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
+                                required
+                            >
                         </div>
 
                         <div>
                             <label class="text-sm font-medium text-slate-700">Modal</label>
-                            <input id="edit_cost_price" type="number" name="cost_price"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <input
+                                id="edit_cost_price"
+                                type="text"
+                                inputmode="numeric"
+                                name="cost_price"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
+                            >
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-sm font-medium text-slate-700">Stok</label>
-                            <input id="edit_stock" type="number" name="stock"
+                            <input
+                                id="edit_stock"
+                                type="number"
+                                name="stock"
                                 class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                required>
+                                required
+                            >
                         </div>
 
                         <div>
                             <label class="text-sm font-medium text-slate-700">Limit rendah</label>
-                            <input id="edit_low_stock_limit" type="number" name="low_stock_limit"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+                            <input
+                                id="edit_low_stock_limit"
+                                type="number"
+                                name="low_stock_limit"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
                         </div>
                     </div>
 
@@ -368,6 +407,16 @@
         </div>
 
         <script>
+            function formatRibuanProduct(value) {
+                const number = String(value || '').replace(/\D/g, '');
+
+                if (!number) {
+                    return '';
+                }
+
+                return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
             function openEditProductModal(id, name, category, sellingPrice, costPrice, stock, lowStockLimit) {
                 const modal = document.getElementById('editProductModal');
                 const form = document.getElementById('editProductForm');
@@ -376,8 +425,8 @@
 
                 document.getElementById('edit_name').value = name;
                 document.getElementById('edit_category').value = category || '';
-                document.getElementById('edit_selling_price').value = sellingPrice;
-                document.getElementById('edit_cost_price').value = costPrice;
+                document.getElementById('edit_selling_price').value = formatRibuanProduct(sellingPrice);
+                document.getElementById('edit_cost_price').value = formatRibuanProduct(costPrice);
                 document.getElementById('edit_stock').value = stock;
                 document.getElementById('edit_low_stock_limit').value = lowStockLimit;
 

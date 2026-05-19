@@ -8,6 +8,7 @@
     <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Export Transaksi
     </button>
+
     <button onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
         class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
         + Tambah Penjualan
@@ -130,7 +131,7 @@
                                     </td>
 
                                     <td class="px-6 py-4 font-semibold">
-                                        {{ $sale->quantity }}x
+                                        {{ number_format($sale->quantity, 0, ',', '.') }}x
                                     </td>
 
                                     <td class="px-6 py-4 font-semibold">
@@ -156,14 +157,34 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-right">
-                                        <form action="/sales/{{ $sale->id }}" method="POST"
-                                            onsubmit="return confirm('Yakin ingin menghapus transaksi ini? Stok produk akan dikembalikan.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
-                                                Hapus
+                                        <div class="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onclick="openEditSaleModal(
+                                                    '{{ $sale->id }}',
+                                                    '{{ $sale->product_id }}',
+                                                    '{{ $sale->channel }}',
+                                                    '{{ $sale->quantity }}',
+                                                    '{{ $sale->platform_fee }}',
+                                                    '{{ $sale->status }}',
+                                                    '{{ $sale->sale_date }}',
+                                                    `{{ addslashes($sale->note ?? '') }}`
+                                                )"
+                                                class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+                                            >
+                                                Edit
                                             </button>
-                                        </form>
+
+                                            <form action="/sales/{{ $sale->id }}" method="POST"
+                                                onsubmit="return confirm('Yakin ingin menghapus transaksi ini? Stok produk akan dikembalikan.')">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -213,7 +234,7 @@
                                             data-price="{{ $product->selling_price }}"
                                             data-stock="{{ $product->stock }}"
                                         >
-                                            {{ $product->name }} - Rp{{ number_format($product->selling_price, 0, ',', '.') }} | Stok {{ $product->stock }}
+                                            {{ $product->name }} - Rp{{ number_format($product->selling_price, 0, ',', '.') }} | Stok {{ number_format($product->stock, 0, ',', '.') }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -241,12 +262,13 @@
                                 <div>
                                     <label class="text-sm font-medium text-slate-700">Jumlah Terjual</label>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        inputmode="numeric"
                                         name="quantity"
                                         id="quantity"
                                         value="1"
-                                        min="1"
-                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                        placeholder="1"
+                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 number-input"
                                         required
                                     >
                                     <p id="stock_info" class="text-xs text-slate-500 mt-1"></p>
@@ -255,12 +277,13 @@
                                 <div>
                                     <label class="text-sm font-medium text-slate-700">Biaya platform</label>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        inputmode="numeric"
                                         name="platform_fee"
                                         id="platform_fee"
                                         value="0"
-                                        min="0"
-                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                        placeholder="0"
+                                        class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
                                     >
                                 </div>
                             </div>
@@ -320,6 +343,7 @@
                             <p class="text-sm text-slate-600 mt-2">
                                 Tambahkan produk dulu sebelum mencatat penjualan.
                             </p>
+
                             <a href="/products" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
                                 Tambah Produk
                             </a>
@@ -348,6 +372,7 @@
                                     <p class="font-semibold">{{ $channel }}</p>
                                     <p class="text-sm text-slate-500">{{ $summary['count'] }} transaksi</p>
                                 </div>
+
                                 <p class="font-bold text-slate-900">
                                     Rp{{ number_format($summary['total'], 0, ',', '.') }}
                                 </p>
@@ -364,6 +389,157 @@
             </div>
         </div>
 
+        <!-- Edit Sale Modal -->
+        <div id="editSaleModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 px-4 py-6 overflow-y-auto">
+            <div class="min-h-full flex items-start justify-center">
+                <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold">Edit Penjualan</h3>
+                            <p class="text-sm text-slate-500">Perbarui data transaksi penjualan</p>
+                        </div>
+
+                        <button type="button" onclick="closeEditSaleModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200">
+                            ✕
+                        </button>
+                    </div>
+
+                    <form id="editSaleForm" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Produk</label>
+                            <select
+                                name="product_id"
+                                id="edit_product_id"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                                @foreach($products as $product)
+                                    <option
+                                        value="{{ $product->id }}"
+                                        data-price="{{ $product->selling_price }}"
+                                        data-stock="{{ $product->stock }}"
+                                    >
+                                        {{ $product->name }} - Rp{{ number_format($product->selling_price, 0, ',', '.') }} | Stok {{ number_format($product->stock, 0, ',', '.') }}
+                                    </option>
+                                @endforeach
+
+                                @foreach($sales as $saleOption)
+                                    @if($saleOption->product && !$products->contains('id', $saleOption->product->id))
+                                        <option
+                                            value="{{ $saleOption->product->id }}"
+                                            data-price="{{ $saleOption->product->selling_price }}"
+                                            data-stock="{{ $saleOption->product->stock }}"
+                                        >
+                                            {{ $saleOption->product->name }} - Rp{{ number_format($saleOption->product->selling_price, 0, ',', '.') }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Channel</label>
+                            <select
+                                name="channel"
+                                id="edit_channel"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                                <option value="Offline">Offline</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Shopee">Shopee</option>
+                                <option value="Tokopedia">Tokopedia</option>
+                                <option value="GoFood">GoFood</option>
+                                <option value="GrabFood">GrabFood</option>
+                                <option value="TikTok Shop">TikTok Shop</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Jumlah Terjual</label>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    name="quantity"
+                                    id="edit_quantity"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 number-input"
+                                    required
+                                >
+                                <p id="edit_stock_info" class="text-xs text-slate-500 mt-1"></p>
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Biaya platform</label>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    name="platform_fee"
+                                    id="edit_platform_fee"
+                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Status</label>
+                            <select
+                                name="status"
+                                id="edit_status"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                                <option value="Selesai">Selesai</option>
+                                <option value="Diproses">Diproses</option>
+                                <option value="Belum Bayar">Belum Bayar</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Tanggal penjualan</label>
+                            <input
+                                type="date"
+                                name="sale_date"
+                                id="edit_sale_date"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">Catatan</label>
+                            <textarea
+                                name="note"
+                                id="edit_note"
+                                rows="3"
+                                placeholder="Catatan tambahan"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+                            ></textarea>
+                        </div>
+
+                        <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-slate-500">Estimasi total</span>
+                                <span id="edit_gross_preview" class="font-bold text-slate-900">Rp0</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-sm mt-2">
+                                <span class="text-slate-500">Estimasi bersih</span>
+                                <span id="edit_net_preview" class="font-bold text-emerald-600">Rp0</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <script>
             function formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', {
@@ -371,6 +547,16 @@
                     currency: 'IDR',
                     minimumFractionDigits: 0
                 }).format(number);
+            }
+
+            function formatRibuan(number) {
+                return new Intl.NumberFormat('id-ID', {
+                    minimumFractionDigits: 0
+                }).format(number);
+            }
+
+            function cleanNumber(value) {
+                return parseInt(String(value || '0').replace(/\D/g, '')) || 0;
             }
 
             function updateSalePreview() {
@@ -389,23 +575,96 @@
                     return;
                 }
 
-                const price = parseInt(selectedOption.dataset.price || 0);
-                const stock = parseInt(selectedOption.dataset.stock || 0);
-                const quantity = parseInt(quantityInput.value || 0);
-                const platformFee = parseInt(platformFeeInput.value || 0);
+                const price = cleanNumber(selectedOption.dataset.price);
+                const stock = cleanNumber(selectedOption.dataset.stock);
+                const quantity = cleanNumber(quantityInput.value);
+                const platformFee = cleanNumber(platformFeeInput.value);
 
                 const grossTotal = price * quantity;
                 const netTotal = grossTotal - platformFee;
 
                 document.getElementById('gross_preview').innerText = formatRupiah(grossTotal);
                 document.getElementById('net_preview').innerText = formatRupiah(netTotal);
-                document.getElementById('stock_info').innerText = `Stok tersedia: ${stock} pcs`;
+                document.getElementById('stock_info').innerText = `Stok tersedia: ${formatRibuan(stock)} pcs`;
 
-                if (quantity > stock) {document.getElementById('stock_info').innerText = `Jumlah terjual melebihi stok. Tersedia: ${stock} pcs`;
-                    
+                if (quantity > stock) {
+                    document.getElementById('stock_info').innerText = `Jumlah terjual melebihi stok. Tersedia: ${formatRibuan(stock)} pcs`;
                     document.getElementById('stock_info').className = 'text-xs text-red-500 mt-1 font-semibold';
                 } else {
                     document.getElementById('stock_info').className = 'text-xs text-slate-500 mt-1';
+                }
+            }
+
+            function formatRibuanPlain(number) {
+                return new Intl.NumberFormat('id-ID', {
+                    minimumFractionDigits: 0
+                }).format(number);
+            }
+
+           function openEditSaleModal(id, productId, channel, quantity, platformFee, status, saleDate, note) {
+            const modal = document.getElementById('editSaleModal');
+            const form = document.getElementById('editSaleForm');
+
+            form.action = `/sales/${id}`;
+
+            document.getElementById('edit_product_id').value = productId;
+            document.getElementById('edit_channel').value = channel;
+            document.getElementById('edit_quantity').value = formatRibuanPlain(cleanNumber(quantity));
+            document.getElementById('edit_platform_fee').value = formatRibuanPlain(cleanNumber(platformFee));
+            document.getElementById('edit_status').value = status;
+            document.getElementById('edit_sale_date').value = saleDate || '';
+            document.getElementById('edit_note').value = note || '';
+
+            updateEditSalePreview();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('block');
+
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeEditSaleModal() {
+            const modal = document.getElementById('editSaleModal');
+
+            modal.classList.add('hidden');
+            modal.classList.remove('block');
+
+            document.body.classList.remove('overflow-hidden');
+        }
+
+            function updateEditSalePreview() {
+                const productSelect = document.getElementById('edit_product_id');
+                const quantityInput = document.getElementById('edit_quantity');
+                const platformFeeInput = document.getElementById('edit_platform_fee');
+
+                if (!productSelect || !quantityInput || !platformFeeInput) return;
+
+                const selectedOption = productSelect.options[productSelect.selectedIndex];
+
+                if (!selectedOption || !selectedOption.dataset.price) {
+                    document.getElementById('edit_gross_preview').innerText = 'Rp0';
+                    document.getElementById('edit_net_preview').innerText = 'Rp0';
+                    document.getElementById('edit_stock_info').innerText = '';
+                    return;
+                }
+
+                const price = cleanNumber(selectedOption.dataset.price);
+                const stock = cleanNumber(selectedOption.dataset.stock);
+                const quantity = cleanNumber(quantityInput.value);
+                const platformFee = cleanNumber(platformFeeInput.value);
+
+                const grossTotal = price * quantity;
+                const netTotal = grossTotal - platformFee;
+
+                document.getElementById('edit_gross_preview').innerText = formatRupiah(grossTotal);
+                document.getElementById('edit_net_preview').innerText = formatRupiah(netTotal);
+                document.getElementById('edit_stock_info').innerText = `Stok saat ini: ${formatRibuan(stock)} pcs`;
+
+                if (quantity > stock) {
+                    document.getElementById('edit_stock_info').innerText = `Perhatian: jumlah terjual melebihi stok saat ini. Stok: ${formatRibuan(stock)} pcs`;
+                    document.getElementById('edit_stock_info').className = 'text-xs text-amber-600 mt-1 font-semibold';
+                } else {
+                    document.getElementById('edit_stock_info').className = 'text-xs text-slate-500 mt-1';
                 }
             }
 
@@ -417,6 +676,14 @@
                 if (productSelect) productSelect.addEventListener('change', updateSalePreview);
                 if (quantityInput) quantityInput.addEventListener('input', updateSalePreview);
                 if (platformFeeInput) platformFeeInput.addEventListener('input', updateSalePreview);
+
+                const editProductSelect = document.getElementById('edit_product_id');
+                const editQuantityInput = document.getElementById('edit_quantity');
+                const editPlatformFeeInput = document.getElementById('edit_platform_fee');
+
+                if (editProductSelect) editProductSelect.addEventListener('change', updateEditSalePreview);
+                if (editQuantityInput) editQuantityInput.addEventListener('input', updateEditSalePreview);
+                if (editPlatformFeeInput) editPlatformFeeInput.addEventListener('input', updateEditSalePreview);
 
                 updateSalePreview();
             });

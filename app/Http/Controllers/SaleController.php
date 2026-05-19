@@ -48,6 +48,10 @@ class SaleController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'quantity' => preg_replace('/\D/', '', $request->quantity),
+            'platform_fee' => preg_replace('/\D/', '', $request->platform_fee),
+        ]);
         $data = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'channel' => ['required', 'string', 'max:255'],
@@ -90,6 +94,68 @@ class SaleController extends Controller
         $product->decrement('stock', $data['quantity']);
 
         return redirect('/sales')->with('success', 'Penjualan berhasil dicatat.');
+    }
+
+    public function update(Request $request, Sale $sale)
+    {
+    abort_if($sale->user_id !== auth()->id(), 403);
+
+    $request->merge([
+        'quantity' => preg_replace('/\D/', '', $request->quantity),
+        'platform_fee' => preg_replace('/\D/', '', $request->platform_fee),
+    ]);
+
+    $data = $request->validate([
+        'product_id' => ['required', 'exists:products,id'],
+        'channel' => ['required', 'string', 'max:255'],
+        'quantity' => ['required', 'integer', 'min:1'],
+        'platform_fee' => ['nullable', 'integer', 'min:0'],
+        'status' => ['required', 'string', 'max:255'],
+        'note' => ['nullable', 'string'],
+        'sale_date' => ['nullable', 'date'],
+    ]);
+
+    $oldProduct = $sale->product;
+
+    if ($oldProduct && $oldProduct->user_id === auth()->id()) {
+        $oldProduct->increment('stock', $sale->quantity);
+    }
+
+    $newProduct = Product::where('user_id', auth()->id())
+        ->where('id', $data['product_id'])
+        ->firstOrFail();
+
+    if ($newProduct->stock < $data['quantity']) {
+        if ($oldProduct && $oldProduct->user_id === auth()->id()) {
+            $oldProduct->decrement('stock', $sale->quantity);
+        }
+
+        return back()->withErrors([
+            'stock' => 'Stok produk tidak cukup untuk perubahan penjualan.',
+        ]);
+        }
+
+        $sellingPrice = $newProduct->selling_price;
+        $grossTotal = $sellingPrice * $data['quantity'];
+        $platformFee = $data['platform_fee'] ?? 0;
+        $netTotal = $grossTotal - $platformFee;
+
+        $sale->update([
+            'product_id' => $newProduct->id,
+            'channel' => $data['channel'],
+            'quantity' => $data['quantity'],
+            'selling_price' => $sellingPrice,
+            'gross_total' => $grossTotal,
+            'platform_fee' => $platformFee,
+            'net_total' => $netTotal,
+            'status' => $data['status'],
+            'note' => $data['note'] ?? null,
+            'sale_date' => $data['sale_date'] ?? now()->toDateString(),
+        ]);
+
+        $newProduct->decrement('stock', $data['quantity']);
+
+        return redirect('/sales')->with('success', 'Penjualan berhasil diperbarui.');
     }
 
     public function destroy(Sale $sale)

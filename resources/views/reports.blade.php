@@ -8,6 +8,7 @@
     <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Filter Periode
     </button>
+
     <button class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
         Export Laporan
     </button>
@@ -16,18 +17,114 @@
 @section('content')
     <div class="space-y-8">
 
-        <!-- Period Filter -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-                <h3 class="text-lg font-bold">Ringkasan Bulan {{ now()->translatedFormat('F Y') }}</h3>
-                <p class="text-sm text-slate-500">Data laporan dihitung dari transaksi dan pengeluaran yang kamu input</p>
+        <!-- AI Insight Card -->
+        <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <p class="text-sm text-emerald-300 font-semibold">DagangFlow AI Insight</p>
+                    <h3 class="text-2xl font-bold mt-2">Ringkasan penjualan & keuangan berbasis AI</h3>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Gemini akan membaca data laporan sesuai periode yang dipilih dan memberi saran bisnis yang praktis.
+                    </p>
+                </div>
+
+                <form action="{{ route('reports.ai-insight') }}" method="POST">
+                    @csrf
+
+                    <input type="hidden" name="start_date" value="{{ $selectedPeriod['start_date'] }}">
+                    <input type="hidden" name="end_date" value="{{ $selectedPeriod['end_date'] }}">
+
+                    <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                        Generate AI Insight
+                    </button>
+                </form>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-                <button class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold">Bulan Ini</button>
-                <button class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">7 Hari</button>
-                <button class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">30 Hari</button>
-                <button class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">Custom</button>
+            @if (session('aiNotice'))
+                <div class="mt-6 p-4 rounded-2xl bg-amber-400/10 border border-amber-300/20 text-amber-100 text-sm leading-relaxed">
+                    {{ session('aiNotice') }}
+                </div>
+            @endif
+
+            @if (session('aiInsight'))
+                <div class="mt-6 p-5 rounded-2xl bg-white/10 border border-white/10">
+                    <div class="ai-insight-content text-sm leading-relaxed text-slate-100">
+                        {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
+                    </div>
+                </div>
+            @else
+                <div class="mt-6 p-5 rounded-2xl bg-white/10 border border-white/10">
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Belum ada insight AI. Klik tombol Generate AI Insight untuk membuat ringkasan otomatis.
+                    </p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Period Filter -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
+                <div>
+                    <h3 class="text-lg font-bold">Ringkasan Periode</h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Data dihitung dari
+                        {{ \Carbon\Carbon::parse($selectedPeriod['start_date'])->format('d M Y') }}
+                        sampai
+                        {{ \Carbon\Carbon::parse($selectedPeriod['end_date'])->format('d M Y') }}
+                    </p>
+                </div>
+
+                <form action="/reports" method="GET" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500">Tanggal mulai</label>
+                        <input
+                            type="date"
+                            name="start_date"
+                            value="{{ $selectedPeriod['start_date'] }}"
+                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500">Tanggal akhir</label>
+                        <input
+                            type="date"
+                            name="end_date"
+                            value="{{ $selectedPeriod['end_date'] }}"
+                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                        >
+                    </div>
+
+                    <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                        Terapkan Filter
+                    </button>
+
+                    <a href="/reports" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
+                        Reset
+                    </a>
+                </form>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 mt-5">
+                <a href="/reports?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    Hari Ini
+                </a>
+
+                <a href="/reports?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    7 Hari
+                </a>
+
+                <a href="/reports?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold hover:bg-emerald-100">
+                    Bulan Ini
+                </a>
+
+                <a href="/reports?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    Bulan Lalu
+                </a>
             </div>
         </div>
 
@@ -38,7 +135,7 @@
                 <h3 class="text-3xl font-bold mt-3">
                     Rp{{ number_format($grossRevenue, 0, ',', '.') }}
                 </h3>
-                <p class="text-sm text-emerald-600 font-medium mt-2">Bulan ini</p>
+                <p class="text-sm text-emerald-600 font-medium mt-2">Periode aktif</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
@@ -46,7 +143,7 @@
                 <h3 class="text-3xl font-bold mt-3 text-red-600">
                     Rp{{ number_format($totalExpenses, 0, ',', '.') }}
                 </h3>
-                <p class="text-sm text-slate-500 mt-2">Bulan ini</p>
+                <p class="text-sm text-slate-500 mt-2">Periode aktif</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
@@ -113,7 +210,7 @@
                     Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
                 </h3>
 
-                <p class="text-sm text-slate-300 mt-2">Estimasi laba bulan ini</p>
+                <p class="text-sm text-slate-300 mt-2">Estimasi laba periode ini</p>
 
                 @php
                     $safeRevenue = max($grossRevenue, 1);
@@ -155,12 +252,14 @@
 
                 <div class="mt-8 p-4 rounded-xl bg-white/10">
                     <p class="text-sm text-slate-300 leading-relaxed">
-                        @if($grossRevenue <= 0)
-                            Belum ada penjualan bulan ini. Mulai catat transaksi agar laporan bisa terbaca.
+                        @if($grossRevenue <= 0 && $totalExpenses <= 0)
+                            Belum ada data penjualan dan pengeluaran pada periode ini.
+                        @elseif($grossRevenue <= 0)
+                            Belum ada penjualan, tetapi sudah ada pengeluaran. Perlu mulai dorong transaksi masuk.
                         @elseif($estimatedProfit >= 0)
                             Laba masih positif. Pantau pengeluaran agar margin tetap sehat.
                         @else
-                            Pengeluaran lebih besar dari omzet. Cek kategori biaya terbesar bulan ini.
+                            Pengeluaran lebih besar dari omzet. Cek kategori biaya terbesar periode ini.
                         @endif
                     </p>
                 </div>
@@ -220,7 +319,7 @@
                         <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
                             <div>
                                 <p class="font-semibold">{{ $product['name'] }}</p>
-                                <p class="text-sm text-slate-500">{{ $product['sold'] }} terjual</p>
+                                <p class="text-sm text-slate-500">{{ number_format($product['sold'], 0, ',', '.') }} terjual</p>
                             </div>
 
                             <p class="font-bold text-emerald-600">
@@ -239,7 +338,7 @@
             <!-- Expense Breakdown -->
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <h3 class="text-lg font-bold">Pengeluaran Terbesar</h3>
-                <p class="text-sm text-slate-500 mb-6">Kategori biaya bulan ini</p>
+                <p class="text-sm text-slate-500 mb-6">Kategori biaya periode ini</p>
 
                 @php
                     $totalExpenseBreakdown = $expenseBreakdown->sum();
@@ -282,7 +381,7 @@
                 </h3>
                 <p class="text-sm text-slate-600 mt-3 leading-relaxed">
                     @if($channelPerformance->count() > 0)
-                        Channel ini punya kontribusi omzet terbesar bulan ini. Pertimbangkan untuk mempertahankan strategi penjualan di channel tersebut.
+                        Channel ini punya kontribusi omzet terbesar pada periode ini.
                     @else
                         Mulai catat transaksi agar DagangFlow bisa membaca channel terbaik kamu.
                     @endif
@@ -306,7 +405,7 @@
                 </h3>
                 <p class="text-sm text-slate-600 mt-3 leading-relaxed">
                     @if($topProducts->count() > 0)
-                        Produk ini paling sering dibeli bulan ini. Cocok dijadikan fokus stok, promo, atau bundling.
+                        Produk ini paling sering dibeli pada periode ini. Cocok dijadikan fokus stok, promo, atau bundling.
                     @else
                         Produk terlaris akan muncul setelah kamu mencatat penjualan.
                     @endif
@@ -315,4 +414,33 @@
         </div>
 
     </div>
+
+    <style>
+        .ai-insight-content p {
+            margin-bottom: 12px;
+        }
+
+        .ai-insight-content strong {
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .ai-insight-content ol {
+            list-style: decimal;
+            padding-left: 20px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-insight-content ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-insight-content li {
+            margin-bottom: 8px;
+        }
+    </style>
 @endsection
