@@ -374,10 +374,6 @@
                     <p class="text-sm text-slate-500 mb-6">Produk dengan stok rendah atau habis</p>
 
                     <div class="space-y-4">
-                        @php
-                            $restockProducts = $products->filter(fn($product) => $product->stock <= $product->low_stock_limit);
-                        @endphp
-
                         @forelse($restockProducts as $product)
                             <div class="flex items-center justify-between p-4 rounded-xl {{ $product->stock <= 0 ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100' }} border">
                                 <div>
