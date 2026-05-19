@@ -55,7 +55,12 @@ class ReportController extends Controller
         $grossRevenue = $monthlySales->sum('gross_total');
         $totalExpenses = $monthlyExpenses->sum('amount');
         $platformFees = $monthlySales->sum('platform_fee');
-        $estimatedProfit = $grossRevenue - $totalExpenses;
+
+        $totalCOGS = $monthlySales->sum(function ($sale) {
+            return ($sale->product->cost_price ?? 0) * $sale->quantity;
+        });
+
+        $estimatedProfit = $grossRevenue - $totalCOGS - $platformFees - $totalExpenses;
 
         $profitMargin = $grossRevenue > 0
             ? round(($estimatedProfit / $grossRevenue) * 100)
@@ -118,6 +123,7 @@ class ReportController extends Controller
             'grossRevenue',
             'totalExpenses',
             'platformFees',
+            'totalCOGS',
             'estimatedProfit',
             'profitMargin',
             'sevenDaysSales',
@@ -174,7 +180,12 @@ class ReportController extends Controller
         $grossRevenue = $monthlySales->sum('gross_total');
         $totalExpenses = $monthlyExpenses->sum('amount');
         $platformFees = $monthlySales->sum('platform_fee');
-        $estimatedProfit = $grossRevenue - $totalExpenses;
+
+        $totalCOGS = $monthlySales->sum(function ($sale) {
+            return ($sale->product->cost_price ?? 0) * $sale->quantity;
+        });
+
+        $estimatedProfit = $grossRevenue - $totalCOGS - $platformFees - $totalExpenses;
 
         $profitMargin = $grossRevenue > 0
             ? round(($estimatedProfit / $grossRevenue) * 100)
@@ -238,10 +249,14 @@ Buat ringkasan insight penjualan dan keuangan dalam Bahasa Indonesia yang singka
 
 Data periode {$periodText}:
 - Omzet kotor: Rp" . number_format($grossRevenue, 0, ',', '.') . "
-- Total pengeluaran: Rp" . number_format($totalExpenses, 0, ',', '.') . "
+- HPP produk terjual: Rp" . number_format($totalCOGS, 0, ',', '.') . "
 - Biaya platform: Rp" . number_format($platformFees, 0, ',', '.') . "
-- Estimasi laba: Rp" . number_format($estimatedProfit, 0, ',', '.') . "
+- Total pengeluaran operasional: Rp" . number_format($totalExpenses, 0, ',', '.') . "
+- Estimasi laba bersih: Rp" . number_format($estimatedProfit, 0, ',', '.') . "
 - Margin estimasi: {$profitMargin}%
+
+Rumus laba yang digunakan:
+Omzet kotor - HPP produk terjual - biaya platform - pengeluaran operasional.
 
 Performa channel:
 {$channelText}
@@ -272,6 +287,7 @@ Gunakan format markdown seperlunya.
                 $grossRevenue,
                 $totalExpenses,
                 $platformFees,
+                $totalCOGS,
                 $estimatedProfit,
                 $profitMargin,
                 $channelPerformance,
@@ -312,6 +328,7 @@ Gunakan format markdown seperlunya.
                     $grossRevenue,
                     $totalExpenses,
                     $platformFees,
+                    $totalCOGS,
                     $estimatedProfit,
                     $profitMargin,
                     $channelPerformance,
@@ -333,6 +350,7 @@ Gunakan format markdown seperlunya.
                     $grossRevenue,
                     $totalExpenses,
                     $platformFees,
+                    $totalCOGS,
                     $estimatedProfit,
                     $profitMargin,
                     $channelPerformance,
@@ -348,12 +366,12 @@ Gunakan format markdown seperlunya.
             }
 
             return back()->with('aiInsight', $aiInsight);
-
         } catch (\Exception $e) {
             $fallbackInsight = $this->buildFallbackInsight(
                 $grossRevenue,
                 $totalExpenses,
                 $platformFees,
+                $totalCOGS,
                 $estimatedProfit,
                 $profitMargin,
                 $channelPerformance,
@@ -373,6 +391,7 @@ Gunakan format markdown seperlunya.
         int $grossRevenue,
         int $totalExpenses,
         int $platformFees,
+        int $totalCOGS,
         int $estimatedProfit,
         int $profitMargin,
         $channelPerformance,
@@ -399,9 +418,9 @@ Gunakan format markdown seperlunya.
             $topExpenseAmount = $expenseBreakdown->first() ?? 0;
 
             return "1. Ringkasan kondisi bisnis periode {$periodText}\n"
-                . "Pada periode ini belum ada penjualan yang tercatat, tetapi sudah ada pengeluaran sebesar Rp" . number_format($totalExpenses, 0, ',', '.') . ".\n\n"
+                . "Pada periode ini belum ada penjualan yang tercatat, tetapi sudah ada pengeluaran operasional sebesar Rp" . number_format($totalExpenses, 0, ',', '.') . ".\n\n"
                 . "2. Masalah utama yang perlu diperhatikan\n"
-                . "Pengeluaran sudah berjalan tanpa pemasukan, sehingga estimasi laba masih negatif sebesar Rp" . number_format(abs($estimatedProfit), 0, ',', '.') . ". Pengeluaran terbesar ada pada kategori {$topExpenseCategory} sebesar Rp" . number_format($topExpenseAmount, 0, ',', '.') . ".\n\n"
+                . "Pengeluaran sudah berjalan tanpa pemasukan, sehingga estimasi laba bersih masih negatif sebesar Rp" . number_format(abs($estimatedProfit), 0, ',', '.') . ". Pengeluaran terbesar ada pada kategori {$topExpenseCategory} sebesar Rp" . number_format($topExpenseAmount, 0, ',', '.') . ".\n\n"
                 . "3. Rekomendasi aksi minggu ini\n"
                 . "Prioritaskan aktivitas penjualan terlebih dahulu sebelum menambah biaya baru. Cek kembali apakah pengeluaran pada periode ini benar-benar mendukung penjualan.\n\n"
                 . "4. Saran channel/produk yang perlu difokuskan\n"
@@ -421,15 +440,15 @@ Gunakan format markdown seperlunya.
         $profitStatus = $estimatedProfit >= 0 ? 'masih positif' : 'masih negatif';
 
         $recommendation = $profitMargin >= 30
-            ? 'Margin masih cukup sehat. Pertahankan produk dan channel yang paling menghasilkan, sambil tetap mengontrol biaya.'
+            ? 'Margin masih cukup sehat. Pertahankan produk dan channel yang paling menghasilkan, sambil tetap mengontrol HPP, biaya platform, dan pengeluaran operasional.'
             : 'Margin masih perlu dipantau. Cek kembali harga jual, modal produk, biaya platform, dan pengeluaran terbesar.';
 
         return "1. Ringkasan kondisi bisnis periode {$periodText}\n"
-            . "Omzet kotor tercatat Rp" . number_format($grossRevenue, 0, ',', '.') . " dengan total pengeluaran Rp" . number_format($totalExpenses, 0, ',', '.') . ". Estimasi laba {$profitStatus} sebesar Rp" . number_format($estimatedProfit, 0, ',', '.') . " dengan margin sekitar {$profitMargin}%.\n\n"
+            . "Omzet kotor tercatat Rp" . number_format($grossRevenue, 0, ',', '.') . ", HPP produk terjual Rp" . number_format($totalCOGS, 0, ',', '.') . ", biaya platform Rp" . number_format($platformFees, 0, ',', '.') . ", dan pengeluaran operasional Rp" . number_format($totalExpenses, 0, ',', '.') . ". Estimasi laba bersih {$profitStatus} sebesar Rp" . number_format($estimatedProfit, 0, ',', '.') . " dengan margin sekitar {$profitMargin}%.\n\n"
             . "2. Masalah utama yang perlu diperhatikan\n"
             . ($topExpenseCategory
-                ? "Pengeluaran terbesar berasal dari kategori {$topExpenseCategory} sebesar Rp" . number_format($topExpenseAmount, 0, ',', '.') . ". Biaya platform tercatat Rp" . number_format($platformFees, 0, ',', '.') . ".\n\n"
-                : "Belum ada pengeluaran besar yang terbaca pada periode ini. Tetap pantau biaya agar laba tidak turun.\n\n")
+                ? "Pengeluaran terbesar berasal dari kategori {$topExpenseCategory} sebesar Rp" . number_format($topExpenseAmount, 0, ',', '.') . ". HPP produk terjual tercatat Rp" . number_format($totalCOGS, 0, ',', '.') . " dan biaya platform Rp" . number_format($platformFees, 0, ',', '.') . ".\n\n"
+                : "Belum ada pengeluaran besar yang terbaca pada periode ini. Tetap pantau HPP dan biaya platform agar laba tidak turun.\n\n")
             . "3. Rekomendasi aksi minggu ini\n"
             . $recommendation . "\n\n"
             . "4. Saran channel/produk yang perlu difokuskan\n"
