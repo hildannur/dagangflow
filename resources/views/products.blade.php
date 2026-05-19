@@ -62,11 +62,86 @@
 
             <!-- Product Table -->
             <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div>
-                        <h3 class="text-lg font-bold">Daftar Produk</h3>
-                        <p class="text-sm text-slate-500">Data produk tersimpan di database</p>
+                <div class="p-6 border-b border-slate-200 space-y-5">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold">Daftar Produk</h3>
+                            <p class="text-sm text-slate-500">
+                                Menampilkan {{ $products->count() }} dari {{ $totalProducts }} produk tercatat
+                            </p>
+                        </div>
+                
+                        @if($activeFilters['search'] || $activeFilters['category'] || $activeFilters['stock_status'] || $activeFilters['sort'] !== 'latest')
+                            <a href="/products" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+                                Reset filter
+                            </a>
+                        @endif
                     </div>
+                
+                    <form action="/products" method="GET" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <div class="xl:col-span-2">
+                            <label class="text-xs font-semibold text-slate-500">Cari produk</label>
+                            <input
+                                type="text"
+                                name="search"
+                                value="{{ $activeFilters['search'] }}"
+                                placeholder="Nama produk atau kategori"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Kategori</label>
+                            <select
+                                name="category"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Semua kategori</option>
+                
+                                @foreach($availableCategories as $category)
+                                    <option value="{{ $category }}" @selected($activeFilters['category'] === $category)>
+                                        {{ $category }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Status stok</label>
+                            <select
+                                name="stock_status"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="">Semua status</option>
+                                <option value="safe" @selected($activeFilters['stock_status'] === 'safe')>Aman</option>
+                                <option value="low" @selected($activeFilters['stock_status'] === 'low')>Stok rendah</option>
+                                <option value="empty" @selected($activeFilters['stock_status'] === 'empty')>Habis</option>
+                            </select>
+                        </div>
+                
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500">Urutkan</label>
+                            <select
+                                name="sort"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                            >
+                                <option value="latest" @selected($activeFilters['sort'] === 'latest')>Terbaru</option>
+                                <option value="stock_asc" @selected($activeFilters['sort'] === 'stock_asc')>Stok terendah</option>
+                                <option value="price_desc" @selected($activeFilters['sort'] === 'price_desc')>Harga tertinggi</option>
+                                <option value="name_asc" @selected($activeFilters['sort'] === 'name_asc')>Nama A-Z</option>
+                            </select>
+                        </div>
+                
+                        <div class="md:col-span-2 xl:col-span-5 flex flex-col sm:flex-row gap-3">
+                            <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                Terapkan Filter
+                            </button>
+                
+                            <a href="/products" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -171,11 +246,27 @@
                                                 📦
                                             </div>
 
-                                            <h3 class="font-bold text-slate-900 mt-4">Belum ada produk</h3>
-
+                                            <h3 class="font-bold text-slate-900 mt-4">
+                                                @if($totalProducts > 0)
+                                                    Produk tidak ditemukan
+                                                @else
+                                                    Belum ada produk
+                                                @endif
+                                            </h3>
+                                            
                                             <p class="text-sm text-slate-500 mt-2">
-                                                Tambahkan produk pertama kamu melalui form di sebelah kanan.
+                                                @if($totalProducts > 0)
+                                                    Coba ubah keyword pencarian, kategori, status stok, atau reset filter produk.
+                                                @else
+                                                    Tambahkan produk pertama kamu melalui form di sebelah kanan.
+                                                @endif
                                             </p>
+                                            
+                                            @if($totalProducts > 0)
+                                                <a href="/products" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                                    Reset Filter
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
