@@ -44,6 +44,12 @@
             <x-lucide-chart-column-big class="w-5 h-5 shrink-0" />
             <span>Laporan</span>
         </a>
+        
+        <a href="/help" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('help') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+            <x-lucide-circle-help class="w-5 h-5 shrink-0" />
+            <span>Pusat Bantuan</span>
+        </a>
+
     </nav>
 
     <div class="p-5 space-y-3">
