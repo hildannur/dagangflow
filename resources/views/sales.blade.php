@@ -29,7 +29,7 @@
                 {{ $errors->first() }}
             </div>
         @endif
-        
+
         <!-- Period Filter -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
@@ -42,7 +42,7 @@
                         {{ \Carbon\Carbon::parse($selectedPeriod['end_date'])->format('d M Y') }}
                     </p>
                 </div>
-        
+
                 <form action="/sales" method="GET" class="flex flex-col sm:flex-row sm:items-end gap-3">
                     <div>
                         <label class="text-xs font-semibold text-slate-500">Tanggal mulai</label>
@@ -53,7 +53,7 @@
                             class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                         >
                     </div>
-        
+
                     <div>
                         <label class="text-xs font-semibold text-slate-500">Tanggal akhir</label>
                         <input
@@ -63,33 +63,33 @@
                             class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                         >
                     </div>
-        
+
                     <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
                         Terapkan Filter
                     </button>
-        
+
                     <a href="/sales" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
                         Reset
                     </a>
                 </form>
             </div>
-        
+
             <div class="flex flex-wrap items-center gap-3 mt-5">
                 <a href="/sales?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
                     class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
                     Hari Ini
                 </a>
-        
+
                 <a href="/sales?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
                     class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
                     7 Hari
                 </a>
-        
+
                 <a href="/sales?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
                     class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold hover:bg-emerald-100">
                     Bulan Ini
                 </a>
-        
+
                 <a href="/sales?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
                     class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
                     Bulan Lalu
@@ -97,38 +97,153 @@
             </div>
         </div>
 
+        @php
+            $periodRevenueTrend = $periodRevenueTrend ?? ['status' => 'flat', 'percent' => 0];
+            $totalRevenueTrend = $totalRevenueTrend ?? ['status' => 'flat', 'percent' => 0];
+            $platformFeeTrend = $platformFeeTrend ?? ['status' => 'flat', 'percent' => 0];
+            $netRevenueTrend = $netRevenueTrend ?? ['status' => 'flat', 'percent' => 0];
+        @endphp
+
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Omzet Periode Ini</p>
-                <h3 class="text-3xl font-bold mt-3">
-                    Rp{{ number_format($todayRevenue, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-emerald-600 font-medium mt-2">Sesuai filter tanggal</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-trending-up class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
+                        Rp{{ number_format($todayRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $periodRevenueTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $periodRevenueTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $periodRevenueTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($periodRevenueTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $periodRevenueTrend['percent'] }}%
+                        @elseif($periodRevenueTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $periodRevenueTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari periode sebelumnya</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Total Omzet</p>
-                <h3 class="text-3xl font-bold mt-3">
-                    Rp{{ number_format($monthRevenue, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Periode Aktif</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-circle-dollar-sign class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
+                        Rp{{ number_format($monthRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $totalRevenueTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $totalRevenueTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $totalRevenueTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($totalRevenueTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $totalRevenueTrend['percent'] }}%
+                        @elseif($totalRevenueTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $totalRevenueTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari periode sebelumnya</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Biaya Platform</p>
-                <h3 class="text-3xl font-bold mt-3 text-amber-600">
-                    Rp{{ number_format($platformFees, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Marketplace & delivery</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-wallet class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight text-amber-600">
+                        Rp{{ number_format($platformFees, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $platformFeeTrend['status'] === 'up' ? 'text-red-600' : '' }}
+                        {{ $platformFeeTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $platformFeeTrend['status'] === 'down' ? 'text-emerald-600' : '' }}
+                    ">
+                        @if($platformFeeTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $platformFeeTrend['percent'] }}%
+                        @elseif($platformFeeTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $platformFeeTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari periode sebelumnya</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Uang Bersih</p>
-                <h3 class="text-3xl font-bold mt-3 text-emerald-600">
-                    Rp{{ number_format($netRevenue, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Setelah potongan platform</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-hand-coins class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight text-emerald-600">
+                        Rp{{ number_format($netRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $netRevenueTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $netRevenueTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $netRevenueTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($netRevenueTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $netRevenueTrend['percent'] }}%
+                        @elseif($netRevenueTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $netRevenueTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari periode sebelumnya</span>
+                </div>
             </div>
         </div>
 
@@ -258,8 +373,8 @@
                                 <tr>
                                     <td colspan="9" class="px-6 py-14 text-center">
                                         <div class="max-w-sm mx-auto">
-                                            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
-                                                🧾
+                                            <div class="w-14 h-14 rounded-full bg-slate-500 text-white flex items-center justify-center mx-auto">
+                                                <x-lucide-receipt-text class="w-7 h-7" />
                                             </div>
                                             <h3 class="font-bold text-slate-900 mt-4">Belum ada penjualan</h3>
                                             <p class="text-sm text-slate-500 mt-2">
@@ -668,36 +783,36 @@
                 }).format(number);
             }
 
-           function openEditSaleModal(id, productId, channel, quantity, platformFee, status, saleDate, note) {
-            const modal = document.getElementById('editSaleModal');
-            const form = document.getElementById('editSaleForm');
+            function openEditSaleModal(id, productId, channel, quantity, platformFee, status, saleDate, note) {
+                const modal = document.getElementById('editSaleModal');
+                const form = document.getElementById('editSaleForm');
 
-            form.action = `/sales/${id}`;
+                form.action = `/sales/${id}`;
 
-            document.getElementById('edit_product_id').value = productId;
-            document.getElementById('edit_channel').value = channel;
-            document.getElementById('edit_quantity').value = formatRibuanPlain(cleanNumber(quantity));
-            document.getElementById('edit_platform_fee').value = formatRibuanPlain(cleanNumber(platformFee));
-            document.getElementById('edit_status').value = status;
-            document.getElementById('edit_sale_date').value = saleDate || '';
-            document.getElementById('edit_note').value = note || '';
+                document.getElementById('edit_product_id').value = productId;
+                document.getElementById('edit_channel').value = channel;
+                document.getElementById('edit_quantity').value = formatRibuanPlain(cleanNumber(quantity));
+                document.getElementById('edit_platform_fee').value = formatRibuanPlain(cleanNumber(platformFee));
+                document.getElementById('edit_status').value = status;
+                document.getElementById('edit_sale_date').value = saleDate || '';
+                document.getElementById('edit_note').value = note || '';
 
-            updateEditSalePreview();
+                updateEditSalePreview();
 
-            modal.classList.remove('hidden');
-            modal.classList.add('block');
+                modal.classList.remove('hidden');
+                modal.classList.add('block');
 
-            document.body.classList.add('overflow-hidden');
-        }
+                document.body.classList.add('overflow-hidden');
+            }
 
-        function closeEditSaleModal() {
-            const modal = document.getElementById('editSaleModal');
+            function closeEditSaleModal() {
+                const modal = document.getElementById('editSaleModal');
 
-            modal.classList.add('hidden');
-            modal.classList.remove('block');
+                modal.classList.add('hidden');
+                modal.classList.remove('block');
 
-            document.body.classList.remove('overflow-hidden');
-        }
+                document.body.classList.remove('overflow-hidden');
+            }
 
             function updateEditSalePreview() {
                 const productSelect = document.getElementById('edit_product_id');

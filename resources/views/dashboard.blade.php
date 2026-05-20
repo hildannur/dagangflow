@@ -21,47 +21,141 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Omzet Bulan Ini</p>
-                <div class="flex items-end justify-between mt-3">
-                    <h3 class="text-3xl font-bold">
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-trending-up class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
                         Rp{{ number_format($monthlyRevenue, 0, ',', '.') }}
                     </h3>
-                    <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
-                        Bulan ini
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $revenueTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $revenueTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $revenueTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($revenueTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $revenueTrend['percent'] }}%
+                        @elseif($revenueTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $revenueTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
                     </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Pengeluaran</p>
-                <div class="flex items-end justify-between mt-3">
-                    <h3 class="text-3xl font-bold">
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-wallet class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
                         Rp{{ number_format($monthlyExpenseTotal, 0, ',', '.') }}
                     </h3>
-                    <span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold">
-                        Bulan ini
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $expenseTrend['status'] === 'up' ? 'text-red-600' : '' }}
+                        {{ $expenseTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $expenseTrend['status'] === 'down' ? 'text-emerald-600' : '' }}
+                    ">
+                        @if($expenseTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $expenseTrend['percent'] }}%
+                        @elseif($expenseTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $expenseTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
                     </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Estimasi Laba</p>
-                <div class="flex items-end justify-between mt-3">
-                    <h3 class="text-3xl font-bold {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full {{ $estimatedProfit >= 0 ? 'bg-emerald-500' : 'bg-red-500' }} text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-hand-coins class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
                         Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
                     </h3>
-                    <span class="text-xs px-2 py-1 rounded-full {{ $estimatedProfit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }} font-semibold">
-                        {{ $estimatedProfit >= 0 ? 'Sehat' : 'Minus' }}
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $profitTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $profitTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $profitTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($profitTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $profitTrend['percent'] }}%
+                        @elseif($profitTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $profitTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
                     </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Total Transaksi</p>
-                <div class="flex items-end justify-between mt-3">
-                    <h3 class="text-3xl font-bold">{{ $totalTransactions }}</h3>
-                    <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold">
-                        Bulan ini
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-receipt-text class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
+                        {{ $totalTransactions }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $transactionTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $transactionTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $transactionTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($transactionTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $transactionTrend['percent'] }}%
+                        @elseif($transactionTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $transactionTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
                     </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
                 </div>
             </div>
         </div>
@@ -76,6 +170,7 @@
                         <h3 class="text-lg font-bold">Performa Penjualan</h3>
                         <p class="text-sm text-slate-500">Ringkasan omzet 7 hari terakhir</p>
                     </div>
+
                     <a href="/sales" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
                         Detail
                     </a>
@@ -149,6 +244,7 @@
                         <h3 class="text-lg font-bold">Transaksi Terbaru</h3>
                         <p class="text-sm text-slate-500">Penjualan terakhir dari berbagai channel</p>
                     </div>
+
                     <a href="/sales" class="text-sm font-semibold text-emerald-600">Lihat semua</a>
                 </div>
 

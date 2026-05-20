@@ -18,158 +18,335 @@
     <div class="space-y-8">
 
         <!-- AI Insight Card -->
-        <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                    <p class="text-sm text-emerald-300 font-semibold">DagangFlow AI Insight</p>
-                    <h3 class="text-2xl font-bold mt-2">Ringkasan penjualan & keuangan berbasis AI</h3>
-                    <p class="text-sm text-slate-300 mt-2">
-                        Gemini akan membaca data laporan sesuai periode yang dipilih dan memberi saran bisnis yang praktis.
-                    </p>
-                </div>
+        <div class="bg-[#0F172A] rounded-2xl text-white shadow-sm overflow-hidden border border-white/10">
+            <div class="grid grid-cols-1 xl:grid-cols-12">
 
-                <form action="{{ route('reports.ai-insight') }}" method="POST">
-                    @csrf
+                <div class="xl:col-span-5 p-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                            <x-lucide-sparkles class="w-4 h-4" />
+                        </div>
 
-                    <input type="hidden" name="start_date" value="{{ $selectedPeriod['start_date'] }}">
-                    <input type="hidden" name="end_date" value="{{ $selectedPeriod['end_date'] }}">
-
-                    <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                        Generate AI Insight
-                    </button>
-                </form>
-            </div>
-
-            @if (session('aiNotice'))
-                <div class="mt-6 p-4 rounded-2xl bg-amber-400/10 border border-amber-300/20 text-amber-100 text-sm leading-relaxed">
-                    {{ session('aiNotice') }}
-                </div>
-            @endif
-
-            @if (session('aiInsight'))
-                <div class="mt-6 p-5 rounded-2xl bg-white/10 border border-white/10">
-                    <div class="ai-insight-content text-sm leading-relaxed text-slate-100">
-                        {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
+                        <p class="text-sm text-emerald-300 font-semibold">
+                            DagangFlow AI Insight
+                        </p>
                     </div>
-                </div>
-            @else
-                <div class="mt-6 p-5 rounded-2xl bg-white/10 border border-white/10">
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        Belum ada insight AI. Klik tombol Generate AI Insight untuk membuat ringkasan otomatis.
+
+                    <h3 class="text-2xl font-bold mt-4">
+                        Ringkasan penjualan & keuangan berbasis AI
+                    </h3>
+
+                    <p class="text-sm text-slate-300 mt-3 leading-relaxed">
+                        Dapatkan rangkuman performa bisnis dan rekomendasi cerdas untuk pertumbuhan toko Anda.
                     </p>
                 </div>
-            @endif
+
+                <div class="xl:col-span-2 p-6 flex items-center xl:justify-center border-t xl:border-t-0 xl:border-l border-white/10">
+                    <form action="{{ route('reports.ai-insight') }}" method="POST" class="w-full">
+                        @csrf
+
+                        <input type="hidden" name="start_date" value="{{ $selectedPeriod['start_date'] }}">
+                        <input type="hidden" name="end_date" value="{{ $selectedPeriod['end_date'] }}">
+
+                        <button class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition">
+                            <x-lucide-sparkles class="w-4 h-4" />
+                            Generate AI Insight
+                        </button>
+                    </form>
+                </div>
+
+                <div class="xl:col-span-5 p-6 border-t xl:border-t-0 xl:border-l border-white/10 bg-white/[0.03]">
+                    <div class="flex items-center justify-between gap-4">
+                        <p class="text-sm font-semibold text-white">
+                            Insight Terbaru
+                            <span class="text-slate-400 font-medium">
+                                ({{ now()->format('d M Y') }})
+                            </span>
+                        </p>
+
+                        <div class="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
+                            <x-lucide-circle-check class="w-3.5 h-3.5" />
+                            Dihasilkan
+                        </div>
+                    </div>
+
+                    @if (session('aiNotice'))
+                        <div class="mt-4 p-3 rounded-xl bg-amber-400/10 border border-amber-300/20 text-amber-100 text-xs leading-relaxed">
+                            {{ session('aiNotice') }}
+                        </div>
+                    @endif
+
+                    @if (session('aiInsight'))
+                        <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-100 max-h-40 overflow-y-auto pr-2">
+                            {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
+                        </div>
+                    @else
+                        <div class="mt-4 text-sm leading-relaxed text-slate-300 space-y-2">
+                            <p>
+                                Omzet Anda akan dianalisis berdasarkan periode yang dipilih.
+                            </p>
+                            <p>
+                                Klik <span class="text-emerald-300 font-semibold">Generate AI Insight</span> untuk melihat ringkasan kondisi bisnis, masalah utama, dan rekomendasi aksi.
+                            </p>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <!-- Period Filter -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
-                <div>
-                    <h3 class="text-lg font-bold">Ringkasan Periode</h3>
-                    <p class="text-sm text-slate-500 mt-1">
-                        Data dihitung dari
-                        {{ \Carbon\Carbon::parse($selectedPeriod['start_date'])->format('d M Y') }}
-                        sampai
-                        {{ \Carbon\Carbon::parse($selectedPeriod['end_date'])->format('d M Y') }}
-                    </p>
-                </div>
-
-                <form action="/reports" method="GET" class="flex flex-col sm:flex-row sm:items-end gap-3">
+                <form action="/reports" method="GET" class="flex flex-col lg:flex-row lg:items-end gap-3 flex-1">
                     <div>
-                        <label class="text-xs font-semibold text-slate-500">Tanggal mulai</label>
-                        <input
-                            type="date"
-                            name="start_date"
-                            value="{{ $selectedPeriod['start_date'] }}"
-                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                        >
+                        <label class="text-xs font-semibold text-slate-500">Periode</label>
+
+                        <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div class="relative">
+                                <input
+                                    type="date"
+                                    name="start_date"
+                                    value="{{ $selectedPeriod['start_date'] }}"
+                                    class="w-full sm:w-44 pl-4 pr-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                >
+                            </div>
+
+                            <span class="hidden sm:block text-slate-400 font-semibold">—</span>
+
+                            <div class="relative">
+                                <input
+                                    type="date"
+                                    name="end_date"
+                                    value="{{ $selectedPeriod['end_date'] }}"
+                                    class="w-full sm:w-44 pl-4 pr-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                >
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Tanggal akhir</label>
-                        <input
-                            type="date"
-                            name="end_date"
-                            value="{{ $selectedPeriod['end_date'] }}"
-                            class="mt-2 px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                        >
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                            <x-lucide-filter class="w-4 h-4" />
+                            Terapkan Filter
+                        </button>
+
+                        <a href="/reports" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
+                            <x-lucide-rotate-ccw class="w-4 h-4" />
+                            Reset
+                        </a>
                     </div>
-
-                    <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                        Terapkan Filter
-                    </button>
-
-                    <a href="/reports" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
-                        Reset
-                    </a>
                 </form>
-            </div>
 
-            <div class="flex flex-wrap items-center gap-3 mt-5">
-                <a href="/reports?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
-                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
-                    Hari Ini
-                </a>
+                <div class="flex flex-wrap items-center gap-3 xl:justify-end">
+                    <a href="/reports?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
+                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                        Hari Ini
+                    </a>
 
-                <a href="/reports?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
-                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
-                    7 Hari
-                </a>
+                    <a href="/reports?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
+                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                        7 Hari
+                    </a>
 
-                <a href="/reports?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
-                    class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold hover:bg-emerald-100">
-                    Bulan Ini
-                </a>
+                    <a href="/reports?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
+                        class="px-4 py-2 rounded-xl bg-emerald-500 text-white border border-emerald-500 text-sm font-semibold hover:bg-emerald-600">
+                        Bulan Ini
+                    </a>
 
-                <a href="/reports?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
-                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
-                    Bulan Lalu
-                </a>
+                    <a href="/reports?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
+                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                        Bulan Lalu
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
+        @php
+            $grossRevenueTrend = $grossRevenueTrend ?? ['status' => 'flat', 'percent' => 0];
+            $cogsTrend = $cogsTrend ?? ['status' => 'flat', 'percent' => 0];
+            $expenseTrend = $expenseTrend ?? ['status' => 'flat', 'percent' => 0];
+            $profitTrend = $profitTrend ?? ['status' => 'flat', 'percent' => 0];
+            $marginTrend = $marginTrend ?? ['status' => 'flat', 'percent' => 0];
+        @endphp
+
+        <!-- Stats Top Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Omzet Kotor</p>
-                <h3 class="text-3xl font-bold mt-3">
-                    Rp{{ number_format($grossRevenue, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-emerald-600 font-medium mt-2">Periode aktif</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-trending-up class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight">
+                        Rp{{ number_format($grossRevenue, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $grossRevenueTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $grossRevenueTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $grossRevenueTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($grossRevenueTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $grossRevenueTrend['percent'] }}%
+                        @elseif($grossRevenueTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $grossRevenueTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">HPP Produk</p>
-                <h3 class="text-3xl font-bold mt-3 text-blue-600">
-                    Rp{{ number_format($totalCOGS, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Modal produk terjual</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-package class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight text-blue-600">
+                        Rp{{ number_format($totalCOGS, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $cogsTrend['status'] === 'up' ? 'text-red-600' : '' }}
+                        {{ $cogsTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $cogsTrend['status'] === 'down' ? 'text-emerald-600' : '' }}
+                    ">
+                        @if($cogsTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $cogsTrend['percent'] }}%
+                        @elseif($cogsTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $cogsTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Total Pengeluaran</p>
-                <h3 class="text-3xl font-bold mt-3 text-red-600">
-                    Rp{{ number_format($totalExpenses, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Operasional bisnis</p>
-            </div>
 
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-wallet class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight text-red-600">
+                        Rp{{ number_format($totalExpenses, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $expenseTrend['status'] === 'up' ? 'text-red-600' : '' }}
+                        {{ $expenseTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $expenseTrend['status'] === 'down' ? 'text-emerald-600' : '' }}
+                    ">
+                        @if($expenseTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $expenseTrend['percent'] }}%
+                        @elseif($expenseTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $expenseTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bottom Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Estimasi Laba Bersih</p>
-                <h3 class="text-3xl font-bold mt-3 {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
-                    Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Omzet - HPP - fee - pengeluaran</p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full {{ $estimatedProfit >= 0 ? 'bg-emerald-500' : 'bg-red-500' }} text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-hand-coins class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                        Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $profitTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $profitTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $profitTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($profitTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $profitTrend['percent'] }}%
+                        @elseif($profitTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $profitTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
+                </div>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Margin Estimasi</p>
-                <h3 class="text-3xl font-bold mt-3">
-                    {{ $profitMargin }}%
-                </h3>
-                <p class="text-sm {{ $profitMargin >= 30 ? 'text-emerald-600' : 'text-amber-600' }} font-medium mt-2">
-                    {{ $profitMargin >= 30 ? 'Masih sehat' : 'Perlu dipantau' }}
-                </p>
+
+                <div class="flex items-center gap-4 mt-4">
+                    <div class="w-16 h-16 rounded-full {{ $profitMargin >= 30 ? 'bg-emerald-500' : 'bg-amber-500' }} text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <x-lucide-percent class="w-9 h-9" />
+                    </div>
+
+                    <h3 class="text-3xl font-bold leading-tight {{ $profitMargin >= 30 ? 'text-emerald-600' : 'text-amber-600' }}">
+                        {{ $profitMargin }}%
+                    </h3>
+                </div>
+
+                <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1
+                        {{ $marginTrend['status'] === 'up' ? 'text-emerald-600' : '' }}
+                        {{ $marginTrend['status'] === 'flat' ? 'text-slate-500' : '' }}
+                        {{ $marginTrend['status'] === 'down' ? 'text-red-600' : '' }}
+                    ">
+                        @if($marginTrend['status'] === 'up')
+                            <x-lucide-trending-up class="w-4 h-4" />
+                            {{ $marginTrend['percent'] }}%
+                        @elseif($marginTrend['status'] === 'down')
+                            <x-lucide-trending-down class="w-4 h-4" />
+                            {{ $marginTrend['percent'] }}%
+                        @else
+                            <x-lucide-minus class="w-4 h-4" />
+                            Stabil
+                        @endif
+                    </span>
+
+                    <span class="text-slate-500 font-medium">dari bulan lalu</span>
+                </div>
             </div>
         </div>
 
