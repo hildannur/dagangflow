@@ -5,13 +5,14 @@
 ])
 
 @section('actions')
-    <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+    <a href="#period-filter" class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Filter Periode
-    </button>
+    </a>
 
-    <button class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+    <a href="{{ route('reports.export', ['start_date' => $selectedPeriod['start_date'], 'end_date' => $selectedPeriod['end_date']]) }}"
+        class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
         Export Laporan
-    </button>
+    </a>
 @endsection
 
 @section('content')
@@ -95,7 +96,7 @@
         </div>
 
         <!-- Period Filter -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div id="period-filter" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
                 <form action="/reports" method="GET" class="flex flex-col lg:flex-row lg:items-end gap-3 flex-1">
                     <div>
