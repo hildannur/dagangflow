@@ -5,9 +5,10 @@
 ])
 
 @section('actions')
-    <button class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+    <a href="{{ route('sales.export', ['start_date' => $selectedPeriod['start_date'], 'end_date' => $selectedPeriod['end_date']]) }}"
+        class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Export Transaksi
-    </button>
+    </a>
 
     <button onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
         class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
