@@ -45,7 +45,7 @@ Route::post('/login', function (Request $request) {
 
 Route::get('/register', function () {
     return view('auth.register');
-})->middleware('guest');
+})->middleware('guest')->name('register');
 
 Route::post('/register', function (Request $request) {
     $data = $request->validate([
@@ -85,7 +85,7 @@ Route::post('/logout', function (Request $request) {
     $request->session()->regenerateToken();
 
     return redirect('/');
-})->middleware('auth');
+})->middleware('auth')->name('logout');
 
 /*
 |--------------------------------------------------------------------------
@@ -94,19 +94,20 @@ Route::post('/logout', function (Request $request) {
 */
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('/sales', SaleController::class)->except(['create', 'show', 'edit']);
+    Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
+    Route::resource('sales', SaleController::class)->except(['create', 'show', 'edit']);
 
-    Route::resource('/products', ProductController::class)->except(['create', 'show', 'edit']);
+    Route::resource('products', ProductController::class)->except(['create', 'show', 'edit']);
 
-    Route::resource('/expenses', ExpenseController::class)->except(['create', 'show', 'edit']);
+    Route::resource('expenses', ExpenseController::class)->except(['create', 'show', 'edit']);
 
-    Route::resource('/customers', CustomerController::class)->except(['create', 'show', 'edit']);
+    Route::resource('customers', CustomerController::class)->except(['create', 'show', 'edit']);
 
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/reports/ai-insight', [ReportController::class, 'generateAiInsight'])->name('reports.ai-insight');
-    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
     Route::view('/help', 'help')->name('help');
 });
