@@ -70,14 +70,14 @@
                                 Menampilkan {{ $products->count() }} dari {{ $totalProducts }} produk tercatat
                             </p>
                         </div>
-                
+
                         @if($activeFilters['search'] || $activeFilters['category'] || $activeFilters['stock_status'] || $activeFilters['sort'] !== 'latest')
                             <a href="/products" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
                                 Reset filter
                             </a>
                         @endif
                     </div>
-                
+
                     <form action="/products" method="GET" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
                         <div class="xl:col-span-2">
                             <label class="text-xs font-semibold text-slate-500">Cari produk</label>
@@ -89,7 +89,7 @@
                                 class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                             >
                         </div>
-                
+
                         <div>
                             <label class="text-xs font-semibold text-slate-500">Kategori</label>
                             <select
@@ -97,7 +97,7 @@
                                 class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                             >
                                 <option value="">Semua kategori</option>
-                
+
                                 @foreach($availableCategories as $category)
                                     <option value="{{ $category }}" @selected($activeFilters['category'] === $category)>
                                         {{ $category }}
@@ -105,7 +105,7 @@
                                 @endforeach
                             </select>
                         </div>
-                
+
                         <div>
                             <label class="text-xs font-semibold text-slate-500">Status stok</label>
                             <select
@@ -118,7 +118,7 @@
                                 <option value="empty" @selected($activeFilters['stock_status'] === 'empty')>Habis</option>
                             </select>
                         </div>
-                
+
                         <div>
                             <label class="text-xs font-semibold text-slate-500">Urutkan</label>
                             <select
@@ -131,12 +131,12 @@
                                 <option value="name_asc" @selected($activeFilters['sort'] === 'name_asc')>Nama A-Z</option>
                             </select>
                         </div>
-                
+
                         <div class="md:col-span-2 xl:col-span-5 flex flex-col sm:flex-row gap-3">
                             <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
                                 Terapkan Filter
                             </button>
-                
+
                             <a href="/products" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
                                 Reset
                             </a>
@@ -241,32 +241,50 @@
                             @empty
                                 <tr>
                                     <td colspan="7" class="px-6 py-14 text-center">
-                                        <div class="max-w-sm mx-auto">
-                                            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-2xl">
-                                                📦
+                                        <div class="max-w-md mx-auto">
+                                            <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center mx-auto shadow-sm">
+                                                <x-lucide-package class="w-8 h-8" />
                                             </div>
 
-                                            <h3 class="font-bold text-slate-900 mt-4">
+                                            <h3 class="font-bold text-slate-900 mt-5 text-lg">
                                                 @if($totalProducts > 0)
                                                     Produk tidak ditemukan
                                                 @else
                                                     Belum ada produk
                                                 @endif
                                             </h3>
-                                            
-                                            <p class="text-sm text-slate-500 mt-2">
+
+                                            <p class="text-sm text-slate-500 mt-2 leading-relaxed">
                                                 @if($totalProducts > 0)
                                                     Coba ubah keyword pencarian, kategori, status stok, atau reset filter produk.
                                                 @else
-                                                    Tambahkan produk pertama kamu melalui form di sebelah kanan.
+                                                    Tambahkan produk terlebih dahulu sebelum mencatat penjualan.
+                                                    DagangFlow membutuhkan harga jual, modal produk, dan stok untuk menghitung omzet serta estimasi laba.
                                                 @endif
                                             </p>
-                                            
-                                            @if($totalProducts > 0)
-                                                <a href="/products" class="inline-flex mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                                                    Reset Filter
+
+                                            <div class="flex flex-col sm:flex-row justify-center gap-3 mt-5">
+                                                @if($totalProducts > 0)
+                                                    <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                                        <x-lucide-rotate-ccw class="w-4 h-4" />
+                                                        Reset Filter
+                                                    </a>
+                                                @else
+                                                    <button
+                                                        type="button"
+                                                        onclick="document.getElementById('quick-add-product')?.scrollIntoView({ behavior: 'smooth' })"
+                                                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
+                                                    >
+                                                        <x-lucide-plus-circle class="w-4 h-4" />
+                                                        Tambah Produk
+                                                    </button>
+                                                @endif
+
+                                                <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                                    <x-lucide-circle-help class="w-4 h-4" />
+                                                    Pelajari Produk
                                                 </a>
-                                            @endif
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
