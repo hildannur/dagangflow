@@ -170,6 +170,85 @@
             $marginTrend = $marginTrend ?? ['status' => 'flat', 'percent' => 0];
         @endphp
 
+        @if($grossRevenue <= 0 && $totalExpenses <= 0)
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-center">
+                    <div class="xl:col-span-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold">
+                            <x-lucide-chart-column-big class="w-4 h-4" />
+                            Laporan belum tersedia
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-slate-900 mt-4">
+                            Belum ada data untuk dianalisis
+                        </h3>
+
+                        <p class="text-sm text-slate-500 mt-3 leading-relaxed max-w-2xl">
+                            Laporan bisnis akan muncul setelah kamu mencatat produk, penjualan, dan pengeluaran.
+                            DagangFlow akan menghitung omzet, HPP, biaya platform, estimasi laba, channel terbaik,
+                            dan produk terlaris berdasarkan data tersebut.
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                            <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                <x-lucide-package class="w-4 h-4" />
+                                Tambah Produk
+                            </a>
+
+                            <a href="/sales" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                <x-lucide-receipt-text class="w-4 h-4" />
+                                Catat Penjualan
+                            </a>
+
+                            <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                <x-lucide-circle-help class="w-4 h-4" />
+                                Pelajari Laporan
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-50 border border-slate-100 p-5">
+                        <p class="text-sm font-semibold text-slate-700">Data yang dibutuhkan</p>
+
+                        <div class="space-y-4 mt-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                                    <x-lucide-package class="w-4 h-4" />
+                                </div>
+
+                                <div>
+                                    <p class="font-semibold text-slate-900">Produk</p>
+                                    <p class="text-sm text-slate-500 mt-1">Untuk membaca harga jual, modal, dan stok.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0">
+                                    <x-lucide-receipt-text class="w-4 h-4" />
+                                </div>
+
+                                <div>
+                                    <p class="font-semibold text-slate-900">Penjualan</p>
+                                    <p class="text-sm text-slate-500 mt-1">Untuk menghitung omzet, HPP, dan biaya platform.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
+                                    <x-lucide-wallet class="w-4 h-4" />
+                                </div>
+
+                                <div>
+                                    <p class="font-semibold text-slate-900">Pengeluaran</p>
+                                    <p class="text-sm text-slate-500 mt-1">Untuk menghitung estimasi laba lebih realistis.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Stats Top Row -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
