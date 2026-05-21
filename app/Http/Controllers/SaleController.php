@@ -186,4 +186,101 @@ class SaleController extends Controller
 
         return redirect('/sales')->with('success', 'Penjualan berhasil dihapus dan stok dikembalikan.');
     }
+    
+    public function export(\Illuminate\Http\Request $request)
+    {
+        $userId = auth()->id();
+    
+        $startDate = $request->query('start_date')
+            ? \Illuminate\Support\Carbon::parse($request->query('start_date'))->startOfDay()
+            : now()->startOfMonth();
+    
+        $endDate = $request->query('end_date')
+            ? \Illuminate\Support\Carbon::parse($request->query('end_date'))->endOfDay()
+            : now()->endOfMonth();
+    
+        $sales = \App\Models\Sale::with('product')
+            ->where('user_id', $userId)
+            ->latest()
+            ->get()
+            ->filter(function ($sale) use ($startDate, $endDate) {
+                $saleDate = $sale->sale_date
+                    ? \Illuminate\Support\Carbon::parse($sale->sale_date)
+                    : $sale->created_at;
+    
+                return $saleDate->between($startDate, $endDate);
+            });
+    
+        $grossRevenue = $sales->sum('gross_total');
+        $platformFees = $sales->sum('platform_fee');
+        $netRevenue = $sales->sum('net_total');
+        $totalTransactions = $sales->count();
+    
+        $fileName = 'transaksi-dagangflow-' . $startDate->format('Y-m-d') . '-to-' . $endDate->format('Y-m-d') . '.csv';
+    
+        return response()->streamDownload(function () use (
+            $sales,
+            $startDate,
+            $endDate,
+            $grossRevenue,
+            $platformFees,
+            $netRevenue,
+            $totalTransactions
+        ) {
+            $handle = fopen('php://output', 'w');
+    
+            // UTF-8 BOM agar aman dibuka di Excel
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+    
+            fputcsv($handle, ['EXPORT TRANSAKSI DAGANGFLOW']);
+            fputcsv($handle, ['Periode', $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y')]);
+            fputcsv($handle, []);
+    
+            fputcsv($handle, ['RINGKASAN TRANSAKSI']);
+            fputcsv($handle, ['Total Transaksi', $totalTransactions]);
+            fputcsv($handle, ['Total Omzet', $grossRevenue]);
+            fputcsv($handle, ['Total Biaya Platform', $platformFees]);
+            fputcsv($handle, ['Total Uang Bersih', $netRevenue]);
+            fputcsv($handle, []);
+    
+            fputcsv($handle, ['DETAIL TRANSAKSI']);
+            fputcsv($handle, [
+                'Tanggal',
+                'Kode Transaksi',
+                'Produk',
+                'Channel',
+                'Jumlah Terjual',
+                'Harga Jual',
+                'Omzet Kotor',
+                'Biaya Platform',
+                'Uang Bersih',
+                'Status',
+                'Catatan',
+            ]);
+    
+            foreach ($sales as $sale) {
+                $saleDate = $sale->sale_date
+                    ? \Illuminate\Support\Carbon::parse($sale->sale_date)
+                    : $sale->created_at;
+    
+                fputcsv($handle, [
+                    $saleDate->format('d M Y'),
+                    'TRX-' . str_pad($sale->id, 4, '0', STR_PAD_LEFT),
+                    $sale->product->name ?? 'Produk terhapus',
+                    $sale->channel,
+                    $sale->quantity,
+                    $sale->selling_price,
+                    $sale->gross_total,
+                    $sale->platform_fee,
+                    $sale->net_total,
+                    $sale->status,
+                    $sale->note ?? '-',
+                ]);
+            }
+    
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
 }
