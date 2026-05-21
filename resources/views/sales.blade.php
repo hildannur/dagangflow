@@ -371,20 +371,48 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
-                                    <td colspan="9" class="px-6 py-14 text-center">
-                                        <div class="max-w-sm mx-auto">
-                                            <div class="w-14 h-14 rounded-full bg-slate-500 text-white flex items-center justify-center mx-auto">
-                                                <x-lucide-receipt-text class="w-7 h-7" />
+                                    <tr>
+                                        <td colspan="9" class="px-6 py-14 text-center">
+                                            <div class="max-w-md mx-auto">
+                                                <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-sm">
+                                                    <x-lucide-receipt-text class="w-8 h-8" />
+                                                </div>
+                                
+                                                <h3 class="font-bold text-slate-900 mt-5 text-lg">
+                                                    Belum ada transaksi penjualan
+                                                </h3>
+                                
+                                                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                                                    Catat penjualan pertama agar DagangFlow bisa menghitung omzet,
+                                                    biaya platform, uang bersih, dan stok produk secara otomatis.
+                                                </p>
+                                
+                                                <div class="flex flex-col sm:flex-row justify-center gap-3 mt-5">
+                                                    @if($products->count() > 0)
+                                                        <button
+                                                            type="button"
+                                                            onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
+                                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
+                                                        >
+                                                            <x-lucide-plus-circle class="w-4 h-4" />
+                                                            Catat Penjualan
+                                                        </button>
+                                                    @else
+                                                        <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                                            <x-lucide-package class="w-4 h-4" />
+                                                            Tambah Produk Dulu
+                                                        </a>
+                                                    @endif
+                                
+                                                    <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                                        <x-lucide-circle-help class="w-4 h-4" />
+                                                        Pelajari Alur
+                                                    </a>
+                                                </div>
                                             </div>
-                                            <h3 class="font-bold text-slate-900 mt-4">Belum ada penjualan</h3>
-                                            <p class="text-sm text-slate-500 mt-2">
-                                                Tambahkan transaksi pertama melalui form di sebelah kanan.
-                                            </p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
+                                        </td>
+                                    </tr>
+                                @endforelse
                         </tbody>
                     </table>
                 </div>
