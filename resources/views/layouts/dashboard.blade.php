@@ -117,6 +117,14 @@
                                             <span>Pusat Bantuan</span>
                                         </a>
                                     </div>
+                                    
+                                    <a href="https://wa.me/6282336722751?text=Halo%20DagangFlow%2C%20saya%20butuh%20bantuan.%20Nama%20akun%3A%20{{ urlencode(auth()->user()->name ?? 'Owner') }}%20-%20Bisnis%3A%20{{ urlencode(auth()->user()->business_name ?? 'Bisnis Saya') }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                        <x-lucide-message-circle class="w-5 h-5 text-slate-500" />
+                                        <span>Hubungi Kami</span>
+                                    </a>
     
                                     <div class="p-2 border-t border-slate-100">
                                         <form action="/logout" method="POST">
