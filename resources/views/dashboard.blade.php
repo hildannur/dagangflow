@@ -5,13 +5,7 @@
 ])
 
 @section('actions')
-    <a href="/reports" class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
-        Lihat Laporan
-    </a>
-
-    <a href="/sales" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-        + Tambah Penjualan
-    </a>
+   
 @endsection
 
 @section('content')
