@@ -561,9 +561,16 @@
                         @endphp
 
                         <div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span>{{ $channel }}</span>
-                                <span class="font-semibold">
+                            <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <x-channel-logo :channel="$channel" size="sm" />
+
+                                    <span class="font-medium text-slate-700 truncate">
+                                        {{ $channel }}
+                                    </span>
+                                </div>
+
+                                <span class="font-semibold shrink-0">
                                     Rp{{ number_format($summary['total'], 0, ',', '.') }}
                                 </span>
                             </div>

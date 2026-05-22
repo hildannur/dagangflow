@@ -578,15 +578,18 @@
 
                     <div class="space-y-4">
                         @forelse($channelSummary as $channel => $summary)
-                            <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                <div>
-                                    <p class="font-semibold">{{ $channel }}</p>
-                                    <p class="text-sm text-slate-500">{{ $summary['count'] }} transaksi</p>
-                                </div>
+                            <div class="flex items-center gap-3 min-w-0">
+                                <x-channel-logo :channel="$channel" size="sm" />
 
-                                <p class="font-bold text-slate-900">
-                                    Rp{{ number_format($summary['total'], 0, ',', '.') }}
-                                </p>
+                                <div class="min-w-0">
+                                    <p class="font-semibold text-slate-900 truncate">
+                                        {{ $channel }}
+                                    </p>
+
+                                    <p class="text-sm text-slate-500">
+                                        {{ $summary['count'] ?? 0 }} transaksi
+                                    </p>
+                                </div>
                             </div>
                         @empty
                             <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">

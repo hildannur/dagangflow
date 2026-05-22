@@ -16,70 +16,73 @@
 
 @section('content')
     <div class="space-y-8">
-        
+
         @if($products->count() === 0 && $sales->count() === 0)
             <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm overflow-hidden relative">
                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
                 <div class="absolute right-24 bottom-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
-        
+
                 <div class="relative grid grid-cols-1 xl:grid-cols-3 gap-6 items-center">
                     <div class="xl:col-span-2">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-sm font-semibold">
                             <x-lucide-sparkles class="w-4 h-4" />
                             Mulai dari sini
                         </div>
-        
+
                         <h3 class="text-3xl font-bold mt-4">
                             Mulai bangun data bisnis kamu
                         </h3>
-        
+
                         <p class="text-sm text-slate-300 mt-3 leading-relaxed max-w-3xl">
                             DagangFlow akan lebih berguna setelah kamu menambahkan produk, mencatat penjualan,
                             dan memasukkan pengeluaran bisnis. Dari data itu, sistem bisa menghitung omzet,
                             stok, biaya, dan estimasi laba secara otomatis.
                         </p>
-        
+
                         <div class="flex flex-col sm:flex-row gap-3 mt-6">
                             <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                                <x-lucide-package-plus class="w-4 h-4" />
+                                <x-lucide-package class="w-4 h-4" />
                                 Tambah Produk
                             </a>
-        
+
                             <a href="/sales" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 border border-white/10 text-white text-sm font-semibold hover:bg-white/15">
                                 <x-lucide-receipt-text class="w-4 h-4" />
                                 Catat Penjualan
                             </a>
                         </div>
                     </div>
-        
+
                     <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
                         <p class="text-sm text-emerald-300 font-semibold">Alur cepat</p>
-        
+
                         <div class="space-y-4 mt-4">
                             <div class="flex items-start gap-3">
                                 <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
                                     1
                                 </div>
+
                                 <div>
                                     <p class="font-semibold">Tambahkan produk</p>
                                     <p class="text-sm text-slate-300 mt-1">Isi harga jual, modal, dan stok awal.</p>
                                 </div>
                             </div>
-        
+
                             <div class="flex items-start gap-3">
                                 <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
                                     2
                                 </div>
+
                                 <div>
                                     <p class="font-semibold">Catat penjualan</p>
                                     <p class="text-sm text-slate-300 mt-1">Stok akan otomatis berkurang.</p>
                                 </div>
                             </div>
-        
+
                             <div class="flex items-start gap-3">
                                 <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
                                     3
                                 </div>
+
                                 <div>
                                     <p class="font-semibold">Pantau laporan</p>
                                     <p class="text-sm text-slate-300 mt-1">Lihat omzet, biaya, dan estimasi laba.</p>
@@ -285,9 +288,16 @@
                         @endphp
 
                         <div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span>{{ $channel }}</span>
-                                <span class="font-semibold">
+                            <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <x-channel-logo :channel="$channel" size="sm" />
+
+                                    <span class="font-medium text-slate-700 truncate">
+                                        {{ $channel }}
+                                    </span>
+                                </div>
+
+                                <span class="font-semibold shrink-0">
                                     Rp{{ number_format($summary['total'], 0, ',', '.') }}
                                 </span>
                             </div>
@@ -296,7 +306,9 @@
                                 <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $percent }}%"></div>
                             </div>
 
-                            <p class="text-xs text-slate-500 mt-1">{{ $summary['count'] }} transaksi</p>
+                            <p class="text-xs text-slate-500 mt-1">
+                                {{ $summary['count'] }} transaksi
+                            </p>
                         </div>
                     @empty
                         <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
@@ -346,7 +358,13 @@
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        {{ $sale->channel }}
+                                        <div class="flex items-center gap-3">
+                                            <x-channel-logo :channel="$sale->channel" size="xs" />
+
+                                            <span class="font-medium text-slate-700">
+                                                {{ $sale->channel }}
+                                            </span>
+                                        </div>
                                     </td>
 
                                     <td class="px-6 py-4 font-semibold">
