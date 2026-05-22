@@ -21,14 +21,14 @@
             <span>Dashboard</span>
         </a>
 
-        <a href="/sales" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('sales') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-            <x-lucide-receipt-text class="w-5 h-5 shrink-0" />
-            <span>Penjualan</span>
-        </a>
-
         <a href="/products" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('products') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
             <x-lucide-package class="w-5 h-5 shrink-0" />
             <span>Produk & Stok</span>
+        </a>
+
+        <a href="/sales" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('sales') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+            <x-lucide-receipt-text class="w-5 h-5 shrink-0" />
+            <span>Penjualan</span>
         </a>
 
         <a href="/expenses" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('expenses') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
@@ -38,7 +38,7 @@
 
         <a href="/customers" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('customers') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
             <x-lucide-users class="w-5 h-5 shrink-0" />
-            <span>Customer</span>
+            <span>Customers</span>
         </a>
 
         <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('reports') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
@@ -89,14 +89,14 @@
             <span>Dashboard</span>
         </a>
 
-        <a href="/sales" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('sales') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-            <x-lucide-receipt-text class="w-5 h-5 shrink-0" />
-            <span>Penjualan</span>
-        </a>
-
         <a href="/products" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('products') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
             <x-lucide-package class="w-5 h-5 shrink-0" />
             <span>Produk & Stok</span>
+        </a>
+
+        <a href="/sales" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('sales') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+            <x-lucide-receipt-text class="w-5 h-5 shrink-0" />
+            <span>Penjualan</span>
         </a>
 
         <a href="/expenses" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('expenses') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
@@ -106,7 +106,7 @@
 
         <a href="/customers" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('customers') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
             <x-lucide-users class="w-5 h-5 shrink-0" />
-            <span>Customer</span>
+            <span>Customers</span>
         </a>
 
         <a href="/reports" onclick="closeMobileSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ request()->is('reports') ? 'bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-500/20' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
