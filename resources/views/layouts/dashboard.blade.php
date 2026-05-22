@@ -102,21 +102,16 @@
                                     </div>
     
                                     <div class="p-2">
-                                        <a href="/sales" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                            <x-lucide-plus-circle class="w-5 h-5 text-slate-500" />
-                                            <span>Tambah Penjualan</span>
+                                        <a href="{{ route('biodata.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                            <x-lucide-user-round class="w-5 h-5 text-slate-500" />
+                                            <span>Biodata</span>
                                         </a>
-                                    
+
                                         <a href="/reports" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
                                             <x-lucide-chart-column-big class="w-5 h-5 text-slate-500" />
                                             <span>Lihat Laporan</span>
                                         </a>
-                                    
-                                        <a href="{{ route('reports.export') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
-                                            <x-lucide-download class="w-5 h-5 text-slate-500" />
-                                            <span>Export Laporan</span>
-                                        </a>
-                                    
+
                                         <a href="/help" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50">
                                             <x-lucide-circle-help class="w-5 h-5 text-slate-500" />
                                             <span>Pusat Bantuan</span>

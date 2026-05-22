@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
@@ -11,6 +14,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\BiodataController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,6 +82,77 @@ Route::post('/register', function (Request $request) {
     return redirect('/dashboard');
 })->middleware('guest');
 
+/*
+|--------------------------------------------------------------------------
+| Password Reset Pages
+|--------------------------------------------------------------------------
+| Dibuat tanpa middleware guest agar bisa diakses dari halaman Biodata
+| ketika user masih login.
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->name('password.request');
+
+Route::post('/forgot-password', function (Request $request) {
+    $request->validate([
+        'email' => ['required', 'email'],
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+    ]);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    if ($status === Password::RESET_LINK_SENT) {
+        return back()->with('status', 'Link reset password sudah dikirim ke email jika akun terdaftar.');
+    }
+
+    return back()->withErrors([
+        'email' => 'Reset gagal. Status Laravel: ' . $status,
+    ]);
+})->name('password.email');
+
+Route::get('/reset-password/{token}', function (string $token, Request $request) {
+    return view('auth.reset-password', [
+        'token' => $token,
+        'email' => $request->query('email'),
+    ]);
+})->name('password.reset');
+
+Route::post('/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => ['required'],
+        'email' => ['required', 'email'],
+        'password' => ['required', 'min:8', 'confirmed'],
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'password.required' => 'Password baru wajib diisi.',
+        'password.min' => 'Password minimal 8 karakter.',
+        'password.confirmed' => 'Konfirmasi password tidak sesuai.',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, string $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+                'remember_token' => Str::random(60),
+            ])->save();
+
+            event(new PasswordReset($user));
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? redirect('/login')->with('status', 'Password berhasil diubah. Silakan login dengan password baru.')
+        : back()->withErrors(['email' => 'Token reset tidak valid atau sudah kedaluwarsa.']);
+})->name('password.update');
+
 Route::post('/logout', function (Request $request) {
     Auth::logout();
 
@@ -95,6 +170,10 @@ Route::post('/logout', function (Request $request) {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/biodata', [BiodataController::class, 'index'])->name('biodata.index');
+    Route::put('/biodata/profile', [BiodataController::class, 'updateProfile'])->name('biodata.profile.update');
+    Route::put('/biodata/password', [BiodataController::class, 'updatePassword'])->name('biodata.password.update');
 
     Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
     Route::resource('sales', SaleController::class)->except(['create', 'show', 'edit']);
