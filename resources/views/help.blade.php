@@ -307,8 +307,9 @@
                         <h4 class="font-bold">Customer</h4>
                     </div>
                     <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk menyimpan data pelanggan, asal channel, total order, total belanja,
-                        dan catatan customer.
+                        Digunakan untuk menyimpan data pelanggan langsung seperti pelanggan offline,
+                        WhatsApp, Instagram DM, reseller, atau repeat order di luar marketplace.
+                        Untuk transaksi marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
                     </p>
                 </div>
 
@@ -354,6 +355,14 @@
                             <p class="font-semibold text-slate-800">Data harus rutin dicatat</p>
                             <p class="text-sm text-slate-600 mt-1">
                                 Semakin lengkap data yang dimasukkan, semakin akurat dashboard dan laporan.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <p class="font-semibold text-slate-800">Customers bersifat opsional</p>
+                            <p class="text-sm text-slate-600 mt-1">
+                                Fitur Customers lebih berguna untuk pelanggan langsung seperti WhatsApp, offline, atau reseller.
+                                Untuk marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
                             </p>
                         </div>
 
