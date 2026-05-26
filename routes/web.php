@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\Expense;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ExpenseController;
@@ -47,6 +50,122 @@ Route::post('/login', function (Request $request) {
         'email' => 'Email atau password salah.',
     ])->onlyInput('email');
 })->middleware('guest');
+
+Route::post('/demo-login', function (Request $request) {
+    $demoUser = User::firstOrCreate(
+        ['email' => 'demo@dagangflow.test'],
+        [
+            'name' => 'Demo Owner',
+            'business_name' => 'Kopi Demo Nusantara',
+            'business_type' => 'Food & Beverage',
+            'password' => Hash::make(Str::random(40)),
+        ]
+    );
+
+    if (Product::where('user_id', $demoUser->id)->count() === 0) {
+        $kopiSusu = Product::create([
+            'user_id' => $demoUser->id,
+            'name' => 'Kopi Susu Aren',
+            'category' => 'Minuman',
+            'selling_price' => 18000,
+            'cost_price' => 9000,
+            'stock' => 120,
+            'low_stock_limit' => 10,
+        ]);
+
+        $esCoklat = Product::create([
+            'user_id' => $demoUser->id,
+            'name' => 'Es Coklat Premium',
+            'category' => 'Minuman',
+            'selling_price' => 16000,
+            'cost_price' => 7500,
+            'stock' => 85,
+            'low_stock_limit' => 10,
+        ]);
+
+        $rotiBakar = Product::create([
+            'user_id' => $demoUser->id,
+            'name' => 'Roti Bakar Coklat Keju',
+            'category' => 'Makanan',
+            'selling_price' => 22000,
+            'cost_price' => 11000,
+            'stock' => 60,
+            'low_stock_limit' => 8,
+        ]);
+
+        $demoSales = [
+            [$kopiSusu, 'Shopee', 8, 6000, 'Selesai', now()->subDays(1)->toDateString()],
+            [$kopiSusu, 'GrabFood', 5, 7500, 'Selesai', now()->subDays(2)->toDateString()],
+            [$esCoklat, 'TikTok Shop', 6, 5000, 'Selesai', now()->subDays(3)->toDateString()],
+            [$rotiBakar, 'WhatsApp', 4, 0, 'Selesai', now()->subDays(4)->toDateString()],
+            [$esCoklat, 'Offline', 7, 0, 'Selesai', now()->subDays(5)->toDateString()],
+            [$kopiSusu, 'Website', 3, 0, 'Selesai', now()->subDays(6)->toDateString()],
+        ];
+
+        foreach ($demoSales as [$product, $channel, $quantity, $platformFee, $status, $saleDate]) {
+            $grossTotal = $product->selling_price * $quantity;
+            $netTotal = $grossTotal - $platformFee;
+
+            Sale::create([
+                'user_id' => $demoUser->id,
+                'product_id' => $product->id,
+                'channel' => $channel,
+                'quantity' => $quantity,
+                'selling_price' => $product->selling_price,
+                'gross_total' => $grossTotal,
+                'platform_fee' => $platformFee,
+                'net_total' => $netTotal,
+                'status' => $status,
+                'note' => 'Data contoh akun demo',
+                'sale_date' => $saleDate,
+            ]);
+
+            $product->decrement('stock', $quantity);
+        }
+
+        Expense::create([
+            'user_id' => $demoUser->id,
+            'category' => 'Bahan Baku',
+            'amount' => 350000,
+            'payment_method' => 'Transfer',
+            'note' => 'Belanja bahan kopi, susu, coklat, dan roti',
+            'expense_date' => now()->subDays(2)->toDateString(),
+        ]);
+
+        Expense::create([
+            'user_id' => $demoUser->id,
+            'category' => 'Packaging',
+            'amount' => 150000,
+            'payment_method' => 'Cash',
+            'note' => 'Cup, plastik, sedotan, dan stiker',
+            'expense_date' => now()->subDays(3)->toDateString(),
+        ]);
+
+        Expense::create([
+            'user_id' => $demoUser->id,
+            'category' => 'Iklan',
+            'amount' => 200000,
+            'payment_method' => 'E-Wallet',
+            'note' => 'Promosi marketplace dan konten sosial media',
+            'expense_date' => now()->subDays(4)->toDateString(),
+        ]);
+
+        Expense::create([
+            'user_id' => $demoUser->id,
+            'category' => 'Operasional',
+            'amount' => 125000,
+            'payment_method' => 'Cash',
+            'note' => 'Biaya operasional harian toko',
+            'expense_date' => now()->subDays(5)->toDateString(),
+        ]);
+    }
+
+    Auth::login($demoUser);
+
+    $request->session()->regenerate();
+
+    return redirect('/dashboard')->with('success', 'Kamu sedang masuk sebagai akun demo read-only.');
+})->middleware('guest')->name('demo.login');
 
 Route::get('/register', function () {
     return view('auth.register');
@@ -169,7 +288,7 @@ Route::post('/logout', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'demo.readonly'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/biodata', [BiodataController::class, 'index'])->name('biodata.index');

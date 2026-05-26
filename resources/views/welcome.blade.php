@@ -40,9 +40,13 @@
                     Login
                 </a>
 
-                <a href="/dashboard" class="inline-flex px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition shadow-sm shadow-emerald-500/20">
-                    Coba Demo
-                </a>
+                <form action="{{ route('demo.login') }}" method="POST">
+                    @csrf
+
+                    <button type="submit" class="inline-flex px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition shadow-sm shadow-emerald-500/20">
+                        Coba Demo
+                    </button>
+                </form>
             </div>
         </div>
     </header>
@@ -76,9 +80,13 @@
                         </p>
 
                         <div class="mt-9 flex flex-col sm:flex-row gap-4">
-                            <a href="/dashboard" class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20">
-                                Lihat Demo Dashboard
-                            </a>
+                            <form action="{{ route('demo.login') }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20">
+                                    Lihat Demo Dashboard
+                                </button>
+                            </form>
 
                             <a href="#fitur" class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-white border border-slate-200 text-slate-800 font-bold hover:bg-slate-50 transition">
                                 Pelajari Fitur
@@ -334,7 +342,7 @@
                             <div class="w-10 h-10 rounded-full bg-emerald-400 text-[#0F172A] flex items-center justify-center font-black shrink-0">2</div>
                             <div>
                                 <h3 class="text-xl font-black">Catat transaksi dari channel mana pun</h3>
-                                <p class="text-slate-300 mt-2">Pilih channel penjualan, produk, quantity, diskon, dan biaya platform.</p>
+                                <p class="text-slate-300 mt-2">Pilih channel penjualan, produk, quantity, dan biaya platform.</p>
                             </div>
                         </div>
 
@@ -367,9 +375,13 @@
                             </p>
 
                             <div class="mt-9 flex flex-col sm:flex-row gap-4">
-                                <a href="/dashboard" class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition">
-                                    Masuk ke Demo
-                                </a>
+                                <form action="{{ route('demo.login') }}" method="POST">
+                                    @csrf
+
+                                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition">
+                                        Masuk ke Demo
+                                    </button>
+                                </form>
 
                                 <a href="/login" class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition">
                                     Login Owner

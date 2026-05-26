@@ -200,6 +200,7 @@
             text-decoration: none;
             transition: 0.2s;
             box-sizing: border-box;
+            cursor: pointer;
         }
 
         .demo-button:hover {
@@ -273,6 +274,13 @@
                         {{ $errors->first() }}
                     </div>
                 @endif
+
+                @if (session('status'))
+                    <div style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; padding: 12px 14px; border-radius: 16px; font-size: 14px; margin-bottom: 18px;">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
                 <form action="/login" method="POST">
                     @csrf
 
@@ -282,8 +290,10 @@
                             id="email"
                             name="email"
                             type="email"
+                            value="{{ old('email') }}"
                             placeholder="nama@email.com"
                             class="form-input"
+                            required
                         >
                     </div>
 
@@ -299,6 +309,7 @@
                             type="password"
                             placeholder="Masukkan password"
                             class="form-input"
+                            required
                         >
                     </div>
 
@@ -314,9 +325,13 @@
 
                 <div class="divider">atau</div>
 
-                <a href="/dashboard" class="demo-button">
-                    Masuk sebagai demo
-                </a>
+                <form action="{{ route('demo.login') }}" method="POST">
+                    @csrf
+
+                    <button type="submit" class="demo-button">
+                        Masuk sebagai demo
+                    </button>
+                </form>
 
                 <p class="register-text">
                     Belum punya akun?
