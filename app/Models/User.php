@@ -24,6 +24,13 @@ class User extends Authenticatable
         'business_type',
         'email',
         'password',
+        'role',
+        'status',
+        'plan_name',
+        'subscription_status',
+        'subscription_started_at',
+        'subscription_ends_at',
+        'last_login_at',
     ];
 
     /**
@@ -44,8 +51,11 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'subscription_started_at' => 'datetime',
+        'subscription_ends_at' => 'datetime',
+        'last_login_at' => 'datetime',
+    ];
     }
 }

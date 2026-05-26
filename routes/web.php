@@ -19,6 +19,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\BiodataController;
 use App\Http\Controllers\SaleImportController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,6 +43,14 @@ Route::post('/login', function (Request $request) {
 
     if (Auth::attempt($credentials, $request->boolean('remember'))) {
         $request->session()->regenerate();
+
+        $request->user()->update([
+            'last_login_at' => now(),
+        ]);
+
+        if ($request->user()->role === 'superadmin') {
+            return redirect('/admin/dashboard');
+        }
 
         return redirect('/dashboard');
     }
@@ -194,6 +203,12 @@ Route::post('/register', function (Request $request) {
         'business_type' => $data['business_type'] ?? null,
         'email' => $data['email'],
         'password' => Hash::make($data['password']),
+        'role' => 'owner',
+        'status' => 'active',
+        'plan_name' => 'Free',
+        'subscription_status' => 'active',
+        'subscription_started_at' => now(),
+        'subscription_ends_at' => now()->addDays(14),
     ]);
 
     Auth::login($user);
@@ -289,7 +304,7 @@ Route::post('/logout', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'demo.readonly'])->group(function () {
+Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/biodata', [BiodataController::class, 'index'])->name('biodata.index');
@@ -312,4 +327,14 @@ Route::middleware(['auth', 'demo.readonly'])->group(function () {
     Route::post('/reports/ai-insight', [ReportController::class, 'generateAiInsight'])->name('reports.ai-insight');
 
     Route::view('/help', 'help')->name('help');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Superadmin Pages
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });

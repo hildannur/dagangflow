@@ -11,7 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
+        $middleware->alias([
+            'owner' => \App\Http\Middleware\EnsureOwner::class,
+            'superadmin' => \App\Http\Middleware\EnsureSuperadmin::class,
             'demo.readonly' => \App\Http\Middleware\PreventDemoWriteAccess::class,
         ]);
     })

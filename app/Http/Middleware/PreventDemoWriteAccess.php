@@ -12,7 +12,7 @@ class PreventDemoWriteAccess
     {
         $user = $request->user();
 
-        $isDemoUser = $user && $user->email === 'demo@dagangflow.test';
+        $isDemoUser = $user && $user->email === 'sirendeskstudio@gmail.com';
 
         $isWriteRequest = in_array($request->method(), [
             'POST',
