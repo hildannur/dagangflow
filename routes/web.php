@@ -177,13 +177,14 @@ Route::post('/register', function (Request $request) {
         'business_name' => ['nullable', 'string', 'max:255'],
         'business_type' => ['nullable', 'string', 'max:255'],
         'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-        'password' => ['required', 'min:8'],
+        'password' => ['required', 'min:8', 'confirmed'],
     ], [
         'email.unique' => 'Akun sudah terdaftar',
         'email.required' => 'Email wajib diisi',
         'email.email' => 'Format email tidak valid',
         'password.required' => 'Password wajib diisi',
         'password.min' => 'Password minimal 8 karakter',
+        'password.confirmed' => 'Konfirmasi password tidak sesuai',
         'name.required' => 'Nama owner wajib diisi',
     ]);
 
