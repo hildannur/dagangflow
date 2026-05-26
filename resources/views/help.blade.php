@@ -13,7 +13,7 @@
 @section('content')
     <div class="space-y-8">
 
-        <!-- Intro -->
+        <!-- Tentang DagangFlow -->
         <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm overflow-hidden relative">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
             <div class="absolute right-20 bottom-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -21,31 +21,171 @@
             <div class="relative grid grid-cols-1 xl:grid-cols-3 gap-6 items-center">
                 <div class="xl:col-span-2">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-sm font-semibold">
-                        <x-lucide-circle-help class="w-4 h-4" />
-                        Panduan DagangFlow
+                        <x-lucide-info class="w-4 h-4" />
+                        Tentang DagangFlow
                     </div>
 
                     <h3 class="text-3xl font-bold mt-4">
-                        Pahami angka bisnis sebelum mengambil keputusan
+                        Dashboard bisnis sederhana untuk membantu UMKM membaca kondisi usahanya
                     </h3>
 
                     <p class="text-sm text-slate-300 mt-3 leading-relaxed max-w-3xl">
-                        Halaman ini menjelaskan arti setiap istilah penting di DagangFlow, mulai dari omzet, HPP,
-                        biaya platform, uang bersih, estimasi laba, margin, stok, hingga AI Insight.
+                        DagangFlow membantu pelaku UMKM mencatat produk, stok, penjualan, pengeluaran,
+                        customers, dan membaca estimasi performa bisnis tanpa harus memahami akuntansi yang rumit.
                     </p>
                 </div>
 
                 <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
-                    <p class="text-sm text-emerald-300 font-semibold">Catatan Penting</p>
+                    <p class="text-sm text-emerald-300 font-semibold">Fokus Utama</p>
                     <p class="text-sm text-slate-300 mt-2 leading-relaxed">
-                        DagangFlow membantu memberi estimasi bisnis. Akurasi laporan tetap bergantung pada kelengkapan
-                        data produk, penjualan, dan pengeluaran yang kamu input.
+                        Membantu owner mengetahui apakah bisnisnya benar-benar untung atau hanya terlihat ramai dari omzet.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Start -->
+        <!-- Penjelasan DagangFlow -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                <div class="xl:col-span-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold">
+                        <x-lucide-store class="w-4 h-4" />
+                        Penjelasan DagangFlow
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-slate-900 mt-4">
+                        DagangFlow dibuat untuk membantu owner mengambil keputusan berdasarkan data
+                    </h3>
+
+                    <div class="space-y-3 mt-4 text-sm text-slate-600 leading-relaxed max-w-3xl">
+                        <p>
+                            DagangFlow bukan hanya tempat mencatat transaksi. Aplikasi ini membantu membaca kondisi usaha
+                            dari data yang kamu masukkan, seperti omzet, modal produk, biaya platform, pengeluaran,
+                            stok, dan performa channel penjualan.
+                        </p>
+
+                        <p>
+                            Dari data tersebut, DagangFlow menampilkan ringkasan seperti estimasi laba, margin,
+                            produk terlaris, channel terbaik, pengeluaran terbesar, dan stok yang perlu segera restock.
+                        </p>
+
+                        <p>
+                            Tujuannya adalah membantu pemilik usaha kecil lebih cepat memahami masalah dan peluang bisnis,
+                            tanpa harus menghitung semuanya secara manual.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-5">
+                    <p class="text-sm font-semibold text-slate-700">Cocok untuk</p>
+
+                    <div class="space-y-3 mt-4">
+                        <div class="flex items-start gap-3">
+                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <p class="text-sm text-slate-600">UMKM kuliner atau F&B</p>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <p class="text-sm text-slate-600">Online shop dan reseller</p>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <p class="text-sm text-slate-600">Retail kecil atau toko rumahan</p>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <p class="text-sm text-slate-600">Bisnis yang jualan lewat beberapa channel</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Penjelasan Fitur Website -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center">
+                    <x-lucide-map class="w-6 h-6" />
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold">Penjelasan Fitur Website</h3>
+                    <p class="text-sm text-slate-500 mt-1">Ringkasan fungsi setiap halaman di DagangFlow</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-layout-dashboard class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Dashboard</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Menampilkan ringkasan cepat bisnis seperti omzet, pengeluaran, laba, transaksi,
+                        channel terbaik, dan stok hampir habis.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-package class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Produk & Stok</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Digunakan untuk mengelola produk, harga jual, modal produk, stok, dan batas stok rendah.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-receipt-text class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Penjualan</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Digunakan untuk mencatat transaksi. Saat penjualan ditambahkan, stok produk otomatis berkurang.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-wallet class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Pengeluaran</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Digunakan untuk mencatat biaya operasional seperti bahan baku, marketing, packaging, listrik,
+                        sewa, atau biaya lain.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-users class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Customers</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Digunakan untuk menyimpan data pelanggan langsung seperti pelanggan offline,
+                        WhatsApp, Instagram DM, reseller, atau repeat order di luar marketplace.
+                        Untuk transaksi marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <x-lucide-chart-column-big class="w-5 h-5 text-emerald-600" />
+                        <h4 class="font-bold">Laporan</h4>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
+                        Digunakan untuk membaca performa bisnis berdasarkan periode, termasuk omzet, HPP, laba,
+                        produk terlaris, channel, dan AI Insight.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panduan DagangFlow -->
         <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
@@ -53,7 +193,7 @@
                 </div>
 
                 <div>
-                    <h3 class="text-xl font-bold">Cara Pakai DagangFlow</h3>
+                    <h3 class="text-xl font-bold">Panduan DagangFlow</h3>
                     <p class="text-sm text-slate-500 mt-1">Alur sederhana agar data bisnis kamu terbaca dengan benar</p>
                 </div>
             </div>
@@ -245,87 +385,6 @@
             </div>
         </div>
 
-        <!-- Page Guide -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center">
-                    <x-lucide-map class="w-6 h-6" />
-                </div>
-
-                <div>
-                    <h3 class="text-xl font-bold">Penjelasan Fitur Website</h3>
-                    <p class="text-sm text-slate-500 mt-1">Ringkasan fungsi setiap halaman di DagangFlow</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-layout-dashboard class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Dashboard</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Menampilkan ringkasan cepat bisnis seperti omzet, pengeluaran, laba, transaksi,
-                        channel terbaik, dan stok hampir habis.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-receipt-text class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Penjualan</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mencatat transaksi. Saat penjualan ditambahkan, stok produk otomatis berkurang.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-package class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Produk & Stok</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mengelola produk, harga jual, modal produk, stok, dan batas stok rendah.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-wallet class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Pengeluaran</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mencatat biaya operasional seperti bahan baku, marketing, packaging, listrik,
-                        sewa, atau biaya lain.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-users class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Customer</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk menyimpan data pelanggan langsung seperti pelanggan offline,
-                        WhatsApp, Instagram DM, reseller, atau repeat order di luar marketplace.
-                        Untuk transaksi marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-chart-column-big class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Laporan</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk membaca performa bisnis berdasarkan periode, termasuk omzet, HPP, laba,
-                        produk terlaris, channel, dan AI Insight.
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <!-- Important Notes -->
         <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
             <div class="flex items-start gap-4">
@@ -357,7 +416,7 @@
                                 Semakin lengkap data yang dimasukkan, semakin akurat dashboard dan laporan.
                             </p>
                         </div>
-                        
+
                         <div>
                             <p class="font-semibold text-slate-800">Customers bersifat opsional</p>
                             <p class="text-sm text-slate-600 mt-1">
@@ -374,6 +433,26 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                <div>
+                    <h3 class="text-xl font-bold">Masih butuh bantuan?</h3>
+                    <p class="text-sm text-slate-500 mt-2">
+                        Hubungi CS DagangFlow jika ada kendala penggunaan, pertanyaan fitur, atau butuh arahan.
+                    </p>
+                </div>
+
+                <a href="https://wa.me/6282336722751?text=Halo%20DagangFlow%2C%20saya%20butuh%20bantuan%20terkait%20aplikasi."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                    <x-lucide-message-circle class="w-4 h-4" />
+                    Hubungi Kami
+                </a>
             </div>
         </div>
 

@@ -290,7 +290,7 @@
                     <div class="form-group">
                         <div class="form-row">
                             <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
-                            <a href="#" class="forgot-link">Lupa password?</a>
+                            <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>
                         </div>
 
                         <input

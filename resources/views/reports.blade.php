@@ -486,40 +486,80 @@
 
                 <div class="mt-8 space-y-5">
                     <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-slate-300">Omzet</span>
-                            <span class="font-semibold">Rp{{ number_format($grossRevenue, 0, ',', '.') }}</span>
+                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-full bg-emerald-400/15 text-emerald-300 flex items-center justify-center shrink-0">
+                                    <x-lucide-trending-up class="w-4 h-4" />
+                                </div>
+
+                                <span class="text-slate-300">Omzet</span>
+                            </div>
+
+                            <span class="font-semibold text-right shrink-0">
+                                Rp{{ number_format($grossRevenue, 0, ',', '.') }}
+                            </span>
                         </div>
+
                         <div class="h-3 bg-white/10 rounded-full overflow-hidden">
                             <div class="h-full bg-emerald-400 rounded-full w-full"></div>
                         </div>
                     </div>
 
                     <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-slate-300">HPP Produk</span>
-                            <span class="font-semibold">Rp{{ number_format($totalCOGS, 0, ',', '.') }}</span>
+                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-full bg-blue-400/15 text-blue-300 flex items-center justify-center shrink-0">
+                                    <x-lucide-package class="w-4 h-4" />
+                                </div>
+
+                                <span class="text-slate-300">HPP Produk</span>
+                            </div>
+
+                            <span class="font-semibold text-right shrink-0">
+                                Rp{{ number_format($totalCOGS, 0, ',', '.') }}
+                            </span>
                         </div>
+
                         <div class="h-3 bg-white/10 rounded-full overflow-hidden">
                             <div class="h-full bg-blue-400 rounded-full" style="width: {{ min($cogsPercent, 100) }}%"></div>
                         </div>
                     </div>
 
                     <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-slate-300">Pengeluaran</span>
-                            <span class="font-semibold">Rp{{ number_format($totalExpenses, 0, ',', '.') }}</span>
+                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-full bg-red-400/15 text-red-300 flex items-center justify-center shrink-0">
+                                    <x-lucide-wallet class="w-4 h-4" />
+                                </div>
+
+                                <span class="text-slate-300">Pengeluaran</span>
+                            </div>
+
+                            <span class="font-semibold text-right shrink-0">
+                                Rp{{ number_format($totalExpenses, 0, ',', '.') }}
+                            </span>
                         </div>
+
                         <div class="h-3 bg-white/10 rounded-full overflow-hidden">
                             <div class="h-full bg-red-400 rounded-full" style="width: {{ min($expensePercent, 100) }}%"></div>
                         </div>
                     </div>
 
                     <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-slate-300">Biaya Platform</span>
-                            <span class="font-semibold">Rp{{ number_format($platformFees, 0, ',', '.') }}</span>
+                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-8 h-8 rounded-full bg-amber-400/15 text-amber-300 flex items-center justify-center shrink-0">
+                                    <x-lucide-badge-percent class="w-4 h-4" />
+                                </div>
+
+                                <span class="text-slate-300">Biaya Platform</span>
+                            </div>
+
+                            <span class="font-semibold text-right shrink-0">
+                                Rp{{ number_format($platformFees, 0, ',', '.') }}
+                            </span>
                         </div>
+
                         <div class="h-3 bg-white/10 rounded-full overflow-hidden">
                             <div class="h-full bg-amber-400 rounded-full" style="width: {{ min($platformPercent, 100) }}%"></div>
                         </div>
@@ -659,9 +699,25 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="rounded-2xl p-6 bg-emerald-50 border border-emerald-100">
                 <p class="text-sm text-emerald-700 font-semibold">Insight 01</p>
-                <h3 class="text-xl font-bold mt-2">
-                    {{ $channelPerformance->keys()->first() ?? 'Belum ada channel utama' }}
-                </h3>
+
+                @php
+                    $topInsightChannel = $channelPerformance->keys()->first();
+                @endphp
+
+                <div class="flex items-center gap-3 mt-3">
+                    @if($topInsightChannel)
+                        <x-channel-logo :channel="$topInsightChannel" size="md" />
+                    @else
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                            <x-lucide-store class="w-5 h-5" />
+                        </div>
+                    @endif
+
+                    <h3 class="text-xl font-bold leading-tight">
+                        {{ $topInsightChannel ?? 'Belum ada channel utama' }}
+                    </h3>
+                </div>
+
                 <p class="text-sm text-slate-600 mt-3 leading-relaxed">
                     @if($channelPerformance->count() > 0)
                         Channel ini punya kontribusi omzet terbesar pada periode ini.

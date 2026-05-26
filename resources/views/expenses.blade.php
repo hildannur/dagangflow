@@ -16,6 +16,24 @@
 @endsection
 
 @section('content')
+    @php
+        if (! function_exists('expenseMoneyTextSize')) {
+            function expenseMoneyTextSize($value) {
+                $length = strlen((string) abs((int) $value));
+
+                if ($length >= 12) {
+                    return 'text-xl xl:text-2xl';
+                }
+
+                if ($length >= 10) {
+                    return 'text-2xl xl:text-3xl';
+                }
+
+                return 'text-3xl xl:text-4xl';
+            }
+        }
+    @endphp
+
     <div class="space-y-8">
 
         @if (session('success'))
@@ -99,9 +117,9 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Pengeluaran Periode Ini</p>
-                <h3 class="text-3xl font-bold mt-3 text-red-600">
+                <h3 class="{{ expenseMoneyTextSize($monthExpenses) }} font-bold mt-3 text-red-600 leading-tight tracking-tight whitespace-nowrap">
                     Rp{{ number_format($monthExpenses, 0, ',', '.') }}
                 </h3>
                 <p class="text-sm text-slate-500 mt-2">
@@ -109,25 +127,25 @@
                 </p>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Biaya Bahan Baku</p>
-                <h3 class="text-3xl font-bold mt-3">
+                <h3 class="{{ expenseMoneyTextSize($rawMaterialExpenses) }} font-bold mt-3 leading-tight tracking-tight whitespace-nowrap">
                     Rp{{ number_format($rawMaterialExpenses, 0, ',', '.') }}
                 </h3>
                 <p class="text-sm text-slate-500 mt-2">Total kategori bahan baku</p>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Biaya Platform</p>
-                <h3 class="text-3xl font-bold mt-3 text-amber-600">
+                <h3 class="{{ expenseMoneyTextSize($platformExpenses) }} font-bold mt-3 text-amber-600 leading-tight tracking-tight whitespace-nowrap">
                     Rp{{ number_format($platformExpenses, 0, ',', '.') }}
                 </h3>
                 <p class="text-sm text-slate-500 mt-2">Marketplace & delivery</p>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Rata-rata Harian</p>
-                <h3 class="text-3xl font-bold mt-3">
+                <h3 class="{{ expenseMoneyTextSize($dailyAverage) }} font-bold mt-3 leading-tight tracking-tight whitespace-nowrap">
                     Rp{{ number_format($dailyAverage, 0, ',', '.') }}
                 </h3>
                 <p class="text-sm text-slate-500 mt-2">Rata-rata periode ini</p>
@@ -352,9 +370,9 @@
                             @endphp
 
                             <div>
-                                <div class="flex justify-between text-sm mb-2">
+                                <div class="flex justify-between text-sm mb-2 gap-3">
                                     <span>{{ $category }}</span>
-                                    <span class="font-semibold">Rp{{ number_format($amount, 0, ',', '.') }}</span>
+                                    <span class="font-semibold whitespace-nowrap">Rp{{ number_format($amount, 0, ',', '.') }}</span>
                                 </div>
 
                                 <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
@@ -500,40 +518,41 @@
         </div>
 
     </div>
-    <script>
-    function formatRibuanExpense(value) {
-        const number = String(value || '').replace(/\D/g, '');
 
-        if (!number) {
-            return '';
+    <script>
+        function formatRibuanExpense(value) {
+            const number = String(value || '').replace(/\D/g, '');
+
+            if (!number) {
+                return '';
+            }
+
+            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
-        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
+        function openEditExpenseModal(id, category, amount, paymentMethod, expenseDate, note) {
+            const modal = document.getElementById('editExpenseModal');
+            const form = document.getElementById('editExpenseForm');
 
-    function openEditExpenseModal(id, category, amount, paymentMethod, expenseDate, note) {
-        const modal = document.getElementById('editExpenseModal');
-        const form = document.getElementById('editExpenseForm');
+            form.action = `/expenses/${id}`;
 
-        form.action = `/expenses/${id}`;
+            document.getElementById('edit_category').value = category;
+            document.getElementById('edit_amount').value = formatRibuanExpense(amount);
+            document.getElementById('edit_payment_method').value = paymentMethod || '';
+            document.getElementById('edit_expense_date').value = expenseDate || '';
+            document.getElementById('edit_note').value = note || '';
 
-        document.getElementById('edit_category').value = category;
-        document.getElementById('edit_amount').value = formatRibuanExpense(amount);
-        document.getElementById('edit_payment_method').value = paymentMethod || '';
-        document.getElementById('edit_expense_date').value = expenseDate || '';
-        document.getElementById('edit_note').value = note || '';
+            modal.classList.remove('hidden');
+            modal.classList.add('block');
+            document.body.classList.add('overflow-hidden');
+        }
 
-        modal.classList.remove('hidden');
-        modal.classList.add('block');
-        document.body.classList.add('overflow-hidden');
-    }
+        function closeEditExpenseModal() {
+            const modal = document.getElementById('editExpenseModal');
 
-    function closeEditExpenseModal() {
-        const modal = document.getElementById('editExpenseModal');
-
-        modal.classList.add('hidden');
-        modal.classList.remove('block');
-        document.body.classList.remove('overflow-hidden');
-    }
+            modal.classList.add('hidden');
+            modal.classList.remove('block');
+            document.body.classList.remove('overflow-hidden');
+        }
     </script>
 @endsection

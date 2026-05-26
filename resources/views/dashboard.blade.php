@@ -9,6 +9,41 @@
 @endsection
 
 @section('content')
+    @php
+        $dashboardStatValues = [
+            $monthlyRevenue,
+            $monthlyExpenseTotal,
+            $estimatedProfit,
+            $totalTransactions,
+        ];
+
+        $dashboardMaxStatLength = collect($dashboardStatValues)
+            ->map(function ($value) {
+                return strlen(number_format(abs((int) $value), 0, ',', '.'));
+            })
+            ->max();
+
+        if (! function_exists('dashboardStatTextSize')) {
+            function dashboardStatTextSize($maxLength) {
+                if ($maxLength >= 13) {
+                    return 'text-base xl:text-lg';
+                }
+
+                if ($maxLength >= 10) {
+                    return 'text-lg xl:text-xl';
+                }
+
+                if ($maxLength >= 7) {
+                    return 'text-xl xl:text-2xl';
+                }
+
+                return 'text-2xl xl:text-3xl';
+            }
+        }
+
+        $dashboardStatSizeClass = dashboardStatTextSize($dashboardMaxStatLength);
+    @endphp
+
     <div class="space-y-8">
 
         @if($products->count() === 0 && $sales->count() === 0)
@@ -90,17 +125,19 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Omzet Bulan Ini</p>
 
-                <div class="flex items-center gap-4 mt-4">
+                <div class="flex items-center gap-4 mt-4 min-w-0">
                     <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                         <x-lucide-trending-up class="w-9 h-9" />
                     </div>
 
-                    <h3 class="text-3xl font-bold leading-tight">
-                        Rp{{ number_format($monthlyRevenue, 0, ',', '.') }}
-                    </h3>
+                    <div class="flex-1 min-w-0 overflow-hidden">
+                        <h3 class="{{ $dashboardStatSizeClass }} font-bold leading-tight tracking-tight whitespace-nowrap">
+                            Rp{{ number_format($monthlyRevenue, 0, ',', '.') }}
+                        </h3>
+                    </div>
                 </div>
 
                 <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
@@ -125,17 +162,19 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Pengeluaran</p>
 
-                <div class="flex items-center gap-4 mt-4">
+                <div class="flex items-center gap-4 mt-4 min-w-0">
                     <div class="w-16 h-16 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                         <x-lucide-wallet class="w-9 h-9" />
                     </div>
 
-                    <h3 class="text-3xl font-bold leading-tight">
-                        Rp{{ number_format($monthlyExpenseTotal, 0, ',', '.') }}
-                    </h3>
+                    <div class="flex-1 min-w-0 overflow-hidden">
+                        <h3 class="{{ $dashboardStatSizeClass }} font-bold leading-tight tracking-tight whitespace-nowrap">
+                            Rp{{ number_format($monthlyExpenseTotal, 0, ',', '.') }}
+                        </h3>
+                    </div>
                 </div>
 
                 <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
@@ -160,17 +199,19 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Estimasi Laba</p>
 
-                <div class="flex items-center gap-4 mt-4">
+                <div class="flex items-center gap-4 mt-4 min-w-0">
                     <div class="w-16 h-16 rounded-full {{ $estimatedProfit >= 0 ? 'bg-emerald-500' : 'bg-red-500' }} text-white flex items-center justify-center shrink-0 shadow-sm">
                         <x-lucide-hand-coins class="w-9 h-9" />
                     </div>
 
-                    <h3 class="text-3xl font-bold leading-tight {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
-                        Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
-                    </h3>
+                    <div class="flex-1 min-w-0 overflow-hidden">
+                        <h3 class="{{ $dashboardStatSizeClass }} font-bold leading-tight tracking-tight whitespace-nowrap {{ $estimatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                            Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
+                        </h3>
+                    </div>
                 </div>
 
                 <div class="mt-5 flex items-center gap-2 text-sm font-semibold">
@@ -195,17 +236,19 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Total Transaksi</p>
 
-                <div class="flex items-center gap-4 mt-4">
+                <div class="flex items-center gap-4 mt-4 min-w-0">
                     <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                         <x-lucide-receipt-text class="w-9 h-9" />
                     </div>
 
-                    <h3 class="text-3xl font-bold leading-tight">
-                        {{ $totalTransactions }}
-                    </h3>
+                    <div class="flex-1 min-w-0 overflow-hidden">
+                        <h3 class="{{ $dashboardStatSizeClass }} font-bold leading-tight tracking-tight whitespace-nowrap">
+                            {{ number_format($totalTransactions, 0, ',', '.') }}
+                        </h3>
+                    </div>
                 </div>
 
                 <div class="mt-5 flex items-center gap-2 text-sm font-semibold">

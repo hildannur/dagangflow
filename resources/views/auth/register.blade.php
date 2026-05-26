@@ -15,6 +15,7 @@
             justify-content: center;
             padding: 40px 20px;
         }
+
         .error-alert {
             background: #FEF2F2;
             border: 1px solid #FECACA;
@@ -141,6 +142,17 @@
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
         }
 
+        .form-help {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .register-button {
             width: 100%;
             height: 52px;
@@ -179,12 +191,6 @@
 
         .auth-switch a:hover {
             color: #047857;
-        }
-
-        .login-text a {
-            color: #059669;
-            font-weight: 800;
-            text-decoration: none;
         }
 
         .footer-text {
@@ -251,8 +257,10 @@
                             id="name"
                             name="name"
                             type="text"
+                            value="{{ old('name') }}"
                             placeholder="Contoh: Nizar"
                             class="form-input"
+                            required
                         >
                     </div>
 
@@ -262,6 +270,7 @@
                             id="business_name"
                             name="business_name"
                             type="text"
+                            value="{{ old('business_name') }}"
                             placeholder="Contoh: Kopi Rumahan"
                             class="form-input"
                         >
@@ -275,13 +284,29 @@
                             class="form-select"
                         >
                             <option value="">Pilih jenis usaha</option>
-                            <option value="food_beverage">Food & Beverage</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="beauty">Beauty</option>
-                            <option value="retail">Retail</option>
-                            <option value="service">Jasa</option>
-                            <option value="other">Lainnya</option>
+                            <option value="food_beverage" @selected(old('business_type') === 'food_beverage')>Food & Beverage</option>
+                            <option value="fashion" @selected(old('business_type') === 'fashion')>Fashion</option>
+                            <option value="beauty" @selected(old('business_type') === 'beauty')>Beauty</option>
+                            <option value="retail" @selected(old('business_type') === 'retail')>Retail</option>
+                            <option value="service" @selected(old('business_type') === 'service')>Jasa</option>
+                            <option value="other" @selected(old('business_type') === 'other')>Lainnya</option>
                         </select>
+
+                        <div id="custom_business_type_wrapper" class="form-group hidden" style="margin-top: 14px; margin-bottom: 0;">
+                            <label for="custom_business_type" class="form-label">Keterangan jenis usaha</label>
+                            <input
+                                id="custom_business_type"
+                                name="custom_business_type"
+                                type="text"
+                                value="{{ old('custom_business_type') }}"
+                                placeholder="Contoh: Laundry, Barbershop, Percetakan"
+                                class="form-input"
+                            >
+
+                            <p class="form-help">
+                                Isi jenis usaha kamu jika tidak tersedia di pilihan.
+                            </p>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -290,8 +315,10 @@
                             id="email"
                             name="email"
                             type="email"
+                            value="{{ old('email') }}"
                             placeholder="nama@email.com"
                             class="form-input"
+                            required
                         >
                     </div>
 
@@ -303,6 +330,7 @@
                             type="password"
                             placeholder="Minimal 8 karakter"
                             class="form-input"
+                            required
                         >
                     </div>
 
@@ -311,7 +339,7 @@
                     </button>
                 </form>
 
-                               <div class="auth-switch">
+                <div class="auth-switch">
                     <span>Sudah punya akun?</span>
                     <a href="/login">Login di sini</a>
                 </div>
@@ -323,5 +351,28 @@
 
         </div>
     </main>
+
+    <script>
+        const businessTypeSelect = document.getElementById('business_type');
+        const customBusinessTypeWrapper = document.getElementById('custom_business_type_wrapper');
+        const customBusinessTypeInput = document.getElementById('custom_business_type');
+
+        function toggleCustomBusinessType() {
+            if (!businessTypeSelect || !customBusinessTypeWrapper || !customBusinessTypeInput) return;
+
+            if (businessTypeSelect.value === 'other') {
+                customBusinessTypeWrapper.classList.remove('hidden');
+                customBusinessTypeInput.setAttribute('required', 'required');
+            } else {
+                customBusinessTypeWrapper.classList.add('hidden');
+                customBusinessTypeInput.removeAttribute('required');
+                customBusinessTypeInput.value = '';
+            }
+        }
+
+        toggleCustomBusinessType();
+
+        businessTypeSelect?.addEventListener('change', toggleCustomBusinessType);
+    </script>
 </body>
 </html>

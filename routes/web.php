@@ -15,6 +15,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\BiodataController;
+use App\Http\Controllers\SaleImportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -176,6 +177,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/biodata/password', [BiodataController::class, 'updatePassword'])->name('biodata.password.update');
 
     Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
+    Route::get('/sales/import-template', [SaleImportController::class, 'downloadTemplate'])->name('sales.import-template');
+    Route::post('/sales/import', [SaleImportController::class, 'import'])->name('sales.import');
     Route::resource('sales', SaleController::class)->except(['create', 'show', 'edit']);
 
     Route::resource('products', ProductController::class)->except(['create', 'show', 'edit']);

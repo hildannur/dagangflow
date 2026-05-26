@@ -10,6 +10,11 @@
         Export Transaksi
     </a>
 
+    <button onclick="document.getElementById('quick-import-sale').scrollIntoView({ behavior: 'smooth' })"
+        class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+        Import CSV
+    </button>
+
     <button onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
         class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
         + Tambah Penjualan
@@ -28,6 +33,22 @@
         @if ($errors->any())
             <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl text-sm font-semibold">
                 {{ $errors->first() }}
+            </div>
+        @endif
+
+        @if (session('importErrors'))
+            <div class="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-2xl text-sm">
+                <p class="font-bold">Sebagian data gagal diimport:</p>
+
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                    @foreach(session('importErrors') as $importError)
+                        <li>{{ $importError }}</li>
+                    @endforeach
+                </ul>
+
+                <p class="text-xs text-amber-700 mt-3">
+                    Maksimal 10 error pertama ditampilkan. Periksa kembali nama produk, stok, dan format CSV.
+                </p>
             </div>
         @endif
 
@@ -371,48 +392,48 @@
                                     </td>
                                 </tr>
                             @empty
-                                    <tr>
-                                        <td colspan="9" class="px-6 py-14 text-center">
-                                            <div class="max-w-md mx-auto">
-                                                <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-sm">
-                                                    <x-lucide-receipt-text class="w-8 h-8" />
-                                                </div>
-                                
-                                                <h3 class="font-bold text-slate-900 mt-5 text-lg">
-                                                    Belum ada transaksi penjualan
-                                                </h3>
-                                
-                                                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-                                                    Catat penjualan pertama agar DagangFlow bisa menghitung omzet,
-                                                    biaya platform, uang bersih, dan stok produk secara otomatis.
-                                                </p>
-                                
-                                                <div class="flex flex-col sm:flex-row justify-center gap-3 mt-5">
-                                                    @if($products->count() > 0)
-                                                        <button
-                                                            type="button"
-                                                            onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
-                                                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
-                                                        >
-                                                            <x-lucide-plus-circle class="w-4 h-4" />
-                                                            Catat Penjualan
-                                                        </button>
-                                                    @else
-                                                        <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                                                            <x-lucide-package class="w-4 h-4" />
-                                                            Tambah Produk Dulu
-                                                        </a>
-                                                    @endif
-                                
-                                                    <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
-                                                        <x-lucide-circle-help class="w-4 h-4" />
-                                                        Pelajari Alur
-                                                    </a>
-                                                </div>
+                                <tr>
+                                    <td colspan="9" class="px-6 py-14 text-center">
+                                        <div class="max-w-md mx-auto">
+                                            <div class="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-sm">
+                                                <x-lucide-receipt-text class="w-8 h-8" />
                                             </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
+                            
+                                            <h3 class="font-bold text-slate-900 mt-5 text-lg">
+                                                Belum ada transaksi penjualan
+                                            </h3>
+                            
+                                            <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                                                Catat penjualan pertama agar DagangFlow bisa menghitung omzet,
+                                                biaya platform, uang bersih, dan stok produk secara otomatis.
+                                            </p>
+                            
+                                            <div class="flex flex-col sm:flex-row justify-center gap-3 mt-5">
+                                                @if($products->count() > 0)
+                                                    <button
+                                                        type="button"
+                                                        onclick="document.getElementById('quick-add-sale').scrollIntoView({ behavior: 'smooth' })"
+                                                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
+                                                    >
+                                                        <x-lucide-plus-circle class="w-4 h-4" />
+                                                        Catat Penjualan
+                                                    </button>
+                                                @else
+                                                    <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                                        <x-lucide-package class="w-4 h-4" />
+                                                        Tambah Produk Dulu
+                                                    </a>
+                                                @endif
+                            
+                                                <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                                    <x-lucide-circle-help class="w-4 h-4" />
+                                                    Pelajari Alur
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -560,6 +581,45 @@
                             </a>
                         </div>
                     @endif
+                </div>
+
+                <!-- Import CSV Trigger -->
+                <div id="quick-import-sale" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold">Import CSV Penjualan</h3>
+                            <p class="text-sm text-slate-500 mt-1 leading-relaxed">
+                                Punya banyak data penjualan dari marketplace? Import CSV agar tidak perlu input manual satu per satu.
+                            </p>
+                        </div>
+
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <x-lucide-upload class="w-5 h-5" />
+                        </div>
+                    </div>
+
+                    <div class="mt-5 rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                        <p class="text-sm font-semibold text-slate-700">Format yang didukung</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            Gunakan template CSV DagangFlow agar data marketplace bisa dibaca dengan benar.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                        <a href="{{ route('sales.import-template') }}"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                            <x-lucide-download class="w-4 h-4" />
+                            Download Template
+                        </a>
+
+                        <button
+                            type="button"
+                            onclick="openImportSaleModal()"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                            <x-lucide-upload class="w-4 h-4" />
+                            Import CSV
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Channel Summary -->
@@ -754,7 +814,87 @@
             </div>
         </div>
 
+        <!-- Import Sale CSV Modal -->
+        <div id="importSaleModal" class="fixed inset-0 bg-slate-900/50 hidden z-50 px-4 py-6 overflow-y-auto">
+            <div class="min-h-full flex items-start justify-center">
+                <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold">Import CSV Penjualan</h3>
+                            <p class="text-sm text-slate-500 mt-1">
+                                Upload file CSV untuk memasukkan banyak transaksi sekaligus.
+                            </p>
+                        </div>
+
+                        <button type="button" onclick="closeImportSaleModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4 mb-5">
+                        <p class="text-sm font-semibold text-amber-700">Format kolom wajib</p>
+                        <p class="text-xs text-amber-700 mt-2 leading-relaxed">
+                            tanggal, produk, jumlah, channel, biaya_platform, status, catatan
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 mb-5">
+                        <p class="text-sm font-semibold text-slate-700">Catatan penting</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                            Nama produk di CSV harus sama dengan nama produk di DagangFlow. Jika berbeda, baris tersebut akan gagal diimport.
+                        </p>
+                    </div>
+
+                    <form action="{{ route('sales.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+
+                        <div>
+                            <label class="text-sm font-medium text-slate-700">File CSV</label>
+                            <input
+                                type="file"
+                                name="csv_file"
+                                accept=".csv,text/csv"
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                                required
+                            >
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <a href="{{ route('sales.import-template') }}"
+                                class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
+                                <x-lucide-download class="w-4 h-4" />
+                                Download Template
+                            </a>
+
+                            <button class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+                                <x-lucide-upload class="w-4 h-4" />
+                                Import Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <script>
+            function openImportSaleModal() {
+                const modal = document.getElementById('importSaleModal');
+
+                modal.classList.remove('hidden');
+                modal.classList.add('block');
+
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeImportSaleModal() {
+                const modal = document.getElementById('importSaleModal');
+
+                modal.classList.add('hidden');
+                modal.classList.remove('block');
+
+                document.body.classList.remove('overflow-hidden');
+            }
+
             function formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', {
                     style: 'currency',
