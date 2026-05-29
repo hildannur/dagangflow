@@ -20,6 +20,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\BiodataController;
 use App\Http\Controllers\SaleImportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -337,4 +338,17 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
 
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+
+    Route::patch('/users/{user}/suspend', [AdminUserController::class, 'suspend'])->name('users.suspend');
+    Route::patch('/users/{user}/activate', [AdminUserController::class, 'activate'])->name('users.activate');
+
+    Route::patch('/users/{user}/subscription', [AdminUserController::class, 'updateSubscription'])->name('users.subscription.update');
+    Route::patch('/users/{user}/subscription/extend', [AdminUserController::class, 'extendSubscription'])->name('users.subscription.extend');
+
+    Route::get('/subscriptions', [AdminUserController::class, 'subscriptions'])->name('subscriptions.index');
+
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });

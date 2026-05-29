@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="xl:col-span-5 p-6 border-t xl:border-t-0 xl:border-l border-white/10 bg-white/[0.03]">
-                    <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-start justify-between gap-4">
                         <p class="text-sm font-semibold text-white">
                             Insight Terbaru
                             <span class="text-slate-400 font-medium">
@@ -65,9 +65,20 @@
                             </span>
                         </p>
 
-                        <div class="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
-                            <x-lucide-circle-check class="w-3.5 h-3.5" />
-                            Dihasilkan
+                        <div class="flex items-center gap-2">
+                            <div class="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
+                                <x-lucide-circle-check class="w-3.5 h-3.5" />
+                                Dihasilkan
+                            </div>
+
+                            <button
+                                type="button"
+                                onclick="openAiInsightModal()"
+                                class="w-8 h-8 rounded-lg bg-white/10 border border-white/10 text-slate-300 hover:text-emerald-300 hover:bg-emerald-400/10 hover:border-emerald-300/20 transition inline-flex items-center justify-center"
+                                title="Perbesar insight"
+                            >
+                                <x-lucide-maximize-2 class="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
 
@@ -77,20 +88,22 @@
                         </div>
                     @endif
 
-                    @if (session('aiInsight'))
-                        <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-100 max-h-40 overflow-y-auto pr-2">
-                            {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
-                        </div>
-                    @else
-                        <div class="mt-4 text-sm leading-relaxed text-slate-300 space-y-2">
-                            <p>
-                                Omzet Anda akan dianalisis berdasarkan periode yang dipilih.
-                            </p>
-                            <p>
-                                Klik <span class="text-emerald-300 font-semibold">Generate AI Insight</span> untuk melihat ringkasan kondisi bisnis, masalah utama, dan rekomendasi aksi.
-                            </p>
-                        </div>
-                    @endif
+                    <div id="aiInsightContent">
+                        @if (session('aiInsight'))
+                            <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-100 max-h-40 overflow-y-auto pr-2">
+                                {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
+                            </div>
+                        @else
+                            <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-300 space-y-2">
+                                <p>
+                                    Omzet Anda akan dianalisis berdasarkan periode yang dipilih.
+                                </p>
+                                <p>
+                                    Klik <span class="text-emerald-300 font-semibold">Generate AI Insight</span> untuk melihat ringkasan kondisi bisnis, masalah utama, dan rekomendasi aksi.
+                                </p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -750,6 +763,24 @@
 
     </div>
 
+    <!-- AI Insight Modal -->
+    <div id="aiInsightModal" class="ai-modal-overlay" onclick="closeAiInsightModal(event)">
+        <div class="ai-modal-box">
+            <div class="ai-modal-header">
+                <div>
+                    <p class="ai-modal-eyebrow">DagangFlow AI Insight</p>
+                    <h2 class="ai-modal-title">Ringkasan AI Bisnis</h2>
+                </div>
+
+                <button type="button" class="ai-modal-close" onclick="closeAiInsightModal()">
+                    <x-lucide-x class="w-5 h-5" />
+                </button>
+            </div>
+
+            <div id="aiInsightModalBody" class="ai-modal-body"></div>
+        </div>
+    </div>
+
     <style>
         .ai-insight-content p {
             margin-bottom: 12px;
@@ -777,5 +808,210 @@
         .ai-insight-content li {
             margin-bottom: 8px;
         }
+
+        .ai-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 26px;
+        }
+
+        .ai-modal-overlay.active {
+            display: flex;
+        }
+
+        .ai-modal-box {
+            width: min(1120px, calc(100vw - 52px));
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: 30px;
+            box-shadow: 0 34px 90px rgba(15, 23, 42, 0.42);
+            overflow: hidden;
+            animation: aiModalIn 0.22s ease;
+        }
+
+        .ai-modal-header {
+            padding: 28px 34px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            background: #ffffff;
+        }
+
+        .ai-modal-eyebrow {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 900;
+            color: #10b981;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .ai-modal-title {
+            margin: 8px 0 0;
+            font-size: 30px;
+            font-weight: 950;
+            color: #0f172a;
+            letter-spacing: -0.045em;
+            line-height: 1.15;
+        }
+
+        .ai-modal-close {
+            width: 46px;
+            height: 46px;
+            border: none;
+            border-radius: 16px;
+            background: #f1f5f9;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .ai-modal-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .ai-modal-body {
+            padding: 32px 36px 38px;
+            overflow-y: auto;
+            max-height: calc(90vh - 116px);
+            min-height: 430px;
+            background: #ffffff;
+            color: #334155;
+            font-size: 16px;
+            line-height: 1.9;
+        }
+
+        .ai-modal-body .ai-insight-content {
+            max-height: none !important;
+            overflow: visible !important;
+            padding-right: 0 !important;
+            color: #334155 !important;
+            font-size: 16px !important;
+            line-height: 1.9 !important;
+        }
+
+        .ai-modal-body .ai-insight-content * {
+            color: #334155 !important;
+        }
+
+        .ai-modal-body .ai-insight-content h1,
+        .ai-modal-body .ai-insight-content h2,
+        .ai-modal-body .ai-insight-content h3,
+        .ai-modal-body .ai-insight-content h4,
+        .ai-modal-body .ai-insight-content h5,
+        .ai-modal-body .ai-insight-content h6,
+        .ai-modal-body .ai-insight-content strong {
+            color: #0f172a !important;
+            font-weight: 900;
+        }
+
+        .ai-modal-body .ai-insight-content p {
+            margin: 0 0 18px;
+        }
+
+        .ai-modal-body .ai-insight-content ol {
+            list-style: decimal;
+            padding-left: 24px;
+            margin-top: 14px;
+            margin-bottom: 20px;
+        }
+
+        .ai-modal-body .ai-insight-content ul {
+            list-style: disc;
+            padding-left: 24px;
+            margin-top: 14px;
+            margin-bottom: 20px;
+        }
+
+        .ai-modal-body .ai-insight-content li {
+            margin-bottom: 10px;
+        }
+
+        @keyframes aiModalIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ai-modal-overlay {
+                padding: 14px;
+            }
+
+            .ai-modal-box {
+                width: 100%;
+                max-height: 92vh;
+                border-radius: 24px;
+            }
+
+            .ai-modal-header {
+                padding: 22px;
+            }
+
+            .ai-modal-title {
+                font-size: 24px;
+            }
+
+            .ai-modal-body {
+                padding: 22px;
+                font-size: 15px;
+                min-height: 360px;
+                max-height: calc(92vh - 102px);
+            }
+
+            .ai-modal-body .ai-insight-content {
+                font-size: 15px !important;
+            }
+        }
     </style>
+
+    <script>
+        function openAiInsightModal() {
+            const modal = document.getElementById('aiInsightModal');
+            const source = document.getElementById('aiInsightContent');
+            const target = document.getElementById('aiInsightModalBody');
+
+            if (!modal || !source || !target) return;
+
+            target.innerHTML = source.innerHTML;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAiInsightModal(event = null) {
+            const modal = document.getElementById('aiInsightModal');
+
+            if (!modal) return;
+
+            if (event && event.target !== modal) return;
+
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeAiInsightModal();
+            }
+        });
+    </script>
 @endsection

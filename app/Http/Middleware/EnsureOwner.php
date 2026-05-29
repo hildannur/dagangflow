@@ -22,6 +22,17 @@ class EnsureOwner
             abort(403, 'Akun ini tidak memiliki akses owner.');
         }
 
+        if ($request->user()->status === 'suspended') {
+            auth()->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login')->withErrors([
+                'email' => 'Akun kamu sedang dinonaktifkan. Hubungi admin DagangFlow.',
+            ]);
+        }
+
         return $next($request);
     }
 }
