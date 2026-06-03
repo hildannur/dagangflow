@@ -179,10 +179,9 @@
                         required
                     >
                         <option value="Free" @selected($user->plan_name === 'Free')>Free</option>
-                        <option value="Starter" @selected($user->plan_name === 'Starter')>Starter</option>
-                        <option value="Pro" @selected($user->plan_name === 'Pro')>Pro</option>
-                        <option value="Business" @selected($user->plan_name === 'Business')>Business</option>
-                        <option value="Internal" @selected($user->plan_name === 'Internal')>Internal</option>
+                         <option value="Trial" @selected($user->plan_name === 'Trial')>Trial</option>
+                         <option value="Bulanan" @selected($user->plan_name === 'Bulanan')>Bulanan</option>
+                         <option value="Tahunan" @selected($user->plan_name === 'Tahunan')>Tahunan</option>
                     </select>
                 </div>
 
