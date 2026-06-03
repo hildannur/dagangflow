@@ -55,8 +55,9 @@
                     Plans
                 </a>
 
-                <a href="#"
-                    class="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-300 hover:bg-white/10 font-semibold transition">
+                <a href="{{ route('admin.support.index') }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition
+                    {{ request()->routeIs('admin.support.*') ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:bg-white/10' }}">
                     <x-lucide-headphones class="w-5 h-5" />
                     Support
                 </a>
