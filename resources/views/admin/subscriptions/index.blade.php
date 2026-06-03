@@ -170,8 +170,19 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-                                    {{ $user->plan_name ?: 'Free' }}
+                                @php
+                                    $planName = $user->plan_name ?: 'Free';
+                            
+                                    $planClass = match ($planName) {
+                                        'Trial' => 'bg-blue-50 text-blue-700',
+                                        'Bulanan' => 'bg-emerald-50 text-emerald-700',
+                                        'Tahunan' => 'bg-indigo-50 text-indigo-700',
+                                        default => 'bg-slate-100 text-slate-700',
+                                    };
+                                @endphp
+                            
+                                <span class="px-3 py-1 rounded-full {{ $planClass }} text-xs font-bold">
+                                    {{ $planName }}
                                 </span>
                             </td>
 
