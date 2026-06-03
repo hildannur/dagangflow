@@ -85,11 +85,10 @@
                     class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 >
                     <option value="">Semua paket</option>
-                    @foreach($plans as $planOption)
-                        <option value="{{ $planOption }}" @selected($plan === $planOption)>
-                            {{ $planOption }}
-                        </option>
-                    @endforeach
+                    <option value="Free" @selected($plan === 'Free')>Free</option>
+                    <option value="Trial" @selected($plan === 'Trial')>Trial</option>
+                    <option value="Bulanan" @selected($plan === 'Bulanan')>Bulanan</option>
+                    <option value="Tahunan" @selected($plan === 'Tahunan')>Tahunan</option>
                 </select>
             </div>
 
@@ -138,6 +137,28 @@
 
                 <tbody class="divide-y divide-slate-100">
                     @forelse($users as $user)
+                        @php
+                            $planName = $user->plan_name ?: 'Free';
+
+                            $planClass = match ($planName) {
+                                'Trial' => 'bg-blue-50 text-blue-700',
+                                'Bulanan' => 'bg-emerald-50 text-emerald-700',
+                                'Tahunan' => 'bg-indigo-50 text-indigo-700',
+                                default => 'bg-slate-100 text-slate-700',
+                            };
+
+                            $subscriptionStatus = $user->subscription_status ?: '-';
+
+                            $subscriptionClass = match ($subscriptionStatus) {
+                                'trial' => 'text-blue-600',
+                                'active' => 'text-emerald-600',
+                                'expired' => 'text-red-600',
+                                'cancelled' => 'text-slate-500',
+                                'suspended' => 'text-slate-500',
+                                default => 'text-slate-900',
+                            };
+                        @endphp
+
                         <tr class="hover:bg-slate-50/70">
                             <td class="px-6 py-4">
                                 <p class="font-bold text-slate-900">{{ $user->name }}</p>
@@ -153,25 +174,14 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                @php
-                                    $planName = $user->plan_name ?: 'Free';
-                            
-                                    $planClass = match ($planName) {
-                                        'Trial' => 'bg-blue-50 text-blue-700',
-                                        'Bulanan' => 'bg-emerald-50 text-emerald-700',
-                                        'Tahunan' => 'bg-indigo-50 text-indigo-700',
-                                        default => 'bg-slate-100 text-slate-700',
-                                    };
-                                @endphp
-                            
                                 <span class="px-3 py-1 rounded-full {{ $planClass }} text-xs font-bold">
                                     {{ $planName }}
                                 </span>
                             </td>
 
                             <td class="px-6 py-4">
-                                <p class="font-semibold text-slate-900 capitalize">
-                                    {{ $user->subscription_status ?: '-' }}
+                                <p class="font-semibold capitalize {{ $subscriptionClass }}">
+                                    {{ $subscriptionStatus }}
                                 </p>
                                 <p class="text-xs text-slate-500 mt-1">
                                     Expired:
