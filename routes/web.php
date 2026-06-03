@@ -351,4 +351,6 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::get('/subscriptions', [AdminUserController::class, 'subscriptions'])->name('subscriptions.index');
 
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    Route::view('/support', 'admin.support.index')->name('support.index');
 });
