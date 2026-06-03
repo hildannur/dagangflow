@@ -353,4 +353,6 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     Route::view('/support', 'admin.support.index')->name('support.index');
+
+    Route::view('/plans', 'admin.plans.index')->name('plans.index');
 });
