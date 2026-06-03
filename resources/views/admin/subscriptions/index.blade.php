@@ -88,11 +88,10 @@
                     class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                 >
                     <option value="">Semua paket</option>
-                    @foreach($plans as $planOption)
-                        <option value="{{ $planOption }}" @selected($plan === $planOption)>
-                            {{ $planOption }}
-                        </option>
-                    @endforeach
+                    <option value="Free" @selected($plan === 'Free')>Free</option>
+                    <option value="Trial" @selected($plan === 'Trial')>Trial</option>
+                    <option value="Bulanan" @selected($plan === 'Bulanan')>Bulanan</option>
+                    <option value="Tahunan" @selected($plan === 'Tahunan')>Tahunan</option>
                 </select>
             </div>
 
@@ -143,19 +142,29 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($users as $user)
                         @php
+                            $planName = $user->plan_name ?: 'Free';
+
+                            $planClass = match ($planName) {
+                                'Trial' => 'bg-blue-50 text-blue-700',
+                                'Bulanan' => 'bg-emerald-50 text-emerald-700',
+                                'Tahunan' => 'bg-indigo-50 text-indigo-700',
+                                default => 'bg-slate-100 text-slate-700',
+                            };
+
+                            $subscriptionStatus = $user->subscription_status ?: '-';
+
+                            $statusClass = match ($subscriptionStatus) {
+                                'trial' => 'bg-blue-50 text-blue-700',
+                                'active' => 'bg-emerald-50 text-emerald-700',
+                                'expired' => 'bg-red-50 text-red-700',
+                                'cancelled' => 'bg-slate-100 text-slate-700',
+                                'suspended' => 'bg-slate-100 text-slate-700',
+                                default => 'bg-slate-100 text-slate-700',
+                            };
+
                             $daysLeft = $user->subscription_ends_at
                                 ? now()->startOfDay()->diffInDays($user->subscription_ends_at->copy()->startOfDay(), false)
                                 : null;
-
-                            $statusClass = 'bg-slate-100 text-slate-700';
-
-                            if ($user->subscription_status === 'active') {
-                                $statusClass = 'bg-emerald-50 text-emerald-700';
-                            } elseif ($user->subscription_status === 'trial') {
-                                $statusClass = 'bg-blue-50 text-blue-700';
-                            } elseif ($user->subscription_status === 'expired') {
-                                $statusClass = 'bg-red-50 text-red-700';
-                            }
                         @endphp
 
                         <tr class="hover:bg-slate-50/70">
@@ -170,17 +179,6 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                @php
-                                    $planName = $user->plan_name ?: 'Free';
-                            
-                                    $planClass = match ($planName) {
-                                        'Trial' => 'bg-blue-50 text-blue-700',
-                                        'Bulanan' => 'bg-emerald-50 text-emerald-700',
-                                        'Tahunan' => 'bg-indigo-50 text-indigo-700',
-                                        default => 'bg-slate-100 text-slate-700',
-                                    };
-                                @endphp
-                            
                                 <span class="px-3 py-1 rounded-full {{ $planClass }} text-xs font-bold">
                                     {{ $planName }}
                                 </span>
@@ -188,7 +186,7 @@
 
                             <td class="px-6 py-4">
                                 <span class="px-3 py-1 rounded-full {{ $statusClass }} text-xs font-bold capitalize">
-                                    {{ $user->subscription_status ?: '-' }}
+                                    {{ $subscriptionStatus }}
                                 </span>
                             </td>
 
