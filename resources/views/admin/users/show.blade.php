@@ -5,6 +5,50 @@
 ])
 
 @section('content')
+    @php
+        $planName = $user->plan_name ?: 'Free';
+
+        $planClass = match ($planName) {
+            'Trial' => 'bg-blue-50 text-blue-700',
+            'Bulanan' => 'bg-emerald-50 text-emerald-700',
+            'Tahunan' => 'bg-indigo-50 text-indigo-700',
+            default => 'bg-slate-100 text-slate-700',
+        };
+
+        $subscriptionStatus = $user->subscription_status ?: '-';
+
+        $subscriptionClass = match ($subscriptionStatus) {
+            'trial' => 'bg-blue-50 text-blue-700',
+            'active' => 'bg-emerald-50 text-emerald-700',
+            'expired' => 'bg-red-50 text-red-700',
+            'cancelled' => 'bg-slate-100 text-slate-700',
+            'suspended' => 'bg-slate-100 text-slate-700',
+            default => 'bg-slate-100 text-slate-700',
+        };
+
+        $statusClass = $user->status === 'active'
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'bg-slate-100 text-slate-600';
+
+        $quickPlans = [
+            [
+                'label' => '+14 Hari Trial',
+                'days' => 14,
+                'plan' => 'Trial',
+            ],
+            [
+                'label' => '+30 Hari Bulanan',
+                'days' => 30,
+                'plan' => 'Bulanan',
+            ],
+            [
+                'label' => '+365 Hari Tahunan',
+                'days' => 365,
+                'plan' => 'Tahunan',
+            ],
+        ];
+    @endphp
+
     <!-- Header Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <a href="{{ route('admin.users.index') }}"
@@ -20,7 +64,7 @@
                     @csrf
                     @method('PATCH')
 
-                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition">
+                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-200 transition">
                         <x-lucide-user-x class="w-4 h-4" />
                         Suspend User
                     </button>
@@ -69,16 +113,16 @@
                     </p>
 
                     <div class="flex flex-wrap gap-2 mt-4">
-                        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-                            {{ $user->plan_name ?: 'Free' }}
+                        <span class="px-3 py-1 rounded-full {{ $planClass }} text-xs font-bold">
+                            {{ $planName }}
                         </span>
 
-                        <span class="px-3 py-1 rounded-full {{ $user->status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700' }} text-xs font-bold capitalize">
+                        <span class="px-3 py-1 rounded-full {{ $statusClass }} text-xs font-bold capitalize">
                             {{ $user->status ?: '-' }}
                         </span>
 
-                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold capitalize">
-                            {{ $user->subscription_status ?: '-' }}
+                        <span class="px-3 py-1 rounded-full {{ $subscriptionClass }} text-xs font-bold capitalize">
+                            {{ $subscriptionStatus }}
                         </span>
                     </div>
                 </div>
@@ -123,14 +167,14 @@
             <p class="text-sm text-emerald-300 font-bold">Subscription</p>
 
             <h3 class="text-2xl font-black mt-3">
-                {{ $user->plan_name ?: 'Free' }}
+                {{ $planName }}
             </h3>
 
             <div class="mt-6 space-y-3">
                 <div class="p-4 rounded-2xl bg-white/10 border border-white/10">
                     <p class="text-xs text-slate-400">Status</p>
                     <p class="text-lg font-black mt-1 capitalize">
-                        {{ $user->subscription_status ?: '-' }}
+                        {{ $subscriptionStatus }}
                     </p>
                 </div>
 
@@ -179,9 +223,9 @@
                         required
                     >
                         <option value="Free" @selected($user->plan_name === 'Free')>Free</option>
-                         <option value="Trial" @selected($user->plan_name === 'Trial')>Trial</option>
-                         <option value="Bulanan" @selected($user->plan_name === 'Bulanan')>Bulanan</option>
-                         <option value="Tahunan" @selected($user->plan_name === 'Tahunan')>Tahunan</option>
+                        <option value="Trial" @selected($user->plan_name === 'Trial')>Trial</option>
+                        <option value="Bulanan" @selected($user->plan_name === 'Bulanan')>Bulanan</option>
+                        <option value="Tahunan" @selected($user->plan_name === 'Tahunan')>Tahunan</option>
                     </select>
                 </div>
 
@@ -234,7 +278,7 @@
                 <div>
                     <h3 class="text-xl font-black">Perpanjang Cepat</h3>
                     <p class="text-sm text-slate-500 mt-1">
-                        Tambah masa aktif dari tanggal expired saat ini.
+                        Pilih paket cepat. Paket user akan otomatis ikut berubah.
                     </p>
                 </div>
 
@@ -244,43 +288,47 @@
             </div>
 
             <div class="grid grid-cols-1 gap-3">
-                <form action="{{ route('admin.users.subscription.extend', $user) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
+                @foreach($quickPlans as $quickPlan)
+                    @php
+                        $isCurrentPlan = $planName === $quickPlan['plan'];
 
-                    <input type="hidden" name="days" value="7">
+                        $buttonClass = $isCurrentPlan
+                            ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600'
+                            : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-50';
+                    @endphp
 
-                    <button class="w-full px-5 py-3 rounded-2xl border border-slate-200 text-sm font-bold hover:bg-slate-50 transition">
-                        +7 Hari
-                    </button>
-                </form>
+                    <form action="{{ route('admin.users.subscription.extend', $user) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
 
-                <form action="{{ route('admin.users.subscription.extend', $user) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
+                        <input type="hidden" name="days" value="{{ $quickPlan['days'] }}">
 
-                    <input type="hidden" name="days" value="30">
+                        <button
+                            type="submit"
+                            class="w-full px-5 py-3 rounded-2xl border text-sm font-black transition {{ $buttonClass }}"
+                        >
+                            <span class="flex items-center justify-center gap-2">
+                                @if($isCurrentPlan)
+                                    <x-lucide-check class="w-4 h-4" />
+                                @endif
 
-                    <button class="w-full px-5 py-3 rounded-2xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition">
-                        +30 Hari
-                    </button>
-                </form>
-
-                <form action="{{ route('admin.users.subscription.extend', $user) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-
-                    <input type="hidden" name="days" value="365">
-
-                    <button class="w-full px-5 py-3 rounded-2xl border border-slate-200 text-sm font-bold hover:bg-slate-50 transition">
-                        +1 Tahun
-                    </button>
-                </form>
+                                {{ $quickPlan['label'] }}
+                            </span>
+                        </button>
+                    </form>
+                @endforeach
             </div>
 
             <div class="mt-5 rounded-2xl bg-slate-50 border border-slate-100 p-4">
+                <p class="text-xs text-slate-500">Paket aktif saat ini</p>
+                <p class="text-sm font-black text-slate-900 mt-1">
+                    {{ $planName }}
+                </p>
+            </div>
+
+            <div class="mt-3 rounded-2xl bg-slate-50 border border-slate-100 p-4">
                 <p class="text-xs text-slate-500">Expired saat ini</p>
-                <p class="text-sm font-bold text-slate-900 mt-1">
+                <p class="text-sm font-black text-slate-900 mt-1">
                     {{ $user->subscription_ends_at ? $user->subscription_ends_at->format('d M Y') : 'Tidak ada tanggal expired' }}
                 </p>
             </div>

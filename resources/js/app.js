@@ -1,36 +1,47 @@
 import './bootstrap';
 
-// Fungsi untuk memformat input sebagai mata uang Rupiah
-document.addEventListener('DOMContentLoaded', function () {
-    const rupiahInputs = document.querySelectorAll('.rupiah-input');
+import { createApp } from 'vue';
+import AdminSubscriptionsTable from './components/admin/AdminSubscriptionsTable.vue';
+import AdminUsersTable from './components/admin/AdminUsersTable.vue';
+import OwnerProductsTable from './components/owner/OwnerProductsTable.vue';
+import OwnerSalesTable from './components/owner/OwnerSalesTable.vue';
 
-    function onlyNumber(value) {
-        return value.replace(/\D/g, '');
-    }
+const adminSubscriptionsTable = document.getElementById('admin-subscriptions-table');
 
-    function formatRibuan(value) {
-        const number = onlyNumber(value);
+if (adminSubscriptionsTable) {
+    createApp(AdminSubscriptionsTable, {
+        dataUrl: adminSubscriptionsTable.dataset.dataUrl,
+        userShowBaseUrl: adminSubscriptionsTable.dataset.userShowBaseUrl,
+    }).mount('#admin-subscriptions-table');
+}
 
-        if (!number) {
-            return '';
-        }
+const adminUsersTable = document.getElementById('admin-users-table');
 
-        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
+if (adminUsersTable) {
+    createApp(AdminUsersTable, {
+        dataUrl: adminUsersTable.dataset.dataUrl,
+        userShowBaseUrl: adminUsersTable.dataset.userShowBaseUrl,
+    }).mount('#admin-users-table');
+}
 
-    rupiahInputs.forEach(function (input) {
-        input.addEventListener('input', function () {
-            input.value = formatRibuan(input.value);
-        });
+const ownerProductsTable = document.getElementById('owner-products-table');
 
-        input.value = formatRibuan(input.value);
-    });
+if (ownerProductsTable) {
+    createApp(OwnerProductsTable, {
+        dataUrl: ownerProductsTable.dataset.dataUrl,
+        createUrl: ownerProductsTable.dataset.createUrl,
+        editBaseUrl: ownerProductsTable.dataset.editBaseUrl,
+        csrfToken: ownerProductsTable.dataset.csrfToken,
+    }).mount('#owner-products-table');
+}
 
-    document.querySelectorAll('form').forEach(function (form) {
-        form.addEventListener('submit', function () {
-            form.querySelectorAll('.rupiah-input').forEach(function (input) {
-                input.value = onlyNumber(input.value);
-            });
-        });
-    });
-});
+const ownerSalesTable = document.getElementById('owner-sales-table');
+
+if (ownerSalesTable) {
+    createApp(OwnerSalesTable, {
+        dataUrl: ownerSalesTable.dataset.dataUrl,
+        createUrl: ownerSalesTable.dataset.createUrl,
+        editBaseUrl: ownerSalesTable.dataset.editBaseUrl,
+        csrfToken: ownerSalesTable.dataset.csrfToken,
+    }).mount('#owner-sales-table');
+}

@@ -9,8 +9,11 @@
         Export Produk
     </button>
 
-    <button onclick="document.getElementById('quick-add-product').scrollIntoView({ behavior: 'smooth' })"
-        class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+    <button
+        type="button"
+        onclick="window.dispatchEvent(new CustomEvent('open-create-product-modal'))"
+        class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
+    >
         + Tambah Produk
     </button>
 @endsection
@@ -33,519 +36,98 @@
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center mb-5">
+                    <x-lucide-package class="w-6 h-6" />
+                </div>
+
                 <p class="text-sm text-slate-500">Total Produk</p>
-                <h3 class="text-3xl font-bold mt-3">{{ $totalProducts }}</h3>
+                <h3 class="text-3xl font-bold mt-3">
+                    {{ number_format($totalProducts ?? 0, 0, ',', '.') }}
+                </h3>
                 <p class="text-sm text-slate-500 mt-2">Produk tercatat</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5">
+                    <x-lucide-check-circle class="w-6 h-6" />
+                </div>
+
                 <p class="text-sm text-slate-500">Produk Aktif</p>
-                <h3 class="text-3xl font-bold mt-3 text-emerald-600">{{ $activeProducts }}</h3>
+                <h3 class="text-3xl font-bold mt-3 text-emerald-600">
+                    {{ number_format($activeProducts ?? 0, 0, ',', '.') }}
+                </h3>
                 <p class="text-sm text-slate-500 mt-2">Stok tersedia</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5">
+                    <x-lucide-triangle-alert class="w-6 h-6" />
+                </div>
+
                 <p class="text-sm text-slate-500">Stok Rendah</p>
-                <h3 class="text-3xl font-bold mt-3 text-amber-600">{{ $lowStockProducts }}</h3>
+                <h3 class="text-3xl font-bold mt-3 text-amber-600">
+                    {{ number_format($lowStockProducts ?? 0, 0, ',', '.') }}
+                </h3>
                 <p class="text-sm text-slate-500 mt-2">Perlu restock</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-5">
+                    <x-lucide-circle-x class="w-6 h-6" />
+                </div>
+
                 <p class="text-sm text-slate-500">Stok Habis</p>
-                <h3 class="text-3xl font-bold mt-3 text-red-600">{{ $outOfStockProducts }}</h3>
+                <h3 class="text-3xl font-bold mt-3 text-red-600">
+                    {{ number_format($outOfStockProducts ?? 0, 0, ',', '.') }}
+                </h3>
                 <p class="text-sm text-slate-500 mt-2">Tidak bisa dijual</p>
             </div>
         </div>
 
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Vue Product Table Full Width -->
+        <div
+            id="owner-products-table"
+            data-data-url="{{ route('products.data') }}"
+            data-create-url="{{ url('/products') }}"
+            data-edit-base-url="{{ url('/products') }}"
+            data-csrf-token="{{ csrf_token() }}"
+        ></div>
 
-            <!-- Product Table -->
-            <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-200 space-y-5">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Low Stock Alert Below Table -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-bold">Perlu Restock</h3>
+                    <p class="text-sm text-slate-500 mt-1">Produk dengan stok rendah atau habis</p>
+                </div>
+
+                <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <x-lucide-triangle-alert class="w-5 h-5" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                @forelse($restockProducts as $product)
+                    <div class="flex items-center justify-between p-4 rounded-2xl {{ $product->stock <= 0 ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100' }} border">
                         <div>
-                            <h3 class="text-lg font-bold">Daftar Produk</h3>
-                            <p class="text-sm text-slate-500">
-                                Menampilkan {{ $products->count() }} dari {{ $totalProducts }} produk tercatat
-                            </p>
+                            <p class="font-semibold">{{ $product->name }}</p>
+                            <p class="text-sm text-slate-500 mt-1">Sisa {{ $product->stock }} pcs</p>
                         </div>
 
-                        @if($activeFilters['search'] || $activeFilters['category'] || $activeFilters['stock_status'] || $activeFilters['sort'] !== 'latest')
-                            <a href="/products" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
-                                Reset filter
-                            </a>
+                        @if($product->stock <= 0)
+                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">Habis</span>
+                        @else
+                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">Rendah</span>
                         @endif
                     </div>
-
-                    <form action="/products" method="GET" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
-                        <div class="xl:col-span-2">
-                            <label class="text-xs font-semibold text-slate-500">Cari produk</label>
-                            <input
-                                type="text"
-                                name="search"
-                                value="{{ $activeFilters['search'] }}"
-                                placeholder="Nama produk atau kategori"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500">Kategori</label>
-                            <select
-                                name="category"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                                <option value="">Semua kategori</option>
-
-                                @foreach($availableCategories as $category)
-                                    <option value="{{ $category }}" @selected($activeFilters['category'] === $category)>
-                                        {{ $category }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500">Status stok</label>
-                            <select
-                                name="stock_status"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                                <option value="">Semua status</option>
-                                <option value="safe" @selected($activeFilters['stock_status'] === 'safe')>Aman</option>
-                                <option value="low" @selected($activeFilters['stock_status'] === 'low')>Stok rendah</option>
-                                <option value="empty" @selected($activeFilters['stock_status'] === 'empty')>Habis</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500">Urutkan</label>
-                            <select
-                                name="sort"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                                <option value="latest" @selected($activeFilters['sort'] === 'latest')>Terbaru</option>
-                                <option value="stock_asc" @selected($activeFilters['sort'] === 'stock_asc')>Stok terendah</option>
-                                <option value="price_desc" @selected($activeFilters['sort'] === 'price_desc')>Harga tertinggi</option>
-                                <option value="name_asc" @selected($activeFilters['sort'] === 'name_asc')>Nama A-Z</option>
-                            </select>
-                        </div>
-
-                        <div class="md:col-span-2 xl:col-span-5 flex flex-col sm:flex-row gap-3">
-                            <button class="px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                                Terapkan Filter
-                            </button>
-
-                            <a href="/products" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
-                                Reset
-                            </a>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-500">
-                            <tr>
-                                <th class="text-left px-6 py-4 font-medium">Produk</th>
-                                <th class="text-left px-6 py-4 font-medium">Kategori</th>
-                                <th class="text-left px-6 py-4 font-medium">Harga Jual</th>
-                                <th class="text-left px-6 py-4 font-medium">Modal</th>
-                                <th class="text-left px-6 py-4 font-medium">Stok</th>
-                                <th class="text-left px-6 py-4 font-medium">Status</th>
-                                <th class="text-right px-6 py-4 font-medium">Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($products as $product)
-                                <tr class="hover:bg-slate-50/70">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-sm border border-slate-200">
-                                                {{ $loop->iteration }}
-                                            </div>
-
-                                            <div>
-                                                <p class="font-semibold text-slate-900">{{ $product->name }}</p>
-                                                <p class="text-xs text-slate-500">
-                                                    Limit stok rendah: {{ $product->low_stock_limit }} pcs
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="px-6 py-4 text-slate-600">
-                                        {{ $product->category ?? '-' }}
-                                    </td>
-
-                                    <td class="px-6 py-4 font-semibold">
-                                        Rp{{ number_format($product->selling_price, 0, ',', '.') }}
-                                    </td>
-
-                                    <td class="px-6 py-4 text-slate-600">
-                                        Rp{{ number_format($product->cost_price, 0, ',', '.') }}
-                                    </td>
-
-                                    <td class="px-6 py-4">
-                                        <span class="font-semibold">{{ $product->stock }}</span>
-                                        <span class="text-slate-500">pcs</span>
-                                    </td>
-
-                                    <td class="px-6 py-4">
-                                        @if($product->stock_status === 'Aman')
-                                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                                                Aman
-                                            </span>
-                                        @elseif($product->stock_status === 'Rendah')
-                                            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
-                                                Stok rendah
-                                            </span>
-                                        @else
-                                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                                                Habis
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex justify-end gap-3">
-                                            <button
-                                                onclick="openEditProductModal(
-                                                    '{{ $product->id }}',
-                                                    '{{ addslashes($product->name) }}',
-                                                    '{{ addslashes($product->category ?? '') }}',
-                                                    '{{ $product->selling_price }}',
-                                                    '{{ $product->cost_price }}',
-                                                    '{{ $product->stock }}',
-                                                    '{{ $product->low_stock_limit }}'
-                                                )"
-                                                class="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
-                                            >
-                                                Edit
-                                            </button>
-
-                                            <form action="/products/{{ $product->id }}" method="POST"
-                                                onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit" class="text-sm font-semibold text-red-600 hover:text-red-700">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="px-6 py-14 text-center">
-                                        <div class="max-w-md mx-auto">
-                                            <div class="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center mx-auto shadow-sm">
-                                                <x-lucide-package class="w-8 h-8" />
-                                            </div>
-
-                                            <h3 class="font-bold text-slate-900 mt-5 text-lg">
-                                                @if($totalProducts > 0)
-                                                    Produk tidak ditemukan
-                                                @else
-                                                    Belum ada produk
-                                                @endif
-                                            </h3>
-
-                                            <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-                                                @if($totalProducts > 0)
-                                                    Coba ubah keyword pencarian, kategori, status stok, atau reset filter produk.
-                                                @else
-                                                    Tambahkan produk terlebih dahulu sebelum mencatat penjualan.
-                                                    DagangFlow membutuhkan harga jual, modal produk, dan stok untuk menghitung omzet serta estimasi laba.
-                                                @endif
-                                            </p>
-
-                                            <div class="flex flex-col sm:flex-row justify-center gap-3 mt-5">
-                                                @if($totalProducts > 0)
-                                                    <a href="/products" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                                                        <x-lucide-rotate-ccw class="w-4 h-4" />
-                                                        Reset Filter
-                                                    </a>
-                                                @else
-                                                    <button
-                                                        type="button"
-                                                        onclick="document.getElementById('quick-add-product')?.scrollIntoView({ behavior: 'smooth' })"
-                                                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600"
-                                                    >
-                                                        <x-lucide-plus-circle class="w-4 h-4" />
-                                                        Tambah Produk
-                                                    </button>
-                                                @endif
-
-                                                <a href="/help" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50">
-                                                    <x-lucide-circle-help class="w-4 h-4" />
-                                                    Pelajari Produk
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Right Panel -->
-            <div class="space-y-6">
-
-                <!-- Add Product Form -->
-                <div id="quick-add-product" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                    <h3 class="text-lg font-bold">Tambah Produk</h3>
-                    <p class="text-sm text-slate-500 mt-1">Produk akan tersimpan ke database</p>
-
-                    <form action="/products" method="POST" class="mt-6 space-y-4">
-                        @csrf
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Nama produk</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value="{{ old('name') }}"
-                                placeholder="Contoh: Kopi Susu 250ml"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Kategori</label>
-                            <input
-                                type="text"
-                                name="category"
-                                value="{{ old('category') }}"
-                                placeholder="Contoh: Minuman"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">Harga jual</label>
-                                <input
-                                    type="text"
-                                    inputmode="numeric"
-                                    name="selling_price"
-                                    value="{{ old('selling_price') }}"
-                                    placeholder="15.000"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
-                                    required
-                                >
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">Modal</label>
-                                <input
-                                    type="text"
-                                    inputmode="numeric"
-                                    name="cost_price"
-                                    value="{{ old('cost_price') }}"
-                                    placeholder="8.000"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
-                                >
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">Stok</label>
-                                <input
-                                    type="number"
-                                    name="stock"
-                                    value="{{ old('stock') }}"
-                                    placeholder="20"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                    required
-                                >
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">Limit rendah</label>
-                                <input
-                                    type="number"
-                                    name="low_stock_limit"
-                                    value="{{ old('low_stock_limit', 5) }}"
-                                    placeholder="5"
-                                    class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                >
-                            </div>
-                        </div>
-
-                        <button class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                            Simpan Produk
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Low Stock Alert -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                    <h3 class="text-lg font-bold">Perlu Restock</h3>
-                    <p class="text-sm text-slate-500 mb-6">Produk dengan stok rendah atau habis</p>
-
-                    <div class="space-y-4">
-                        @forelse($restockProducts as $product)
-                            <div class="flex items-center justify-between p-4 rounded-xl {{ $product->stock <= 0 ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100' }} border">
-                                <div>
-                                    <p class="font-semibold">{{ $product->name }}</p>
-                                    <p class="text-sm text-slate-500">Sisa {{ $product->stock }} pcs</p>
-                                </div>
-
-                                @if($product->stock <= 0)
-                                    <span class="text-xs font-bold text-red-600">Habis</span>
-                                @else
-                                    <span class="text-xs font-bold text-amber-600">Rendah</span>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-                                <p class="font-semibold text-emerald-700">Stok masih aman</p>
-                                <p class="text-sm text-slate-500 mt-1">Belum ada produk yang perlu restock.</p>
-                            </div>
-                        @endforelse
+                @empty
+                    <div class="md:col-span-2 xl:col-span-3 p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
+                        <p class="font-semibold text-emerald-700">Stok masih aman</p>
+                        <p class="text-sm text-slate-500 mt-1">Belum ada produk yang perlu restock.</p>
                     </div>
-                </div>
-
+                @endforelse
             </div>
         </div>
-
-        <!-- Edit Product Modal -->
-        <div id="editProductModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 px-4">
-            <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-lg font-bold">Edit Produk</h3>
-                        <p class="text-sm text-slate-500">Perbarui data produk</p>
-                    </div>
-
-                    <button onclick="closeEditProductModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200">
-                        ✕
-                    </button>
-                </div>
-
-                <form id="editProductForm" method="POST" class="space-y-4">
-                    @csrf
-                    @method('PUT')
-
-                    <div>
-                        <label class="text-sm font-medium text-slate-700">Nama produk</label>
-                        <input
-                            id="edit_name"
-                            type="text"
-                            name="name"
-                            class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            required
-                        >
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-medium text-slate-700">Kategori</label>
-                        <input
-                            id="edit_category"
-                            type="text"
-                            name="category"
-                            class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                        >
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Harga jual</label>
-                            <input
-                                id="edit_selling_price"
-                                type="text"
-                                inputmode="numeric"
-                                name="selling_price"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Modal</label>
-                            <input
-                                id="edit_cost_price"
-                                type="text"
-                                inputmode="numeric"
-                                name="cost_price"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rupiah-input"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Stok</label>
-                            <input
-                                id="edit_stock"
-                                type="number"
-                                name="stock"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Limit rendah</label>
-                            <input
-                                id="edit_low_stock_limit"
-                                type="number"
-                                name="low_stock_limit"
-                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                        </div>
-                    </div>
-
-                    <button class="w-full py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                        Simpan Perubahan
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <script>
-            function formatRibuanProduct(value) {
-                const number = String(value || '').replace(/\D/g, '');
-
-                if (!number) {
-                    return '';
-                }
-
-                return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            }
-
-            function openEditProductModal(id, name, category, sellingPrice, costPrice, stock, lowStockLimit) {
-                const modal = document.getElementById('editProductModal');
-                const form = document.getElementById('editProductForm');
-
-                form.action = `/products/${id}`;
-
-                document.getElementById('edit_name').value = name;
-                document.getElementById('edit_category').value = category || '';
-                document.getElementById('edit_selling_price').value = formatRibuanProduct(sellingPrice);
-                document.getElementById('edit_cost_price').value = formatRibuanProduct(costPrice);
-                document.getElementById('edit_stock').value = stock;
-                document.getElementById('edit_low_stock_limit').value = lowStockLimit;
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-
-            function closeEditProductModal() {
-                const modal = document.getElementById('editProductModal');
-
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        </script>
 
     </div>
 @endsection

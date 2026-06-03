@@ -312,11 +312,13 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
     Route::put('/biodata/profile', [BiodataController::class, 'updateProfile'])->name('biodata.profile.update');
     Route::put('/biodata/password', [BiodataController::class, 'updatePassword'])->name('biodata.password.update');
 
+    Route::get('/sales/data', [SaleController::class, 'data'])->name('sales.data');
     Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
     Route::get('/sales/import-template', [SaleImportController::class, 'downloadTemplate'])->name('sales.import-template');
     Route::post('/sales/import', [SaleImportController::class, 'import'])->name('sales.import');
     Route::resource('sales', SaleController::class)->except(['create', 'show', 'edit']);
 
+    Route::get('/products/data', [ProductController::class, 'data'])->name('products.data');
     Route::resource('products', ProductController::class)->except(['create', 'show', 'edit']);
 
     Route::resource('expenses', ExpenseController::class)->except(['create', 'show', 'edit']);
@@ -339,6 +341,7 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/users/data', [AdminUserController::class, 'usersData'])->name('users.data');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
 
@@ -348,6 +351,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/users/{user}/subscription', [AdminUserController::class, 'updateSubscription'])->name('users.subscription.update');
     Route::patch('/users/{user}/subscription/extend', [AdminUserController::class, 'extendSubscription'])->name('users.subscription.extend');
 
+    Route::get('/subscriptions/data', [AdminUserController::class, 'subscriptionsData'])->name('subscriptions.data');
     Route::get('/subscriptions', [AdminUserController::class, 'subscriptions'])->name('subscriptions.index');
 
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
@@ -355,4 +359,5 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::view('/support', 'admin.support.index')->name('support.index');
 
     Route::view('/plans', 'admin.plans.index')->name('plans.index');
+    
 });

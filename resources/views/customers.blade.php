@@ -52,10 +52,22 @@
 
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <p class="text-sm text-slate-500">Channel Terbanyak</p>
-                <h3 class="text-3xl font-bold mt-3 text-emerald-600">
-                    {{ $topChannel ?? '-' }}
-                </h3>
-                <p class="text-sm text-slate-500 mt-2">Sumber customer dominan</p>
+
+                <div class="flex items-center gap-4 mt-3">
+                    @if($topChannel)
+                        <x-channel-logo :channel="$topChannel" size="md" />
+                    @else
+                        <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                            <x-lucide-store class="w-6 h-6" />
+                        </div>
+                    @endif
+
+                    <h3 class="text-3xl font-bold text-emerald-600 leading-tight">
+                        {{ $topChannel ?? '-' }}
+                    </h3>
+                </div>
+
+                <p class="text-sm text-slate-500 mt-4">Sumber customer dominan</p>
             </div>
         </div>
 

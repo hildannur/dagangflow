@@ -151,24 +151,46 @@
                     </div>
                 </form>
 
+                @php
+                    $todayStart = now()->toDateString();
+                    $todayEnd = now()->toDateString();
+
+                    $last7Start = now()->copy()->subDays(6)->toDateString();
+                    $last7End = now()->toDateString();
+
+                    $thisMonthStart = now()->copy()->startOfMonth()->toDateString();
+                    $thisMonthEnd = now()->copy()->endOfMonth()->toDateString();
+
+                    $lastMonthStart = now()->copy()->subMonth()->startOfMonth()->toDateString();
+                    $lastMonthEnd = now()->copy()->subMonth()->endOfMonth()->toDateString();
+
+                    $activePeriodClass = 'px-4 py-2 rounded-xl bg-emerald-500 text-white border border-emerald-500 text-sm font-semibold hover:bg-emerald-600 transition';
+                    $inactivePeriodClass = 'px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 transition';
+
+                    $isToday = $selectedPeriod['start_date'] === $todayStart && $selectedPeriod['end_date'] === $todayEnd;
+                    $isLast7Days = $selectedPeriod['start_date'] === $last7Start && $selectedPeriod['end_date'] === $last7End;
+                    $isThisMonth = $selectedPeriod['start_date'] === $thisMonthStart && $selectedPeriod['end_date'] === $thisMonthEnd;
+                    $isLastMonth = $selectedPeriod['start_date'] === $lastMonthStart && $selectedPeriod['end_date'] === $lastMonthEnd;
+                @endphp
+
                 <div class="flex flex-wrap items-center gap-3 xl:justify-end">
-                    <a href="/reports?start_date={{ now()->toDateString() }}&end_date={{ now()->toDateString() }}"
-                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    <a href="/reports?start_date={{ $todayStart }}&end_date={{ $todayEnd }}"
+                        class="{{ $isToday ? $activePeriodClass : $inactivePeriodClass }}">
                         Hari Ini
                     </a>
 
-                    <a href="/reports?start_date={{ now()->subDays(6)->toDateString() }}&end_date={{ now()->toDateString() }}"
-                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    <a href="/reports?start_date={{ $last7Start }}&end_date={{ $last7End }}"
+                        class="{{ $isLast7Days ? $activePeriodClass : $inactivePeriodClass }}">
                         7 Hari
                     </a>
 
-                    <a href="/reports?start_date={{ now()->startOfMonth()->toDateString() }}&end_date={{ now()->endOfMonth()->toDateString() }}"
-                        class="px-4 py-2 rounded-xl bg-emerald-500 text-white border border-emerald-500 text-sm font-semibold hover:bg-emerald-600">
+                    <a href="/reports?start_date={{ $thisMonthStart }}&end_date={{ $thisMonthEnd }}"
+                        class="{{ $isThisMonth ? $activePeriodClass : $inactivePeriodClass }}">
                         Bulan Ini
                     </a>
 
-                    <a href="/reports?start_date={{ now()->subMonth()->startOfMonth()->toDateString() }}&end_date={{ now()->subMonth()->endOfMonth()->toDateString() }}"
-                        class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+                    <a href="/reports?start_date={{ $lastMonthStart }}&end_date={{ $lastMonthEnd }}"
+                        class="{{ $isLastMonth ? $activePeriodClass : $inactivePeriodClass }}">
                         Bulan Lalu
                     </a>
                 </div>

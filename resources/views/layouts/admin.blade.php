@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Superadmin - DagangFlow' }}</title>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -27,7 +28,7 @@
                 </a>
             </div>
 
-            <nav class="p-5 space-y-2 flex-1 overflow-y-auto">
+            <nav class="p-5 space-y-2 flex-1">
                 <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition
                     {{ request()->routeIs('admin.dashboard') ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:bg-white/10' }}">
@@ -49,7 +50,7 @@
                     Subscriptions
                 </a>
 
-               <a href="{{ route('admin.plans.index') }}"
+                <a href="{{ route('admin.plans.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition
                     {{ request()->routeIs('admin.plans.*') ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:bg-white/10' }}">
                     <x-lucide-package class="w-5 h-5" />
