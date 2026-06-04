@@ -26,96 +26,6 @@
             data-end-date="{{ $selectedPeriod['end_date'] }}"
         ></div>
 
-        <!-- AI Insight Card -->
-        <div class="bg-[#0F172A] rounded-2xl text-white shadow-sm overflow-hidden border border-white/10">
-            <div class="grid grid-cols-1 xl:grid-cols-12">
-
-                <div class="xl:col-span-5 p-6">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                            <x-lucide-sparkles class="w-4 h-4" />
-                        </div>
-
-                        <p class="text-sm text-emerald-300 font-semibold">
-                            DagangFlow AI Insight
-                        </p>
-                    </div>
-
-                    <h3 class="text-2xl font-bold mt-4">
-                        Ringkasan penjualan & keuangan berbasis AI
-                    </h3>
-
-                    <p class="text-sm text-slate-300 mt-3 leading-relaxed">
-                        Dapatkan rangkuman performa bisnis dan rekomendasi cerdas untuk pertumbuhan toko Anda.
-                    </p>
-                </div>
-
-                <div class="xl:col-span-2 p-6 flex items-center xl:justify-center border-t xl:border-t-0 xl:border-l border-white/10">
-                    <form action="{{ route('reports.ai-insight') }}" method="POST" class="w-full">
-                        @csrf
-
-                        <input type="hidden" name="start_date" value="{{ $selectedPeriod['start_date'] }}">
-                        <input type="hidden" name="end_date" value="{{ $selectedPeriod['end_date'] }}">
-
-                        <button class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition">
-                            <x-lucide-sparkles class="w-4 h-4" />
-                            Generate AI Insight
-                        </button>
-                    </form>
-                </div>
-
-                <div class="xl:col-span-5 p-6 border-t xl:border-t-0 xl:border-l border-white/10 bg-white/[0.03]">
-                    <div class="flex items-start justify-between gap-4">
-                        <p class="text-sm font-semibold text-white">
-                            Insight Terbaru
-                            <span class="text-slate-400 font-medium">
-                                ({{ now()->format('d M Y') }})
-                            </span>
-                        </p>
-
-                        <div class="flex items-center gap-2">
-                            <div class="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
-                                <x-lucide-circle-check class="w-3.5 h-3.5" />
-                                Dihasilkan
-                            </div>
-
-                            <button
-                                type="button"
-                                onclick="openAiInsightModal()"
-                                class="w-8 h-8 rounded-lg bg-white/10 border border-white/10 text-slate-300 hover:text-emerald-300 hover:bg-emerald-400/10 hover:border-emerald-300/20 transition inline-flex items-center justify-center"
-                                title="Perbesar insight"
-                            >
-                                <x-lucide-maximize-2 class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    @if (session('aiNotice'))
-                        <div class="mt-4 p-3 rounded-xl bg-amber-400/10 border border-amber-300/20 text-amber-100 text-xs leading-relaxed">
-                            {{ session('aiNotice') }}
-                        </div>
-                    @endif
-
-                    <div id="aiInsightContent">
-                        @if (session('aiInsight'))
-                            <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-100 max-h-40 overflow-y-auto pr-2">
-                                {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
-                            </div>
-                        @else
-                            <div class="ai-insight-content mt-4 text-sm leading-relaxed text-slate-300 space-y-2">
-                                <p>
-                                    Omzet Anda akan dianalisis berdasarkan periode yang dipilih.
-                                </p>
-                                <p>
-                                    Klik <span class="text-emerald-300 font-semibold">Generate AI Insight</span> untuk melihat ringkasan kondisi bisnis, masalah utama, dan rekomendasi aksi.
-                                </p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
         @php
             $grossRevenueTrend = $grossRevenueTrend ?? ['status' => 'flat', 'percent' => 0];
             $cogsTrend = $cogsTrend ?? ['status' => 'flat', 'percent' => 0];
@@ -396,116 +306,138 @@
 
             <!-- Profit Summary -->
             <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm">
-                <p class="text-sm text-emerald-300 font-semibold">Profit Overview</p>
-
-                <h3 class="text-3xl font-bold mt-3">
-                    Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
-                </h3>
-
-                <p class="text-sm text-slate-300 mt-2">Estimasi laba bersih periode ini</p>
-
-                @php
-                    $safeRevenue = max($grossRevenue, 1);
-                    $cogsPercent = round(($totalCOGS / $safeRevenue) * 100);
-                    $expensePercent = round(($totalExpenses / $safeRevenue) * 100);
-                    $platformPercent = round(($platformFees / $safeRevenue) * 100);
-                @endphp
-
-                <div class="mt-8 space-y-5">
+                <div class="flex items-start justify-between gap-4">
                     <div>
-                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 rounded-full bg-emerald-400/15 text-emerald-300 flex items-center justify-center shrink-0">
-                                    <x-lucide-trending-up class="w-4 h-4" />
-                                </div>
+                        <p class="text-sm text-emerald-300 font-semibold">Profit Overview</p>
 
-                                <span class="text-slate-300">Omzet</span>
-                            </div>
+                        <h3 class="text-3xl font-bold mt-3">
+                            Rp{{ number_format($estimatedProfit, 0, ',', '.') }}
+                        </h3>
 
-                            <span class="font-semibold text-right shrink-0">
-                                Rp{{ number_format($grossRevenue, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-emerald-400 rounded-full w-full"></div>
-                        </div>
+                        <p class="text-sm text-slate-300 mt-2">
+                            Estimasi laba bersih periode ini
+                        </p>
                     </div>
 
-                    <div>
-                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 rounded-full bg-blue-400/15 text-blue-300 flex items-center justify-center shrink-0">
-                                    <x-lucide-package class="w-4 h-4" />
-                                </div>
-
-                                <span class="text-slate-300">HPP Produk</span>
-                            </div>
-
-                            <span class="font-semibold text-right shrink-0">
-                                Rp{{ number_format($totalCOGS, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-400 rounded-full" style="width: {{ min($cogsPercent, 100) }}%"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 rounded-full bg-red-400/15 text-red-300 flex items-center justify-center shrink-0">
-                                    <x-lucide-wallet class="w-4 h-4" />
-                                </div>
-
-                                <span class="text-slate-300">Pengeluaran</span>
-                            </div>
-
-                            <span class="font-semibold text-right shrink-0">
-                                Rp{{ number_format($totalExpenses, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-red-400 rounded-full" style="width: {{ min($expensePercent, 100) }}%"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between gap-3 text-sm mb-2">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-8 h-8 rounded-full bg-amber-400/15 text-amber-300 flex items-center justify-center shrink-0">
-                                    <x-lucide-badge-percent class="w-4 h-4" />
-                                </div>
-
-                                <span class="text-slate-300">Biaya Platform</span>
-                            </div>
-
-                            <span class="font-semibold text-right shrink-0">
-                                Rp{{ number_format($platformFees, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-amber-400 rounded-full" style="width: {{ min($platformPercent, 100) }}%"></div>
-                        </div>
+                    <div class="w-12 h-12 rounded-2xl {{ $estimatedProfit >= 0 ? 'bg-emerald-400/15 text-emerald-300' : 'bg-red-400/15 text-red-300' }} flex items-center justify-center shrink-0">
+                        <x-lucide-hand-coins class="w-6 h-6" />
                     </div>
                 </div>
 
-                <div class="mt-8 p-4 rounded-xl bg-white/10">
-                    <p class="text-sm text-slate-300 leading-relaxed">
+                <div class="mt-8 p-5 rounded-2xl bg-white/10 border border-white/10">
+                    <p class="text-sm font-semibold text-white">
+                        Ringkasan kondisi
+                    </p>
+
+                    <p class="text-sm text-slate-300 leading-relaxed mt-3">
                         @if($grossRevenue <= 0 && $totalExpenses <= 0)
-                            Belum ada data penjualan dan pengeluaran pada periode ini.
+                            Belum ada data penjualan dan pengeluaran pada periode ini. Mulai catat transaksi agar laporan bisa membaca performa bisnis kamu.
                         @elseif($grossRevenue <= 0)
-                            Belum ada penjualan, tetapi sudah ada pengeluaran. Perlu mulai dorong transaksi masuk.
+                            Belum ada penjualan, tetapi sudah ada pengeluaran. Fokus utama saat ini adalah mendorong transaksi masuk sebelum menambah biaya baru.
                         @elseif($estimatedProfit >= 0)
-                            Laba bersih masih positif. Tetap pantau HPP, biaya platform, dan pengeluaran agar margin sehat.
+                            Laba bersih masih positif. Tetap pantau HPP, biaya platform, dan pengeluaran agar margin tetap sehat.
                         @else
-                            Laba bersih masih negatif. Cek HPP, biaya platform, dan kategori pengeluaran terbesar periode ini.
+                            Laba bersih masih negatif. Cek kembali harga jual, HPP produk, biaya platform, dan kategori pengeluaran terbesar periode ini.
                         @endif
                     </p>
                 </div>
+
+                <div class="mt-5 grid grid-cols-1 gap-3">
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-sm text-slate-300">Margin estimasi</p>
+
+                            <p class="text-sm font-bold {{ $profitMargin >= 30 ? 'text-emerald-300' : 'text-amber-300' }}">
+                                {{ $profitMargin }}%
+                            </p>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            @if($profitMargin >= 30)
+                                Margin terlihat sehat untuk periode ini.
+                            @elseif($profitMargin > 0)
+                                Margin masih positif, tapi tetap perlu dipantau.
+                            @else
+                                Margin belum sehat karena laba masih rendah atau negatif.
+                            @endif
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-sm text-slate-300">Status biaya</p>
+
+                            <p class="text-sm font-bold text-slate-100">
+                                Rp{{ number_format($totalExpenses + $platformFees, 0, ',', '.') }}
+                            </p>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Total biaya operasional dan biaya platform yang memengaruhi estimasi laba.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-5 rounded-2xl bg-emerald-400/10 border border-emerald-300/20">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                            <x-lucide-sparkles class="w-5 h-5" />
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-bold text-white">
+                                Butuh rangkuman performa bisnis?
+                            </p>
+
+                            <p class="text-sm text-emerald-100/90 mt-2 leading-relaxed">
+                                Dapatkan analisis kondisi bisnis dan rekomendasi cerdas berdasarkan data laporan periode ini.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('reports.ai-insight') }}" method="POST" class="mt-5">
+                        @csrf
+
+                        <input type="hidden" name="start_date" value="{{ $selectedPeriod['start_date'] }}">
+                        <input type="hidden" name="end_date" value="{{ $selectedPeriod['end_date'] }}">
+
+                        <button class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition">
+                            <x-lucide-sparkles class="w-4 h-4" />
+                            Hasilkan AI Insight
+                        </button>
+                    </form>
+
+                    @if (session('aiNotice'))
+                        <div class="mt-4 p-3 rounded-xl bg-amber-400/10 border border-amber-300/20 text-amber-100 text-xs leading-relaxed">
+                            {{ session('aiNotice') }}
+                        </div>
+                    @endif
+                </div>
+
+                <div id="aiInsightContent" class="hidden">
+                    @if (session('aiInsight'))
+                        <div class="ai-insight-content">
+                            {!! \Illuminate\Support\Str::markdown(session('aiInsight')) !!}
+                        </div>
+                    @else
+                        <div class="ai-insight-content">
+                            <p>
+                                Belum ada AI Insight yang dihasilkan. Klik tombol Hasilkan AI Insight untuk melihat ringkasan kondisi bisnis, masalah utama, dan rekomendasi aksi.
+                            </p>
+                        </div>
+                    @endif
+                </div>
+
+                @if (session('aiInsight'))
+                    <button
+                        type="button"
+                        onclick="openAiInsightModal()"
+                        class="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 border border-white/10 text-white text-sm font-semibold hover:bg-white/15 transition"
+                    >
+                        <x-lucide-maximize-2 class="w-4 h-4" />
+                        Lihat AI Insight Terakhir
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -927,5 +859,11 @@
                 closeAiInsightModal();
             }
         });
+
+        @if (session('aiInsight'))
+            window.addEventListener('load', function () {
+                openAiInsightModal();
+            });
+        @endif
     </script>
 @endsection
