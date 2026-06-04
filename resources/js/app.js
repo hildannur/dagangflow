@@ -5,6 +5,7 @@ import AdminSubscriptionsTable from './components/admin/AdminSubscriptionsTable.
 import AdminUsersTable from './components/admin/AdminUsersTable.vue';
 import OwnerProductsTable from './components/owner/OwnerProductsTable.vue';
 import OwnerSalesTable from './components/owner/OwnerSalesTable.vue';
+import OwnerReportPeriodFilter from './components/owner/OwnerReportPeriodFilter.vue';
 
 const adminSubscriptionsTable = document.getElementById('admin-subscriptions-table');
 
@@ -44,4 +45,14 @@ if (ownerSalesTable) {
         editBaseUrl: ownerSalesTable.dataset.editBaseUrl,
         csrfToken: ownerSalesTable.dataset.csrfToken,
     }).mount('#owner-sales-table');
+}
+
+const ownerReportPeriodFilter = document.getElementById('owner-report-period-filter');
+
+if (ownerReportPeriodFilter) {
+    createApp(OwnerReportPeriodFilter, {
+        baseUrl: ownerReportPeriodFilter.dataset.baseUrl,
+        startDate: ownerReportPeriodFilter.dataset.startDate,
+        endDate: ownerReportPeriodFilter.dataset.endDate,
+    }).mount('#owner-report-period-filter');
 }
