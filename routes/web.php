@@ -1,26 +1,28 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\SuperadminSupportController;
+use App\Http\Controllers\BiodataController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\OwnerSupportController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SaleImportController;
+use App\Models\Expense;
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Http\Request;
-use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Sale;
-use App\Models\Expense;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\BiodataController;
-use App\Http\Controllers\SaleImportController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -223,9 +225,6 @@ Route::post('/register', function (Request $request) {
 |--------------------------------------------------------------------------
 | Password Reset Pages
 |--------------------------------------------------------------------------
-| Dibuat tanpa middleware guest agar bisa diakses dari halaman Biodata
-| ketika user masih login.
-|--------------------------------------------------------------------------
 */
 
 Route::get('/forgot-password', function () {
@@ -330,6 +329,9 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
     Route::post('/reports/ai-insight', [ReportController::class, 'generateAiInsight'])->name('reports.ai-insight');
 
     Route::view('/help', 'help')->name('help');
+
+    Route::get('/help/support', [OwnerSupportController::class, 'create'])->name('owner.support.create');
+    Route::post('/help/support', [OwnerSupportController::class, 'store'])->name('owner.support.store');
 });
 
 /*
@@ -356,8 +358,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
 
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
-    Route::view('/support', 'admin.support.index')->name('support.index');
+    Route::get('/support', [SuperadminSupportController::class, 'index'])->name('support.index');
+    Route::get('/support/{supportTicket}', [SuperadminSupportController::class, 'show'])->name('support.show');
+    Route::put('/support/{supportTicket}', [SuperadminSupportController::class, 'update'])->name('support.update');
 
     Route::view('/plans', 'admin.plans.index')->name('plans.index');
-    
 });
