@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sale;
 use App\Models\Expense;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
@@ -71,20 +72,38 @@ class ReportController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
 
-            $total = $sales
-                ->filter(function ($sale) use ($date) {
-                    $saleDate = $sale->sale_date
-                        ? Carbon::parse($sale->sale_date)
-                        : $sale->created_at;
+            $dailySales = $sales->filter(function ($sale) use ($date) {
+                $saleDate = $sale->sale_date
+                    ? Carbon::parse($sale->sale_date)
+                    : $sale->created_at;
 
-                    return $saleDate->isSameDay($date);
-                })
-                ->sum('gross_total');
+                return $saleDate->isSameDay($date);
+            });
+
+            $dailyExpenses = $expenses->filter(function ($expense) use ($date) {
+                $expenseDate = $expense->expense_date
+                    ? Carbon::parse($expense->expense_date)
+                    : $expense->created_at;
+
+                return $expenseDate->isSameDay($date);
+            });
+
+            $dailyGrossRevenue = $dailySales->sum('gross_total');
+            $dailyPlatformFees = $dailySales->sum('platform_fee');
+            $dailyExpensesTotal = $dailyExpenses->sum('amount');
+
+            $dailyCOGS = $dailySales->sum(function ($sale) {
+                return ($sale->product->cost_price ?? 0) * $sale->quantity;
+            });
+
+            $dailyProfit = $dailyGrossRevenue - $dailyCOGS - $dailyPlatformFees - $dailyExpensesTotal;
 
             $sevenDaysSales->push([
                 'day' => $date->translatedFormat('D'),
                 'date' => $date->format('Y-m-d'),
-                'total' => $total,
+                'total' => (int) $dailyGrossRevenue,
+                'profit' => (int) $dailyProfit,
+                'transactions' => (int) $dailySales->count(),
             ]);
         }
 
@@ -239,14 +258,14 @@ class ReportController extends Controller
             : "- Belum ada pengeluaran pada periode ini.";
 
         $periodText = Carbon::parse($selectedPeriod['start_date'])->format('d M Y')
-            . " sampai "
+            . ' sampai '
             . Carbon::parse($selectedPeriod['end_date'])->format('d M Y');
 
         $prompt = "
             Kamu adalah analis bisnis UMKM untuk aplikasi DagangFlow.
-            
+
             Buat ringkasan insight penjualan dan keuangan dalam Bahasa Indonesia yang singkat, jelas, dan praktis.
-            
+
             Data periode {$periodText}:
             - Omzet kotor: Rp" . number_format($grossRevenue, 0, ',', '.') . "
             - HPP produk terjual: Rp" . number_format($totalCOGS, 0, ',', '.') . "
@@ -254,30 +273,30 @@ class ReportController extends Controller
             - Total pengeluaran operasional: Rp" . number_format($totalExpenses, 0, ',', '.') . "
             - Estimasi laba bersih: Rp" . number_format($estimatedProfit, 0, ',', '.') . "
             - Margin estimasi: {$profitMargin}%
-            
+
             Rumus laba yang digunakan:
             Omzet kotor - HPP produk terjual - biaya platform - pengeluaran operasional.
-            
+
             Performa channel:
             {$channelText}
-            
+
             Produk terlaris:
             {$topProductText}
-            
+
             Pengeluaran terbesar:
             {$expenseText}
-            
+
             Format jawaban:
             1. Ringkasan kondisi bisnis periode ini
             2. Masalah utama yang perlu diperhatikan
             3. Rekomendasi aksi minggu ini
             4. Saran channel/produk yang perlu difokuskan
-            
+
             Gunakan bahasa yang mudah dipahami UMKM.
             Jangan terlalu panjang.
             Maksimal 5 paragraf pendek.
             Gunakan format markdown seperlunya.
-            ";
+        ";
 
         $apiKey = config('services.gemini.api_key');
         $model = config('services.gemini.model', 'gemini-2.5-flash-lite');
@@ -324,6 +343,11 @@ class ReportController extends Controller
             );
 
             if (!$response->successful()) {
+                Log::warning('Gemini API gagal di ReportController', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
                 $fallbackInsight = $this->buildFallbackInsight(
                     $grossRevenue,
                     $totalExpenses,
@@ -340,12 +364,16 @@ class ReportController extends Controller
 
                 return back()
                     ->with('aiInsight', $fallbackInsight)
-                    ->with('aiNotice', 'Gemini sedang sibuk atau tidak tersedia. DagangFlow menampilkan insight otomatis berdasarkan data laporan.');
+                    ->with('aiNotice', 'Insight AI sedang tidak tersedia. DagangFlow tetap menampilkan insight otomatis berdasarkan data laporan kamu.');
             }
 
             $aiInsight = data_get($response->json(), 'candidates.0.content.parts.0.text');
 
             if (!$aiInsight) {
+                Log::warning('Gemini API tidak mengembalikan text insight', [
+                    'body' => $response->json(),
+                ]);
+
                 $fallbackInsight = $this->buildFallbackInsight(
                     $grossRevenue,
                     $totalExpenses,
@@ -362,11 +390,15 @@ class ReportController extends Controller
 
                 return back()
                     ->with('aiInsight', $fallbackInsight)
-                    ->with('aiNotice', 'Gemini tidak mengembalikan hasil. DagangFlow menampilkan insight otomatis berdasarkan data laporan.');
+                    ->with('aiNotice', 'Insight AI tidak mengembalikan hasil. DagangFlow tetap menampilkan insight otomatis berdasarkan data laporan kamu.');
             }
 
             return back()->with('aiInsight', $aiInsight);
-        } catch (\Exception $e) {
+        } catch (\Throwable $exception) {
+            Log::error('Gemini API error di ReportController', [
+                'message' => $exception->getMessage(),
+            ]);
+
             $fallbackInsight = $this->buildFallbackInsight(
                 $grossRevenue,
                 $totalExpenses,
@@ -383,7 +415,7 @@ class ReportController extends Controller
 
             return back()
                 ->with('aiInsight', $fallbackInsight)
-                ->with('aiNotice', 'Gemini tidak dapat dihubungi. DagangFlow menampilkan insight otomatis berdasarkan data laporan.');
+                ->with('aiNotice', 'Insight AI sedang tidak tersedia. DagangFlow tetap menampilkan insight otomatis berdasarkan data laporan kamu.');
         }
     }
 
@@ -456,55 +488,55 @@ class ReportController extends Controller
                 ? "Channel paling kuat adalah {$topChannel} dengan omzet Rp" . number_format($topChannelTotal, 0, ',', '.') . ". Produk yang perlu diperhatikan adalah {$topProductName} dengan {$topProductSold} terjual."
                 : "Belum ada channel dominan yang terbaca. Tambahkan lebih banyak transaksi agar rekomendasi channel dan produk lebih akurat.");
     }
-    
-    public function export(\Illuminate\Http\Request $request)
+
+    public function export(Request $request)
     {
         $userId = auth()->id();
-    
+
         $startDate = $request->query('start_date')
-            ? \Illuminate\Support\Carbon::parse($request->query('start_date'))->startOfDay()
+            ? Carbon::parse($request->query('start_date'))->startOfDay()
             : now()->startOfMonth();
-    
+
         $endDate = $request->query('end_date')
-            ? \Illuminate\Support\Carbon::parse($request->query('end_date'))->endOfDay()
+            ? Carbon::parse($request->query('end_date'))->endOfDay()
             : now()->endOfMonth();
-    
-        $sales = \App\Models\Sale::with('product')
+
+        $sales = Sale::with('product')
             ->where('user_id', $userId)
             ->get()
             ->filter(function ($sale) use ($startDate, $endDate) {
                 $saleDate = $sale->sale_date
-                    ? \Illuminate\Support\Carbon::parse($sale->sale_date)
+                    ? Carbon::parse($sale->sale_date)
                     : $sale->created_at;
-    
+
                 return $saleDate->between($startDate, $endDate);
             });
-    
-        $expenses = \App\Models\Expense::where('user_id', $userId)
+
+        $expenses = Expense::where('user_id', $userId)
             ->get()
             ->filter(function ($expense) use ($startDate, $endDate) {
                 $expenseDate = $expense->expense_date
-                    ? \Illuminate\Support\Carbon::parse($expense->expense_date)
+                    ? Carbon::parse($expense->expense_date)
                     : $expense->created_at;
-    
+
                 return $expenseDate->between($startDate, $endDate);
             });
-    
+
         $grossRevenue = $sales->sum('gross_total');
         $platformFees = $sales->sum('platform_fee');
         $netRevenue = $sales->sum('net_total');
         $totalExpenses = $expenses->sum('amount');
-    
+
         $totalCOGS = $sales->sum(function ($sale) {
             return ($sale->product->cost_price ?? 0) * $sale->quantity;
         });
-    
+
         $estimatedProfit = $grossRevenue - $totalCOGS - $platformFees - $totalExpenses;
-    
+
         $profitMargin = $grossRevenue > 0
             ? round(($estimatedProfit / $grossRevenue) * 100, 2)
             : 0;
-    
+
         $channelPerformance = $sales
             ->groupBy('channel')
             ->map(function ($items) {
@@ -516,12 +548,12 @@ class ReportController extends Controller
                 ];
             })
             ->sortByDesc('gross_total');
-    
+
         $topProducts = $sales
             ->groupBy('product_id')
             ->map(function ($items) {
                 $firstSale = $items->first();
-    
+
                 return [
                     'name' => $firstSale->product->name ?? 'Produk terhapus',
                     'sold' => $items->sum('quantity'),
@@ -529,14 +561,14 @@ class ReportController extends Controller
                 ];
             })
             ->sortByDesc('sold');
-    
+
         $expenseBreakdown = $expenses
             ->groupBy('category')
             ->map(fn ($items) => $items->sum('amount'))
             ->sortDesc();
-    
+
         $fileName = 'laporan-dagangflow-' . $startDate->format('Y-m-d') . '-to-' . $endDate->format('Y-m-d') . '.csv';
-    
+
         return response()->streamDownload(function () use (
             $startDate,
             $endDate,
@@ -554,14 +586,13 @@ class ReportController extends Controller
             $expenses
         ) {
             $handle = fopen('php://output', 'w');
-    
-            // UTF-8 BOM agar aman dibuka di Excel
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-    
+
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             fputcsv($handle, ['LAPORAN DAGANGFLOW']);
             fputcsv($handle, ['Periode', $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y')]);
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['RINGKASAN BISNIS']);
             fputcsv($handle, ['Omzet Kotor', $grossRevenue]);
             fputcsv($handle, ['HPP Produk', $totalCOGS]);
@@ -571,10 +602,10 @@ class ReportController extends Controller
             fputcsv($handle, ['Estimasi Laba Bersih', $estimatedProfit]);
             fputcsv($handle, ['Margin Estimasi', $profitMargin . '%']);
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['PERFORMA CHANNEL']);
             fputcsv($handle, ['Channel', 'Jumlah Transaksi', 'Omzet Kotor', 'Biaya Platform', 'Uang Bersih']);
-    
+
             foreach ($channelPerformance as $channel => $summary) {
                 fputcsv($handle, [
                     $channel,
@@ -584,12 +615,12 @@ class ReportController extends Controller
                     $summary['net_total'],
                 ]);
             }
-    
+
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['PRODUK TERLARIS']);
             fputcsv($handle, ['Produk', 'Jumlah Terjual', 'Omzet']);
-    
+
             foreach ($topProducts as $product) {
                 fputcsv($handle, [
                     $product['name'],
@@ -597,21 +628,21 @@ class ReportController extends Controller
                     $product['revenue'],
                 ]);
             }
-    
+
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['PENGELUARAN BERDASARKAN KATEGORI']);
             fputcsv($handle, ['Kategori', 'Total']);
-    
+
             foreach ($expenseBreakdown as $category => $amount) {
                 fputcsv($handle, [
                     $category,
                     $amount,
                 ]);
             }
-    
+
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['DETAIL PENJUALAN']);
             fputcsv($handle, [
                 'Tanggal',
@@ -625,12 +656,12 @@ class ReportController extends Controller
                 'Uang Bersih',
                 'Status',
             ]);
-    
+
             foreach ($sales as $sale) {
                 $saleDate = $sale->sale_date
-                    ? \Illuminate\Support\Carbon::parse($sale->sale_date)
+                    ? Carbon::parse($sale->sale_date)
                     : $sale->created_at;
-    
+
                 fputcsv($handle, [
                     $saleDate->format('d M Y'),
                     'TRX-' . str_pad($sale->id, 4, '0', STR_PAD_LEFT),
@@ -644,9 +675,9 @@ class ReportController extends Controller
                     $sale->status,
                 ]);
             }
-    
+
             fputcsv($handle, []);
-    
+
             fputcsv($handle, ['DETAIL PENGELUARAN']);
             fputcsv($handle, [
                 'Tanggal',
@@ -654,12 +685,12 @@ class ReportController extends Controller
                 'Nominal',
                 'Catatan',
             ]);
-    
+
             foreach ($expenses as $expense) {
                 $expenseDate = $expense->expense_date
-                    ? \Illuminate\Support\Carbon::parse($expense->expense_date)
+                    ? Carbon::parse($expense->expense_date)
                     : $expense->created_at;
-    
+
                 fputcsv($handle, [
                     $expenseDate->format('d M Y'),
                     $expense->category,
@@ -667,7 +698,7 @@ class ReportController extends Controller
                     $expense->note ?? '-',
                 ]);
             }
-    
+
             fclose($handle);
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
