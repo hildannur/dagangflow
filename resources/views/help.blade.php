@@ -1,460 +1,395 @@
 @extends('layouts.dashboard', [
-    'title' => 'Pusat Bantuan - DagangFlow',
-    'pageTitle' => 'Pusat Bantuan',
-    'subtitle' => 'Pelajari arti istilah, rumus, dan cara membaca data bisnis di DagangFlow'
+    'title' => 'Bantuan - DagangFlow',
+    'pageTitle' => 'Bantuan',
+    'subtitle' => 'Panduan cepat, pertanyaan umum, dan bantuan penggunaan DagangFlow'
 ])
 
 @section('actions')
-    <a href="/dashboard" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
-        Kembali ke Dashboard
+    <a href="{{ route('owner.support.create') }}" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
+        Laporkan Kendala
     </a>
 @endsection
 
 @section('content')
+    @php
+        $user = auth()->user();
+
+        $premiumPlans = ['Trial', 'Bulanan', 'Tahunan'];
+        $isPremiumUser = in_array($user->plan_name, $premiumPlans);
+
+        $whatsappNumber = '6281234567890';
+        $whatsappMessage = rawurlencode(
+            'Halo tim DagangFlow, saya membutuhkan bantuan terkait penggunaan aplikasi.'
+        );
+
+        $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMessage}";
+    @endphp
+
     <div class="space-y-8">
 
-        <!-- Tentang DagangFlow -->
-        <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm overflow-hidden relative">
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute right-20 bottom-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+        @if (session('success'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-2xl text-sm font-semibold">
+                {{ session('success') }}
+            </div>
+        @endif
 
-            <div class="relative grid grid-cols-1 xl:grid-cols-3 gap-6 items-center">
-                <div class="xl:col-span-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-sm font-semibold">
-                        <x-lucide-info class="w-4 h-4" />
-                        Tentang DagangFlow
+        <!-- Hero -->
+        <div class="bg-[#0F172A] rounded-3xl p-6 md:p-8 text-white shadow-sm overflow-hidden relative">
+            <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-emerald-400/20 blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-blue-400/10 blur-3xl"></div>
+
+            <div class="relative grid grid-cols-1 xl:grid-cols-12 gap-8 items-center">
+                <div class="xl:col-span-8">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-emerald-300 text-sm font-semibold">
+                        <x-lucide-life-buoy class="w-4 h-4" />
+                        Pusat Bantuan DagangFlow
                     </div>
 
-                    <h3 class="text-3xl font-bold mt-4">
-                        Dashboard bisnis sederhana untuk membantu UMKM membaca kondisi usahanya
-                    </h3>
+                    <h2 class="text-3xl md:text-4xl font-black mt-5 leading-tight tracking-tight">
+                        Butuh panduan menggunakan DagangFlow?
+                    </h2>
 
-                    <p class="text-sm text-slate-300 mt-3 leading-relaxed max-w-3xl">
-                        DagangFlow membantu pelaku UMKM mencatat produk, stok, penjualan, pengeluaran,
-                        customers, dan membaca estimasi performa bisnis tanpa harus memahami akuntansi yang rumit.
+                    <p class="text-sm md:text-base text-slate-300 mt-4 leading-relaxed max-w-3xl">
+                        Temukan panduan cepat untuk mengelola produk, mencatat penjualan, memantau pengeluaran,
+                        membaca laporan, dan menggunakan fitur AI Insight.
                     </p>
                 </div>
 
-                <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
-                    <p class="text-sm text-emerald-300 font-semibold">Fokus Utama</p>
-                    <p class="text-sm text-slate-300 mt-2 leading-relaxed">
-                        Membantu owner mengetahui apakah bisnisnya benar-benar untung atau hanya terlihat ramai dari omzet.
+                <div class="xl:col-span-4">
+                    <div class="bg-white/10 border border-white/10 rounded-3xl p-5 backdrop-blur">
+                        <p class="text-sm text-slate-300">Status paket kamu</p>
+
+                        <div class="flex items-center justify-between gap-4 mt-3">
+                            <div>
+                                <h3 class="text-2xl font-black">
+                                    {{ $user->plan_name ?: 'Free' }}
+                                </h3>
+
+                                <p class="text-xs text-slate-400 mt-1">
+                                    {{ ucfirst($user->subscription_status ?: 'active') }}
+                                </p>
+                            </div>
+
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center">
+                                <x-lucide-badge-check class="w-6 h-6" />
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mt-4 leading-relaxed">
+                            Bantuan via WhatsApp tersedia untuk pengguna Premium.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Guide -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <x-lucide-package class="w-6 h-6" />
+                </div>
+
+                <h3 class="text-lg font-black text-slate-900 mt-5">
+                    Produk & Stok
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Tambahkan produk, atur harga jual, modal, stok, dan batas stok rendah.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <x-lucide-receipt-text class="w-6 h-6" />
+                </div>
+
+                <h3 class="text-lg font-black text-slate-900 mt-5">
+                    Penjualan
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Catat transaksi dari offline, WhatsApp, marketplace, atau food delivery.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <x-lucide-wallet class="w-6 h-6" />
+                </div>
+
+                <h3 class="text-lg font-black text-slate-900 mt-5">
+                    Pengeluaran
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Catat biaya operasional agar estimasi laba bisnis lebih realistis.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <x-lucide-chart-column-big class="w-6 h-6" />
+                </div>
+
+                <h3 class="text-lg font-black text-slate-900 mt-5">
+                    Laporan
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                    Pantau omzet, HPP, pengeluaran, margin, channel, dan produk terlaris.
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Help Content -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- FAQ -->
+            <div class="xl:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex items-start justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900">
+                            Pertanyaan Umum
+                        </h3>
+
+                        <p class="text-sm text-slate-500 mt-1">
+                            Beberapa pertanyaan yang sering muncul saat memakai DagangFlow.
+                        </p>
+                    </div>
+
+                    <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                        <x-lucide-circle-help class="w-5 h-5" />
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="rounded-2xl border border-slate-200 p-5">
+                        <h4 class="font-black text-slate-900">
+                            Kenapa stok produk berkurang otomatis?
+                        </h4>
+
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Setiap penjualan yang dicatat akan mengurangi stok produk sesuai jumlah terjual.
+                            Jika transaksi dihapus, stok akan dikembalikan.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 p-5">
+                        <h4 class="font-black text-slate-900">
+                            Apa bedanya omzet, HPP, dan laba?
+                        </h4>
+
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Omzet adalah total penjualan kotor. HPP adalah modal produk yang terjual.
+                            Laba dihitung dari omzet dikurangi HPP, biaya platform, dan pengeluaran.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 p-5">
+                        <h4 class="font-black text-slate-900">
+                            Kenapa laporan belum muncul?
+                        </h4>
+
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Laporan membutuhkan data produk, penjualan, dan pengeluaran. Jika belum ada transaksi,
+                            beberapa bagian laporan akan terlihat kosong.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 p-5">
+                        <h4 class="font-black text-slate-900">
+                            Apa fungsi AI Insight?
+                        </h4>
+
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            AI Insight membantu membaca performa bisnis berdasarkan data laporan dan memberi
+                            ringkasan serta rekomendasi aksi yang lebih mudah dipahami.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-black text-slate-900">
+                        Alur penggunaan yang disarankan
+                    </h3>
+
+                    <div class="space-y-5 mt-5">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-sm font-black">
+                                1
+                            </div>
+
+                            <div>
+                                <p class="font-bold text-slate-900">Tambahkan produk</p>
+                                <p class="text-sm text-slate-500 mt-1">Isi harga jual, modal, dan stok awal.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-sm font-black">
+                                2
+                            </div>
+
+                            <div>
+                                <p class="font-bold text-slate-900">Catat penjualan</p>
+                                <p class="text-sm text-slate-500 mt-1">Pilih produk, channel, jumlah terjual, dan biaya platform.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-sm font-black">
+                                3
+                            </div>
+
+                            <div>
+                                <p class="font-bold text-slate-900">Catat pengeluaran</p>
+                                <p class="text-sm text-slate-500 mt-1">Masukkan biaya operasional agar laba lebih akurat.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 text-sm font-black">
+                                4
+                            </div>
+
+                            <div>
+                                <p class="font-bold text-slate-900">Pantau laporan</p>
+                                <p class="text-sm text-slate-500 mt-1">Lihat omzet, laba, margin, channel, dan produk terlaris.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 rounded-3xl p-6 border border-emerald-100">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center">
+                        <x-lucide-lightbulb class="w-6 h-6" />
+                    </div>
+
+                    <h3 class="text-lg font-black text-slate-900 mt-5">
+                        Tips
+                    </h3>
+
+                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                        Catat transaksi setiap hari agar laporan DagangFlow lebih akurat dan mudah dipakai untuk mengambil keputusan bisnis.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Penjelasan DagangFlow -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-                <div class="xl:col-span-2">
+        <!-- Need Help -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-center">
+                <div class="xl:col-span-7">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold">
-                        <x-lucide-store class="w-4 h-4" />
-                        Penjelasan DagangFlow
+                        <x-lucide-headphones class="w-4 h-4" />
+                        Masih butuh bantuan?
                     </div>
 
-                    <h3 class="text-2xl font-bold text-slate-900 mt-4">
-                        DagangFlow dibuat untuk membantu owner mengambil keputusan berdasarkan data
+                    <h3 class="text-2xl font-black text-slate-900 mt-4">
+                        Tim DagangFlow siap membantu
                     </h3>
 
-                    <div class="space-y-3 mt-4 text-sm text-slate-600 leading-relaxed max-w-3xl">
-                        <p>
-                            DagangFlow bukan hanya tempat mencatat transaksi. Aplikasi ini membantu membaca kondisi usaha
-                            dari data yang kamu masukkan, seperti omzet, modal produk, biaya platform, pengeluaran,
-                            stok, dan performa channel penjualan.
-                        </p>
-
-                        <p>
-                            Dari data tersebut, DagangFlow menampilkan ringkasan seperti estimasi laba, margin,
-                            produk terlaris, channel terbaik, pengeluaran terbesar, dan stok yang perlu segera restock.
-                        </p>
-
-                        <p>
-                            Tujuannya adalah membantu pemilik usaha kecil lebih cepat memahami masalah dan peluang bisnis,
-                            tanpa harus menghitung semuanya secara manual.
-                        </p>
-                    </div>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed max-w-2xl">
+                        Mengalami kendala saat menggunakan aplikasi? Laporkan ke tim kami untuk penanganan lebih lanjut.
+                    </p>
                 </div>
 
-                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-5">
-                    <p class="text-sm font-semibold text-slate-700">Cocok untuk</p>
+                <div class="xl:col-span-5 flex flex-col sm:flex-row xl:justify-end gap-3">
+                    <a
+                        href="{{ route('owner.support.create') }}"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 text-white text-sm font-black hover:bg-emerald-600 transition"
+                    >
+                        <x-lucide-message-circle-warning class="w-4 h-4" />
+                        Laporkan Kendala
+                    </a>
 
-                    <div class="space-y-3 mt-4">
-                        <div class="flex items-start gap-3">
-                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                            <p class="text-sm text-slate-600">UMKM kuliner atau F&B</p>
-                        </div>
-
-                        <div class="flex items-start gap-3">
-                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                            <p class="text-sm text-slate-600">Online shop dan reseller</p>
-                        </div>
-
-                        <div class="flex items-start gap-3">
-                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                            <p class="text-sm text-slate-600">Retail kecil atau toko rumahan</p>
-                        </div>
-
-                        <div class="flex items-start gap-3">
-                            <x-lucide-check-circle class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                            <p class="text-sm text-slate-600">Bisnis yang jualan lewat beberapa channel</p>
-                        </div>
-                    </div>
+                    @if ($isPremiumUser)
+                        <a
+                            href="{{ $whatsappUrl }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-slate-200 text-sm font-black hover:bg-slate-50 transition"
+                        >
+                            <x-lucide-message-circle class="w-4 h-4" />
+                            Hubungi via WhatsApp
+                        </a>
+                    @else
+                        <button
+                            type="button"
+                            onclick="openWhatsappPremiumModal()"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-slate-200 text-sm font-black hover:bg-slate-50 transition"
+                        >
+                            <x-lucide-message-circle class="w-4 h-4" />
+                            Hubungi via WhatsApp
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Penjelasan Fitur Website -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center">
-                    <x-lucide-map class="w-6 h-6" />
-                </div>
+        <!-- WhatsApp Premium Modal -->
+        <div id="whatsappPremiumModal" class="fixed inset-0 hidden z-50 bg-slate-900/50 backdrop-blur-sm px-4 py-6">
+            <div class="min-h-full flex items-center justify-center">
+                <div class="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl">
+                    <button
+                        type="button"
+                        onclick="closeWhatsappPremiumModal()"
+                        class="absolute top-4 right-4 w-10 h-10 rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition flex items-center justify-center"
+                    >
+                        <x-lucide-x class="w-5 h-5" />
+                    </button>
 
-                <div>
-                    <h3 class="text-xl font-bold">Penjelasan Fitur Website</h3>
-                    <p class="text-sm text-slate-500 mt-1">Ringkasan fungsi setiap halaman di DagangFlow</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-layout-dashboard class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Dashboard</h4>
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <x-lucide-message-circle class="w-7 h-7" />
                     </div>
+
+                    <h3 class="text-xl font-black text-slate-900 mt-5 pr-10">
+                        Bantuan WhatsApp Premium
+                    </h3>
+
                     <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Menampilkan ringkasan cepat bisnis seperti omzet, pengeluaran, laba, transaksi,
-                        channel terbaik, dan stok hampir habis.
+                        Bantuan via WhatsApp tersedia untuk pengguna Premium.
                     </p>
-                </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-package class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Produk & Stok</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mengelola produk, harga jual, modal produk, stok, dan batas stok rendah.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-receipt-text class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Penjualan</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mencatat transaksi. Saat penjualan ditambahkan, stok produk otomatis berkurang.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-wallet class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Pengeluaran</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk mencatat biaya operasional seperti bahan baku, marketing, packaging, listrik,
-                        sewa, atau biaya lain.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-users class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Customers</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk menyimpan data pelanggan langsung seperti pelanggan offline,
-                        WhatsApp, Instagram DM, reseller, atau repeat order di luar marketplace.
-                        Untuk transaksi marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
-                    </p>
-                </div>
-
-                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <x-lucide-chart-column-big class="w-5 h-5 text-emerald-600" />
-                        <h4 class="font-bold">Laporan</h4>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed">
-                        Digunakan untuk membaca performa bisnis berdasarkan periode, termasuk omzet, HPP, laba,
-                        produk terlaris, channel, dan AI Insight.
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                        Tertarik berlangganan? Coba gratis sekarang.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Panduan DagangFlow -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                    <x-lucide-list-checks class="w-6 h-6" />
-                </div>
+        <script>
+            function openWhatsappPremiumModal() {
+                const modal = document.getElementById('whatsappPremiumModal');
 
-                <div>
-                    <h3 class="text-xl font-bold">Panduan DagangFlow</h3>
-                    <p class="text-sm text-slate-500 mt-1">Alur sederhana agar data bisnis kamu terbaca dengan benar</p>
-                </div>
-            </div>
+                if (!modal) {
+                    return;
+                }
 
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p class="text-sm font-bold text-emerald-600">01</p>
-                    <h4 class="font-bold mt-2">Tambah Produk</h4>
-                    <p class="text-sm text-slate-500 mt-2">Masukkan nama produk, harga jual, modal, dan stok awal.</p>
-                </div>
+                modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
 
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p class="text-sm font-bold text-emerald-600">02</p>
-                    <h4 class="font-bold mt-2">Catat Penjualan</h4>
-                    <p class="text-sm text-slate-500 mt-2">Input transaksi dari offline, WhatsApp, marketplace, atau delivery.</p>
-                </div>
+            function closeWhatsappPremiumModal() {
+                const modal = document.getElementById('whatsappPremiumModal');
 
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p class="text-sm font-bold text-emerald-600">03</p>
-                    <h4 class="font-bold mt-2">Catat Pengeluaran</h4>
-                    <p class="text-sm text-slate-500 mt-2">Masukkan biaya operasional agar laba tidak terlihat terlalu besar.</p>
-                </div>
+                if (!modal) {
+                    return;
+                }
 
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p class="text-sm font-bold text-emerald-600">04</p>
-                    <h4 class="font-bold mt-2">Pantau Dashboard</h4>
-                    <p class="text-sm text-slate-500 mt-2">Lihat ringkasan omzet, pengeluaran, laba, transaksi, dan stok.</p>
-                </div>
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
 
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p class="text-sm font-bold text-emerald-600">05</p>
-                    <h4 class="font-bold mt-2">Baca Laporan</h4>
-                    <p class="text-sm text-slate-500 mt-2">Gunakan laporan dan AI Insight untuk memahami kondisi bisnis.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Financial Terms -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                        <x-lucide-trending-up class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">Omzet Kotor</h3>
-                        <p class="text-sm text-slate-500">Total nilai penjualan sebelum dikurangi biaya apa pun</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Omzet kotor menunjukkan seberapa besar nilai transaksi penjualan yang masuk. Angka ini belum
-                    memperhitungkan modal produk, biaya platform, dan pengeluaran operasional.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <p class="text-sm font-semibold text-emerald-700">Rumus</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        Omzet Kotor = Harga Jual × Jumlah Terjual
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                        <x-lucide-package class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">HPP Produk</h3>
-                        <p class="text-sm text-slate-500">Modal dari produk yang sudah terjual</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    HPP membantu menghitung berapa modal produk yang keluar dari setiap transaksi. Tanpa HPP,
-                    laba bisa terlihat lebih besar dari kondisi sebenarnya.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-blue-50 border border-blue-100">
-                    <p class="text-sm font-semibold text-blue-700">Rumus</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        HPP = Modal Produk × Jumlah Terjual
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-amber-500 text-white flex items-center justify-center">
-                        <x-lucide-wallet class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">Biaya Platform</h3>
-                        <p class="text-sm text-slate-500">Potongan marketplace, delivery, atau biaya layanan</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Biaya platform adalah potongan yang muncul dari channel penjualan seperti marketplace,
-                    food delivery, admin transfer, atau layanan pihak ketiga.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-amber-50 border border-amber-100">
-                    <p class="text-sm font-semibold text-amber-700">Contoh</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        Fee Shopee, biaya GoFood, biaya GrabFood, admin payment gateway, atau potongan layanan lain.
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                        <x-lucide-hand-coins class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">Uang Bersih</h3>
-                        <p class="text-sm text-slate-500">Uang penjualan setelah dikurangi biaya platform</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Uang bersih bukan laba bersih. Uang bersih hanya menunjukkan hasil penjualan setelah potongan
-                    platform, tetapi belum dikurangi HPP dan pengeluaran operasional.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <p class="text-sm font-semibold text-emerald-700">Rumus</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        Uang Bersih = Omzet Kotor - Biaya Platform
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                        <x-lucide-circle-dollar-sign class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">Estimasi Laba Bersih</h3>
-                        <p class="text-sm text-slate-500">Perkiraan keuntungan setelah biaya utama dikurangi</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Estimasi laba bersih adalah angka yang lebih realistis untuk melihat keuntungan. Angka ini
-                    menghitung omzet, modal produk, biaya platform, dan pengeluaran operasional.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <p class="text-sm font-semibold text-emerald-700">Rumus</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        Estimasi Laba Bersih = Omzet Kotor - HPP - Biaya Platform - Pengeluaran
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                        <x-lucide-percent class="w-6 h-6" />
-                    </div>
-
-                    <div>
-                        <h3 class="text-xl font-bold">Margin Estimasi</h3>
-                        <p class="text-sm text-slate-500">Persentase laba dibandingkan omzet</p>
-                    </div>
-                </div>
-
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    Margin membantu melihat seberapa sehat keuntungan bisnis. Semakin tinggi margin, semakin besar
-                    porsi keuntungan dibandingkan omzet.
-                </p>
-
-                <div class="mt-5 p-4 rounded-2xl bg-purple-50 border border-purple-100">
-                    <p class="text-sm font-semibold text-purple-700">Rumus</p>
-                    <p class="text-sm text-slate-700 mt-2">
-                        Margin = Estimasi Laba Bersih ÷ Omzet Kotor × 100%
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Important Notes -->
-        <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0">
-                    <x-lucide-triangle-alert class="w-6 h-6" />
-                </div>
-
-                <div>
-                    <h3 class="text-xl font-bold text-slate-900">Hal yang Perlu Diingat</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <p class="font-semibold text-slate-800">Omzet besar belum tentu untung</p>
-                            <p class="text-sm text-slate-600 mt-1">
-                                Keuntungan baru terlihat setelah HPP, biaya platform, dan pengeluaran dihitung.
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="font-semibold text-slate-800">Uang bersih bukan laba bersih</p>
-                            <p class="text-sm text-slate-600 mt-1">
-                                Uang bersih hanya mengurangi biaya platform, belum mengurangi modal produk dan pengeluaran.
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="font-semibold text-slate-800">Data harus rutin dicatat</p>
-                            <p class="text-sm text-slate-600 mt-1">
-                                Semakin lengkap data yang dimasukkan, semakin akurat dashboard dan laporan.
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="font-semibold text-slate-800">Customers bersifat opsional</p>
-                            <p class="text-sm text-slate-600 mt-1">
-                                Fitur Customers lebih berguna untuk pelanggan langsung seperti WhatsApp, offline, atau reseller.
-                                Untuk marketplace, fokus utama tetap ada pada channel, produk, dan laporan penjualan.
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="font-semibold text-slate-800">AI Insight bersifat rekomendasi</p>
-                            <p class="text-sm text-slate-600 mt-1">
-                                Gunakan AI Insight sebagai bahan pertimbangan, bukan satu-satunya dasar keputusan bisnis.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Support -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-                <div>
-                    <h3 class="text-xl font-bold">Masih butuh bantuan?</h3>
-                    <p class="text-sm text-slate-500 mt-2">
-                        Hubungi CS DagangFlow jika ada kendala penggunaan, pertanyaan fitur, atau butuh arahan.
-                    </p>
-                </div>
-
-                <a href="https://wa.me/6282336722751?text=Halo%20DagangFlow%2C%20saya%20butuh%20bantuan%20terkait%20aplikasi."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                    <x-lucide-message-circle class="w-4 h-4" />
-                    Hubungi Kami
-                </a>
-            </div>
-        </div>
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeWhatsappPremiumModal();
+                }
+            });
+        </script>
 
     </div>
 @endsection
