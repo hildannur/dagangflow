@@ -5,7 +5,7 @@
 ])
 
 @section('actions')
-    <a href="#period-filter" class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
+    <a href="#owner-report-period-filter" class="hidden sm:block px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50">
         Filter Periode
     </a>
 
@@ -17,6 +17,14 @@
 
 @section('content')
     <div class="space-y-8">
+
+        <!-- Vue Period Filter -->
+        <div
+            id="owner-report-period-filter"
+            data-base-url="{{ url('/reports') }}"
+            data-start-date="{{ $selectedPeriod['start_date'] }}"
+            data-end-date="{{ $selectedPeriod['end_date'] }}"
+        ></div>
 
         <!-- AI Insight Card -->
         <div class="bg-[#0F172A] rounded-2xl text-white shadow-sm overflow-hidden border border-white/10">
@@ -104,95 +112,6 @@
                             </div>
                         @endif
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Period Filter -->
-        <div id="period-filter" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-            <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
-                <form action="/reports" method="GET" class="flex flex-col lg:flex-row lg:items-end gap-3 flex-1">
-                    <div>
-                        <label class="text-xs font-semibold text-slate-500">Periode</label>
-
-                        <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div class="relative">
-                                <input
-                                    type="date"
-                                    name="start_date"
-                                    value="{{ $selectedPeriod['start_date'] }}"
-                                    class="w-full sm:w-44 pl-4 pr-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                >
-                            </div>
-
-                            <span class="hidden sm:block text-slate-400 font-semibold">—</span>
-
-                            <div class="relative">
-                                <input
-                                    type="date"
-                                    name="end_date"
-                                    value="{{ $selectedPeriod['end_date'] }}"
-                                    class="w-full sm:w-44 pl-4 pr-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                >
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <button class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-                            <x-lucide-filter class="w-4 h-4" />
-                            Terapkan Filter
-                        </button>
-
-                        <a href="/reports" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 text-center">
-                            <x-lucide-rotate-ccw class="w-4 h-4" />
-                            Reset
-                        </a>
-                    </div>
-                </form>
-
-                @php
-                    $todayStart = now()->toDateString();
-                    $todayEnd = now()->toDateString();
-
-                    $last7Start = now()->copy()->subDays(6)->toDateString();
-                    $last7End = now()->toDateString();
-
-                    $thisMonthStart = now()->copy()->startOfMonth()->toDateString();
-                    $thisMonthEnd = now()->copy()->endOfMonth()->toDateString();
-
-                    $lastMonthStart = now()->copy()->subMonth()->startOfMonth()->toDateString();
-                    $lastMonthEnd = now()->copy()->subMonth()->endOfMonth()->toDateString();
-
-                    $activePeriodClass = 'px-4 py-2 rounded-xl bg-emerald-500 text-white border border-emerald-500 text-sm font-semibold hover:bg-emerald-600 transition';
-                    $inactivePeriodClass = 'px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 transition';
-
-                    $isToday = $selectedPeriod['start_date'] === $todayStart && $selectedPeriod['end_date'] === $todayEnd;
-                    $isLast7Days = $selectedPeriod['start_date'] === $last7Start && $selectedPeriod['end_date'] === $last7End;
-                    $isThisMonth = $selectedPeriod['start_date'] === $thisMonthStart && $selectedPeriod['end_date'] === $thisMonthEnd;
-                    $isLastMonth = $selectedPeriod['start_date'] === $lastMonthStart && $selectedPeriod['end_date'] === $lastMonthEnd;
-                @endphp
-
-                <div class="flex flex-wrap items-center gap-3 xl:justify-end">
-                    <a href="/reports?start_date={{ $todayStart }}&end_date={{ $todayEnd }}"
-                        class="{{ $isToday ? $activePeriodClass : $inactivePeriodClass }}">
-                        Hari Ini
-                    </a>
-
-                    <a href="/reports?start_date={{ $last7Start }}&end_date={{ $last7End }}"
-                        class="{{ $isLast7Days ? $activePeriodClass : $inactivePeriodClass }}">
-                        7 Hari
-                    </a>
-
-                    <a href="/reports?start_date={{ $thisMonthStart }}&end_date={{ $thisMonthEnd }}"
-                        class="{{ $isThisMonth ? $activePeriodClass : $inactivePeriodClass }}">
-                        Bulan Ini
-                    </a>
-
-                    <a href="/reports?start_date={{ $lastMonthStart }}&end_date={{ $lastMonthEnd }}"
-                        class="{{ $isLastMonth ? $activePeriodClass : $inactivePeriodClass }}">
-                        Bulan Lalu
-                    </a>
                 </div>
             </div>
         </div>
