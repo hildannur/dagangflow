@@ -387,39 +387,12 @@
         <!-- Main Grid -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-            <!-- Revenue Chart -->
-            <div class="xl:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-lg font-bold">Tren Omzet</h3>
-                        <p class="text-sm text-slate-500">Performa penjualan 7 hari terakhir</p>
-                    </div>
-
-                    <select class="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none">
-                        <option>Omzet</option>
-                        <option>Laba</option>
-                        <option>Transaksi</option>
-                    </select>
-                </div>
-
-                <div class="h-80 rounded-2xl bg-gradient-to-br from-emerald-50 to-slate-50 border border-slate-100 p-6 flex items-end gap-4">
-                    @foreach($sevenDaysSales as $item)
-                        @php
-                            $height = $item['total'] > 0 ? max(12, ($item['total'] / $maxDailySales) * 100) : 6;
-                        @endphp
-
-                        <div class="flex-1 h-full flex flex-col justify-end items-center gap-3">
-                            <p class="text-xs font-semibold text-slate-500">
-                                Rp{{ number_format($item['total'], 0, ',', '.') }}
-                            </p>
-
-                            <div class="w-full bg-emerald-500 rounded-t-xl hover:bg-emerald-600 transition" style="height: {{ $height }}%"></div>
-
-                            <p class="text-xs text-slate-500">{{ $item['day'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
+            <!-- Vue Report Trend Chart -->
+            <div
+                id="owner-report-trend-chart"
+                class="xl:col-span-2"
+                data-chart-items='@json($sevenDaysSales)'
+            ></div>
 
             <!-- Profit Summary -->
             <div class="bg-[#0F172A] rounded-2xl p-6 text-white shadow-sm">
