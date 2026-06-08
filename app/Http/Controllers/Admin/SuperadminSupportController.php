@@ -7,16 +7,22 @@ use Illuminate\Http\Request;
 
 class OwnerSupportController extends Controller
 {
-    // TAMBAHAN: Menampilkan riwayat kendala milik owner yang login
+    /**
+     * 1. Menampilkan semua riwayat tiket milik Owner yang sedang login
+     */
     public function index()
     {
+        // Mengambil tiket khusus milik user yang login saat ini
         $tickets = SupportTicket::where('user_id', auth()->id())
             ->latest()
-            ->paginate(10); // Kita batasi 10 data per halaman sesuai pagination di view
+            ->paginate(10); // Menggunakan pagination agar rapi kalau tiketnya sudah banyak
 
         return view('support.index', compact('tickets'));
     }
 
+    /**
+     * 2. Menampilkan form pembuatan tiket baru
+     */
     public function create()
     {
         $categories = [
@@ -46,6 +52,9 @@ class OwnerSupportController extends Controller
         ));
     }
 
+    /**
+     * 3. Menyimpan tiket baru ke dalam database
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -70,14 +79,17 @@ class OwnerSupportController extends Controller
             'message' => $data['message'],
         ]);
 
-        // Mengarahkan ke riwayat kendala setelah sukses membuat laporan
+        // Dialihkan langsung ke halaman riwayat tiket agar owner bisa melihat tiket yang baru dibuat
         return redirect()->route('owner.support.index')->with('success', 'Kendala berhasil dilaporkan. Tim DagangFlow akan meninjau laporan kamu.');
     }
 
-    // TAMBAHAN: Menampilkan detail kendala dan balasan admin
+    /**
+     * 4. Melihat detail satu tiket beserta balasan (admin_reply) dari Superadmin
+     */
     public function show($id)
     {
-        // Pastikan owner hanya bisa melihat tiket miliknya sendiri demi keamanan
+        // Fitur keamanan penting: Kunci query dengan user_id milik user yang sedang login.
+        // Ini mencegah Owner jahil mengganti ID di URL untuk mengintip tiket milik Owner lain.
         $ticket = SupportTicket::where('user_id', auth()->id())->findOrFail($id);
 
         return view('support.show', compact('ticket'));

@@ -327,8 +327,13 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
 
     Route::view('/help', 'help')->name('help');
 
-    Route::get('/help/support', [OwnerSupportController::class, 'create'])->name('owner.support.create');
+    /**
+     * UPDATED: Alur Support Tiket Sisi Owner (Menangani Riwayat & Detail Balasan)
+     */
+    Route::get('/help/support', [OwnerSupportController::class, 'index'])->name('owner.support.index');
+    Route::get('/help/support/create', [OwnerSupportController::class, 'create'])->name('owner.support.create');
     Route::post('/help/support', [OwnerSupportController::class, 'store'])->name('owner.support.store');
+    Route::get('/help/support/{id}', [OwnerSupportController::class, 'show'])->name('owner.support.show');
 });
 
 /*
@@ -355,9 +360,12 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
 
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
+    /**
+     * UPDATED: Manajemen Kendala Sisi Superadmin
+     */
     Route::get('/support', [SuperadminSupportController::class, 'index'])->name('support.index');
-    Route::get('/support/{supportTicket}', [SuperadminSupportController::class, 'show'])->name('support.show');
-    Route::put('/support/{supportTicket}', [SuperadminSupportController::class, 'update'])->name('support.update');
+    Route::get('/support/{id}', [SuperadminSupportController::class, 'show'])->name('support.show');
+    Route::post('/support/{id}/reply', [SuperadminSupportController::class, 'reply'])->name('support.reply');
 
     Route::view('/plans', 'admin.plans.index')->name('plans.index');
 });

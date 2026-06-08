@@ -5,9 +5,14 @@
 ])
 
 @section('actions')
-    <a href="{{ route('owner.support.create') }}" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600">
-        Laporkan Kendala
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('owner.support.index') }}" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition">
+            Riwayat Kendala
+        </a>
+        <a href="{{ route('owner.support.create') }}" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition">
+            Laporkan Kendala
+        </a>
+    </div>
 @endsection
 
 @section('content')
@@ -33,7 +38,6 @@
             </div>
         @endif
 
-        <!-- Hero -->
         <div class="bg-[#0F172A] rounded-3xl p-6 md:p-8 text-white shadow-sm overflow-hidden relative">
             <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-emerald-400/20 blur-3xl"></div>
             <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-blue-400/10 blur-3xl"></div>
@@ -83,7 +87,6 @@
             </div>
         </div>
 
-        <!-- Quick Guide -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -142,9 +145,7 @@
             </div>
         </div>
 
-        <!-- Main Help Content -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <!-- FAQ -->
             <div class="xl:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
                 <div class="flex items-start justify-between gap-4 mb-6">
                     <div>
@@ -209,7 +210,6 @@
                 </div>
             </div>
 
-            <!-- Tips -->
             <div class="space-y-6">
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
                     <h3 class="text-lg font-black text-slate-900">
@@ -235,7 +235,7 @@
 
                             <div>
                                 <p class="font-bold text-slate-900">Catat penjualan</p>
-                                <p class="text-sm text-slate-500 mt-1">Pilih produk, channel, jumlah terjual, dan biaya platform.</p>
+                                <p class="text-sm text-slate-500 mt-1">Pilih produk, channel, jumlah terjual, and biaya platform.</p>
                             </div>
                         </div>
 
@@ -279,58 +279,41 @@
             </div>
         </div>
 
-        <!-- Need Help -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-center">
-                <div class="xl:col-span-7">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-semibold">
-                        <x-lucide-headphones class="w-4 h-4" />
-                        Masih butuh bantuan?
-                    </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            
+            <div class="space-y-2 max-w-xl">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold w-fit">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Masih butuh bantuan?
+                </span>
+                <h3 class="text-xl font-black text-slate-900">Tim DagangFlow siap membantu</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">
+                    Mengalami kendala saat menggunakan aplikasi? Laporkan ke tim kami atau cek riwayat laporan kamu untuk penanganan lebih lanjut.
+                </p>
+            </div>
 
-                    <h3 class="text-2xl font-black text-slate-900 mt-4">
-                        Tim DagangFlow siap membantu
-                    </h3>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
+                
+                <a href="{{ route('owner.support.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-sm font-bold text-white hover:bg-indigo-700 transition shadow-sm whitespace-nowrap">
+                    <x-lucide-history class="w-4 h-4 shrink-0" />
+                    Riwayat Kendala
+                </a>
 
-                    <p class="text-sm text-slate-500 mt-3 leading-relaxed max-w-2xl">
-                        Mengalami kendala saat menggunakan aplikasi? Laporkan ke tim kami untuk penanganan lebih lanjut.
-                    </p>
-                </div>
+                <a href="{{ route('owner.support.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-sm font-bold text-white hover:bg-emerald-600 transition shadow-sm whitespace-nowrap">
+                    <x-lucide-plus-circle class="w-4 h-4 shrink-0" />
+                    Laporkan Kendala
+                </a>
 
-                <div class="xl:col-span-5 flex flex-col sm:flex-row xl:justify-end gap-3">
-                    <a
-                        href="{{ route('owner.support.create') }}"
-                        class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 text-white text-sm font-black hover:bg-emerald-600 transition"
-                    >
-                        <x-lucide-message-circle-warning class="w-4 h-4" />
-                        Laporkan Kendala
-                    </a>
+                <a href="https://wa.me/628xxxxxxxxxx" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] text-sm font-bold text-white hover:bg-[#20ba5a] transition shadow-sm whitespace-nowrap">
+                    <svg class="w-4 h-4 fill-current text-white shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.4.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.966C16.528 1.975 14.061.951 11.45.951c-5.438 0-9.863 4.374-9.867 9.802-.001 1.736.486 3.431 1.411 4.937l-.983 3.595 3.637-.98z"/>
+                    </svg>
+                    Hubungi via WhatsApp
+                </a>
 
-                    @if ($isPremiumUser)
-                        <a
-                            href="{{ $whatsappUrl }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-slate-200 text-sm font-black hover:bg-slate-50 transition"
-                        >
-                            <x-lucide-message-circle class="w-4 h-4" />
-                            Hubungi via WhatsApp
-                        </a>
-                    @else
-                        <button
-                            type="button"
-                            onclick="openWhatsappPremiumModal()"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-slate-200 text-sm font-black hover:bg-slate-50 transition"
-                        >
-                            <x-lucide-message-circle class="w-4 h-4" />
-                            Hubungi via WhatsApp
-                        </button>
-                    @endif
-                </div>
             </div>
         </div>
 
-        <!-- WhatsApp Premium Modal -->
         <div id="whatsappPremiumModal" class="fixed inset-0 hidden z-50 bg-slate-900/50 backdrop-blur-sm px-4 py-6">
             <div class="min-h-full flex items-center justify-center">
                 <div class="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl">
