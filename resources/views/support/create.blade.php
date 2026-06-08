@@ -11,6 +11,16 @@
 @endsection
 
 @section('content')
+    @php
+        $user = auth()->user();
+        $premiumPlans = ['Trial', 'Bulanan', 'Tahunan'];
+        $isPremiumUser = in_array($user->plan_name, $premiumPlans);
+        
+        // Tentukan label prioritas
+        $priorityLabel = $isPremiumUser ? 'Tinggi' : 'Normal';
+        $planInfo = $isPremiumUser ? 'Paket premium kamu memiliki prioritas handling yang lebih tinggi.' : 'Paket free kamu memiliki prioritas normal. Upgrade ke paket premium untuk prioritas lebih tinggi.';
+    @endphp
+
     <div class="space-y-8">
 
         @if ($errors->any())
@@ -77,17 +87,18 @@
                         <div>
                             <label class="text-sm font-bold text-slate-700">Prioritas</label>
 
-                            <select
-                                name="priority"
-                                class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                                required
-                            >
-                                @foreach($priorities as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('priority', 'normal') === $value)>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 flex items-center justify-between">
+                                <span>{{ $priorityLabel }}</span>
+                                <span class="text-xs text-slate-500 ml-2">
+                                    @if($isPremiumUser)
+                                        <x-lucide-lock class="w-4 h-4 inline" />
+                                    @endif
+                                </span>
+                            </div>
+                            
+                            <p class="text-xs text-slate-500 mt-2">
+                                {{ $planInfo }}
+                            </p>
                         </div>
                     </div>
 
