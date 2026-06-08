@@ -19,6 +19,8 @@ class OwnerSupportController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
+        
         $categories = [
             'Akun',
             'Subscription',
@@ -33,30 +35,31 @@ class OwnerSupportController extends Controller
             'Lainnya',
         ];
 
-        $priorities = [
-            'low' => 'Rendah',
-            'normal' => 'Normal',
-            'high' => 'Tinggi',
-            'urgent' => 'Urgent',
-        ];
+        // Tentukan prioritas otomatis berdasarkan paket
+        $premiumPlans = ['Trial', 'Bulanan', 'Tahunan'];
+        $autoPriority = in_array($user->plan_name, $premiumPlans) ? 'high' : 'normal';
 
         return view('support.create', compact(
             'categories',
-            'priorities'
+            'autoPriority'
         ));
     }
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Tentukan prioritas yang valid berdasarkan paket pengguna
+        $premiumPlans = ['Trial', 'Bulanan', 'Tahunan'];
+        $validPriority = in_array($user->plan_name, $premiumPlans) ? 'high' : 'normal';
+        
         $data = $request->validate([
             'subject' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:255'],
-            'priority' => ['required', 'in:low,normal,high,urgent'],
             'message' => ['required', 'string', 'min:10'],
         ], [
             'subject.required' => 'Subjek kendala wajib diisi.',
             'category.required' => 'Kategori kendala wajib dipilih.',
-            'priority.required' => 'Prioritas kendala wajib dipilih.',
             'message.required' => 'Detail kendala wajib diisi.',
             'message.min' => 'Detail kendala minimal 10 karakter.',
         ]);
@@ -65,7 +68,7 @@ class OwnerSupportController extends Controller
             'user_id' => auth()->id(),
             'subject' => $data['subject'],
             'category' => $data['category'],
-            'priority' => $data['priority'],
+            'priority' => $validPriority, // Gunakan prioritas yang sudah ditentukan, bukan dari request
             'status' => 'open',
             'message' => $data['message'],
         ]);
