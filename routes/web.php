@@ -11,7 +11,6 @@ use App\Http\Controllers\OwnerSupportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SaleImportController;
 use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Sale;
@@ -135,7 +134,7 @@ Route::post('/demo-login', function (Request $request) {
             $product->decrement('stock', $quantity);
         }
 
-        Expense::create([
+        $expense = Expense::create([
             'user_id' => $demoUser->id,
             'category' => 'Bahan Baku',
             'amount' => 350000,
@@ -313,8 +312,6 @@ Route::middleware(['auth', 'owner', 'demo.readonly'])->group(function () {
 
     Route::get('/sales/data', [SaleController::class, 'data'])->name('sales.data');
     Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
-    Route::get('/sales/import-template', [SaleImportController::class, 'downloadTemplate'])->name('sales.import-template');
-    Route::post('/sales/import', [SaleImportController::class, 'import'])->name('sales.import');
     Route::resource('sales', SaleController::class)->except(['create', 'show', 'edit']);
 
     Route::get('/products/data', [ProductController::class, 'data'])->name('products.data');

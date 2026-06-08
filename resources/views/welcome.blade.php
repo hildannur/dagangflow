@@ -36,13 +36,14 @@
 
             <!-- CTA -->
             <div class="flex items-center gap-3">
-                <a href="/login" class="hidden sm:inline-flex px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white border border-transparent hover:border-slate-200 transition">
+                <!-- Tombol Login (Sekarang muncul di semua ukuran layar) -->
+                <a href="/login" class="inline-flex px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white border border-transparent hover:border-slate-200 transition">
                     Login
                 </a>
 
-                <form action="{{ route('demo.login') }}" method="POST">
+                <!-- Tombol Coba Demo (Sekarang disembunyikan di mobile, muncul di layar sm ke atas) -->
+                <form action="{{ route('demo.login') }}" method="POST" class="hidden sm:block">
                     @csrf
-
                     <button type="submit" class="inline-flex px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition shadow-sm shadow-emerald-500/20">
                         Coba Demo
                     </button>
@@ -384,7 +385,7 @@
                                 </form>
 
                                 <a href="/login" class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition">
-                                    Login Owner
+                                    Login
                                 </a>
                             </div>
                         </div>
