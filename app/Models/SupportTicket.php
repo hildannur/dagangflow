@@ -32,11 +32,10 @@ class SupportTicket extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'open' => 'Open',
+            'open' => 'Baru',
             'in_progress' => 'Diproses',
             'resolved' => 'Selesai',
-            'closed' => 'Ditutup',
-            default => 'Open',
+            default => 'Baru',
         };
     }
 
@@ -57,8 +56,7 @@ class SupportTicket extends Model
             'open' => 'bg-amber-50 text-amber-700',
             'in_progress' => 'bg-blue-50 text-blue-700',
             'resolved' => 'bg-emerald-50 text-emerald-700',
-            'closed' => 'bg-slate-100 text-slate-600',
-            default => 'bg-slate-100 text-slate-600',
+            default => 'bg-amber-50 text-amber-700',
         };
     }
 
