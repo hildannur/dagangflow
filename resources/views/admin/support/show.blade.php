@@ -1,132 +1,156 @@
 @extends('layouts.admin', [
-    'title' => 'Detail Ticket - Superadmin DagangFlow',
-    'pageTitle' => 'Ticket #' . $ticket->id,
-    'subtitle' => 'Superadmin / Support / Detail',
+    'title' => 'Detail Support Ticket - DagangFlow',
+    'pageTitle' => 'Detail Tiket Support',
+    'subtitle' => 'Lihat detail tiket dan berikan balasan',
+    'unreadCount' => 0
 ])
 
 @section('content')
-    <div class="mb-6">
-        <a href="{{ route('admin.support.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-emerald-600 transition">
-            <x-lucide-arrow-left class="w-4 h-4" /> Kembali ke Daftar Ticket
-        </a>
-    </div>
-
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div class="xl:col-span-2 space-y-6">
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between gap-4">
-                    <div>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase
-                            {{ $ticket->status === 'open' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
-                            {{ $ticket->status === 'in_progress' ? 'bg-blue-50 text-blue-700 border border-blue-200' : '' }}
-                            {{ $ticket->status === 'resolved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
-                            {{ $ticket->status === 'closed' ? 'bg-slate-100 text-slate-600' : '' }}
-                        ">
-                            {{ $ticket->status }}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Ticket Info -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-200">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900">{{ $ticket->subject }}</h3>
+                            <p class="text-sm text-slate-500 mt-1">ID Tiket: #{{ $ticket->id }}</p>
+                        </div>
+                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full {{ $ticket->status_class }}">
+                            {{ $ticket->status_label }}
                         </span>
-                        <h3 class="text-xl font-black text-slate-900 mt-2">{{ $ticket->subject }}</h3>
-                    </div>
-                    <div class="text-right text-xs text-slate-500 shrink-0">
-                        {{ $ticket->created_at->format('d M Y, H:i') }}
                     </div>
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold shrink-0">
-                            {{ strtoupper(substr($ticket->user->name, 0, 2)) }}
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Kategori</p>
+                            <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->category }}</p>
                         </div>
-                        <div class="bg-slate-100 rounded-2xl rounded-tl-none p-4 text-slate-800 text-sm max-w-full whitespace-pre-line leading-relaxed">
-                            {{ $ticket->message }}
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Prioritas</p>
+                            <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->priority_label }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Dibuat</p>
+                            <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->created_at->format('d M Y') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">Pengguna</p>
+                            <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->user->name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h4 class="text-sm font-black text-slate-900 uppercase mb-4">Pesan dari Pengguna</h4>
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{{ $ticket->message }}</p>
+                </div>
+            </div>
+
+            <!-- Admin Reply Section -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-200">
+                    <h4 class="text-sm font-black text-slate-900 uppercase">
+                        {{ $ticket->admin_reply ? 'Balasan Admin' : 'Berikan Balasan' }}
+                    </h4>
+                </div>
+
+                @if($ticket->admin_reply)
+                    <div class="p-6">
+                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                            <p class="text-sm text-emerald-800 leading-relaxed whitespace-pre-wrap">{{ $ticket->admin_reply }}</p>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3">Dibalas pada {{ $ticket->resolved_at?->format('d M Y H:i') ?? $ticket->updated_at->format('d M Y H:i') }}</p>
+                    </div>
+                @else
+                    <form action="{{ route('admin.support.reply', $ticket->id) }}" method="POST" class="p-6 space-y-4">
+                        @csrf
+
+                        <div>
+                            <label class="text-sm font-bold text-slate-700">Status Perbaikan</label>
+                            <select name="status" class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" required>
+                                <option value="in_progress" selected>Diproses</option>
+                                <option value="resolved">Selesai</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-bold text-slate-700">Balasan</label>
+                            <textarea name="admin_reply" rows="5" 
+                                placeholder="Tuliskan balasan untuk pengguna..." 
+                                class="mt-2 w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500" 
+                                required></textarea>
+                            <p class="text-xs text-slate-500 mt-2">Minimal 5 karakter</p>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition">
+                                <x-lucide-send class="w-4 h-4" />
+                                Kirim Balasan
+                            </button>
+                            <a href="{{ route('admin.support.index') }}" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-sm font-bold hover:bg-slate-50 transition">
+                                Batal
+                            </a>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- User Info -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h4 class="text-sm font-black text-slate-900 uppercase mb-4">Informasi Pengguna</h4>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Nama</p>
+                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->user->name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Email</p>
+                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->user->email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Bisnis</p>
+                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->user->business_name ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Paket</p>
+                        <p class="text-sm font-semibold text-slate-900 mt-1">{{ $ticket->user->plan_name ?? 'Free' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Timeline -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h4 class="text-sm font-black text-slate-900 uppercase mb-4">Riwayat</h4>
+                <div class="space-y-4">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                            1
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-900">Tiket Dibuat</p>
+                            <p class="text-xs text-slate-500 mt-1">{{ $ticket->created_at->format('d M Y H:i') }}</p>
                         </div>
                     </div>
 
                     @if($ticket->admin_reply)
-                        <div class="flex items-start gap-3 justify-end">
-                            <div class="bg-emerald-500 rounded-2xl rounded-tr-none p-4 text-white text-sm max-w-full whitespace-pre-line leading-relaxed">
-                                <p class="font-bold text-xs text-emerald-100 mb-1">Balasan Anda:</p>
-                                {{ $ticket->admin_reply }}
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                                2
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
-                                SA
+                            <div>
+                                <p class="text-xs font-semibold text-slate-900">{{ $ticket->status_label }}</p>
+                                <p class="text-xs text-slate-500 mt-1">{{ $ticket->resolved_at?->format('d M Y H:i') ?? $ticket->updated_at->format('d M Y H:i') }}</p>
                             </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-                <h3 class="text-lg font-black text-slate-900 mb-4">Berikan Tanggapan</h3>
-                
-                <form action="{{ route('admin.support.reply', $ticket->id) }}" method="POST" class="space-y-4">
-                    @csrf
-                    <div>
-                        <label class="text-sm font-bold text-slate-700">Pesan Balasan</label>
-                        <textarea 
-                            name="admin_reply" 
-                            rows="5" 
-                            placeholder="Tulis solusi atau jawaban untuk owner bisnis di sini..."
-                            class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 @error('admin_reply') border-red-500 @enderror"
-                            required
-                        >{{ old('admin_reply', $ticket->admin_reply) }}</textarea>
-                        @error('admin_reply')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm font-bold text-slate-700">Update Status Tiket</label>
-                            <select 
-                                name="status" 
-                                class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                            >
-                                <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>Open (Belum Selesai)</option>
-                                <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>In Progress (Sedang Diproses)</option>
-                                <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>Resolved (Selesai/Tuntas)</option>
-                                <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>Closed (Ditutup)</option>
-                            </select>
-                        </div>
-
-                        <div class="flex items-end">
-                            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-6 py-3.5 rounded-2xl shadow-sm hover:shadow transition flex items-center justify-center gap-2">
-                                <x-lucide-send class="w-4 h-4" /> Kirim & Update Tiket
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            <div class="bg-[#0F172A] rounded-3xl p-6 text-white shadow-sm">
-                <h3 class="text-lg font-black mb-4 flex items-center gap-2">
-                    <x-lucide-info class="w-5 h-5 text-emerald-400" /> Informasi Tiket
-                </h3>
-                
-                <div class="space-y-4 text-sm">
-                    <div class="border-b border-white/10 pb-3">
-                        <p class="text-xs text-slate-400">Pengirim (Owner)</p>
-                        <p class="font-bold text-white mt-0.5">{{ $ticket->user->name }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">{{ $ticket->user->email }}</p>
-                    </div>
-
-                    <div class="border-b border-white/10 pb-3">
-                        <p class="text-xs text-slate-400">Kategori Kendala</p>
-                        <p class="font-bold text-emerald-300 mt-0.5 capitalize">{{ $ticket->category }}</p>
-                    </div>
-
-                    <div class="border-b border-white/10 pb-3">
-                        <p class="text-xs text-slate-400">Tingkat Prioritas</p>
-                        <p class="font-bold mt-0.5 capitalize {{ $ticket->priority === 'high' ? 'text-red-400' : 'text-slate-200' }}">
-                            {{ $ticket->priority }} Priority
-                        </p>
-                    </div>
-
-                    @if($ticket->resolved_at)
-                        <div>
-                            <p class="text-xs text-slate-400">Diselesaikan Pada</p>
-                            <p class="font-bold text-emerald-400 mt-0.5">{{ $ticket->resolved_at->format('d M Y, H:i') }}</p>
                         </div>
                     @endif
                 </div>
