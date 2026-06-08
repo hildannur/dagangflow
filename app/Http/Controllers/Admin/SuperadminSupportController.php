@@ -1,97 +1,67 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\SupportTicket;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-class OwnerSupportController extends Controller
+class SuperadminSupportController extends Controller
 {
     /**
-     * 1. Menampilkan semua riwayat tiket milik Owner yang sedang login
+     * 1. Menampilkan semua tiket support dengan pagination
      */
     public function index()
     {
-        // Mengambil tiket khusus milik user yang login saat ini
-        $tickets = SupportTicket::where('user_id', auth()->id())
+        // Ambil semua tiket, urutkan berdasarkan status dan waktu terbaru
+        $tickets = SupportTicket::with('user')
+            ->orderByRaw("CASE 
+                WHEN status = 'open' THEN 1 
+                WHEN status = 'in_progress' THEN 2 
+                ELSE 3 
+            END")
             ->latest()
-            ->paginate(10); // Menggunakan pagination agar rapi kalau tiketnya sudah banyak
+            ->paginate(15);
 
-        return view('support.index', compact('tickets'));
+        // Hitung tiket belum diproses (open)
+        $unreadCount = SupportTicket::where('status', 'open')->count();
+
+        return view('admin.support.index', compact('tickets', 'unreadCount'));
     }
 
     /**
-     * 2. Menampilkan form pembuatan tiket baru
-     */
-    public function create()
-    {
-        $categories = [
-            'Akun',
-            'Subscription',
-            'Pembayaran',
-            'Bug Aplikasi',
-            'Produk & Stok',
-            'Penjualan',
-            'Pengeluaran',
-            'Laporan',
-            'AI Insight',
-            'Export Data',
-            'Lainnya',
-        ];
-
-        $priorities = [
-            'low' => 'Rendah',
-            'normal' => 'Normal',
-            'high' => 'Tinggi',
-            'urgent' => 'Urgent',
-        ];
-
-        return view('support.create', compact(
-            'categories',
-            'priorities'
-        ));
-    }
-
-    /**
-     * 3. Menyimpan tiket baru ke dalam database
-     */
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'subject' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'max:255'],
-            'priority' => ['required', 'in:low,normal,high,urgent'],
-            'message' => ['required', 'string', 'min:10'],
-        ], [
-            'subject.required' => 'Subjek kendala wajib diisi.',
-            'category.required' => 'Kategori kendala wajib dipilih.',
-            'priority.required' => 'Prioritas kendala wajib dipilih.',
-            'message.required' => 'Detail kendala wajib diisi.',
-            'message.min' => 'Detail kendala minimal 10 karakter.',
-        ]);
-
-        SupportTicket::create([
-            'user_id' => auth()->id(),
-            'subject' => $data['subject'],
-            'category' => $data['category'],
-            'priority' => $data['priority'],
-            'status' => 'open',
-            'message' => $data['message'],
-        ]);
-
-        // Dialihkan langsung ke halaman riwayat tiket agar owner bisa melihat tiket yang baru dibuat
-        return redirect()->route('owner.support.index')->with('success', 'Kendala berhasil dilaporkan. Tim DagangFlow akan meninjau laporan kamu.');
-    }
-
-    /**
-     * 4. Melihat detail satu tiket beserta balasan (admin_reply) dari Superadmin
+     * 2. Menampilkan detail tiket untuk reply
      */
     public function show($id)
     {
-        // Fitur keamanan penting: Kunci query dengan user_id milik user yang sedang login.
-        // Ini mencegah Owner jahil mengganti ID di URL untuk mengintip tiket milik Owner lain.
-        $ticket = SupportTicket::where('user_id', auth()->id())->findOrFail($id);
+        $ticket = SupportTicket::findOrFail($id);
 
-        return view('support.show', compact('ticket'));
+        return view('admin.support.show', compact('ticket'));
+    }
+
+    /**
+     * 3. Membalas dan update status tiket
+     */
+    public function reply(Request $request, $id)
+    {
+        $ticket = SupportTicket::findOrFail($id);
+
+        $data = $request->validate([
+            'status' => ['required', 'in:in_progress,resolved'],
+            'admin_reply' => ['required', 'string', 'min:5'],
+        ], [
+            'status.required' => 'Status wajib dipilih.',
+            'status.in' => 'Status hanya bisa "Diproses" atau "Selesai".',
+            'admin_reply.required' => 'Balasan admin wajib diisi.',
+            'admin_reply.min' => 'Balasan minimal 5 karakter.',
+        ]);
+
+        $ticket->update([
+            'status' => $data['status'],
+            'admin_reply' => $data['admin_reply'],
+            'resolved_at' => $data['status'] === 'resolved' ? now() : null,
+        ]);
+
+        return redirect()->route('admin.support.index')->with('success', 'Tiket berhasil diupdate dan owner telah diberitahu.');
     }
 }
