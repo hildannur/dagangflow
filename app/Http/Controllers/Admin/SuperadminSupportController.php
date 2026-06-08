@@ -35,8 +35,11 @@ class SuperadminSupportController extends Controller
     public function show($id)
     {
         $ticket = SupportTicket::findOrFail($id);
+        
+        // Hitung tiket belum diproses (open) untuk badge sidebar
+        $unreadCount = SupportTicket::where('status', 'open')->count();
 
-        return view('admin.support.show', compact('ticket'));
+        return view('admin.support.show', compact('ticket', 'unreadCount'));
     }
 
     /**
