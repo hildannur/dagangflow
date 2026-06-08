@@ -58,10 +58,21 @@
                 </a>
 
                 <a href="{{ route('admin.support.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition
+                    class="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl font-semibold transition
                     {{ request()->routeIs('admin.support.*') ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:bg-white/10' }}">
-                    <x-lucide-headphones class="w-5 h-5" />
-                    Support
+                    <div class="flex items-center gap-3">
+                        <x-lucide-headphones class="w-5 h-5" />
+                        Support
+                    </div>
+                    
+                    @if($unreadCount > 0)
+                        <div class="relative flex items-center">
+                            <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold rounded-full 
+                                {{ request()->routeIs('admin.support.*') ? 'bg-white/20 text-white' : 'bg-red-500 text-white' }}">
+                                {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+                            </span>
+                        </div>
+                    @endif
                 </a>
             </nav>
         </aside>
